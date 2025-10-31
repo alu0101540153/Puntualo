@@ -46,6 +46,13 @@ El proyecto está basado en el **stack MEVN** (MongoDB, Express.js, Vue.js y Nod
 
 ---
 
+### 🧪 Pasar pruebas con Coverage
+
+1. **Instalar las dependencias necesarias.**  
+   ```bash
+    npm run test:coverage
+---
+
 ## 🧠 Ejecución del proyecto
 
 A continuación se describen los pasos para ejecutar **tanto el backend como el frontend** del proyecto.
