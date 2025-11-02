@@ -1,5 +1,78 @@
 {
   "devDependencies": {
-    "@vitest/coverage-v8": "^4.0.6"
-  }
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@vitest/coverage-v8": "^4.0.6",
+    "nodemon": "^3.1.10"
+  },
+  "name": "proyecto-e20",
+  "version": "1.0.0",
+  "description": "**CulturaConecta** es una red social innovadora desarrollada por el **Equipo 20** del proyecto SYTW.  \r Está pensada para los amantes del entretenimiento —libros, películas y series— que desean compartir sus experiencias culturales, descubrir nuevas obras y conectar con otros usuarios con gustos similares.",
+  "main": "index.js",
+  "dependencies": {
+    "assertion-error": "^2.0.1",
+    "ast-v8-to-istanbul": "^0.3.8",
+    "bcryptjs": "^3.0.2",
+    "chai": "^6.2.0",
+    "cors": "^2.8.5",
+    "debug": "^4.4.3",
+    "dotenv": "^17.2.3",
+    "es-module-lexer": "^1.7.0",
+    "esbuild": "^0.25.11",
+    "estree-walker": "^3.0.3",
+    "expect-type": "^1.2.2",
+    "express": "^5.1.0",
+    "fdir": "^6.5.0",
+    "has-flag": "^4.0.0",
+    "html-escaper": "^2.0.2",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-lib-source-maps": "^5.0.6",
+    "istanbul-reports": "^3.2.0",
+    "js-tokens": "^9.0.1",
+    "jsonwebtoken": "^9.0.2",
+    "magic-string": "^0.30.21",
+    "magicast": "^0.3.5",
+    "make-dir": "^4.0.0",
+    "mongodb": "^6.20.0",
+    "mongodb-memory-server": "^10.3.0",
+    "mongoose": "^8.19.2",
+    "ms": "^2.1.3",
+    "nanoid": "^3.3.11",
+    "pathe": "^2.0.3",
+    "picocolors": "^1.1.1",
+    "picomatch": "^4.0.3",
+    "postcss": "^8.5.6",
+    "rollup": "^4.52.5",
+    "semver": "^7.7.3",
+    "siginfo": "^2.0.0",
+    "source-map-js": "^1.2.1",
+    "stackback": "^0.0.2",
+    "std-env": "^3.10.0",
+    "supports-color": "^7.2.0",
+    "tinybench": "^2.9.0",
+    "tinyexec": "^0.3.2",
+    "tinyglobby": "^0.2.15",
+    "tinyrainbow": "^3.0.3",
+    "vite": "^7.1.12",
+    "vitest": "^4.0.6",
+    "why-is-node-running": "^2.3.0"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SyTW2526/Proyecto-E20.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/SyTW2526/Proyecto-E20/issues"
+  },
+  "homepage": "https://github.com/SyTW2526/Proyecto-E20#readme"
 }
