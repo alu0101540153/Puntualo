@@ -1,51 +1,83 @@
-import mongoose, { Document, Schema} from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose'
+import { ItemType } from './items'
 
-export interface IUser extends Document{
-    handle: string
-    name: string
-    email: string
-    password: string
-    description: string
-    follows: string[]
+export interface IUser extends Document {
+  handle: string
+  name: string
+  email: string
+  password: string
+  description: string
+  follows: string[]
+  ratedItems: {
+    itemId: string
+    itemType: ItemType
+    score: number
+    comment: string
+    status: 'completed' | 'watching'
+  }[]
 }
 
-// codigo exclusivo de mongoose
-const userSchema= new Schema({
-    handle: {
-        type: String,
-        required: true,
-        trim: true,
-        lowercase: true,
-        unique: true
+const userSchema = new Schema({
+  handle: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true,
+    unique: true
+  },
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    trim: true,
+    unique: true,
+    lowercase: true
+  },
+  password: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  follows: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  ratedItems: [{
+    itemId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Item'
     },
-    name: {
-        type: String,
-        required: true,
-        trim: true
+    itemType: {
+      type: String,
+      enum: Object.values(ItemType),
+      required: true
     },
-    email:{
-        type: String,
-        required: true,
-        trim: true,
-        unique: true,
-        lowercase: true
+    score: {
+      type: Number,
+      min: 0,
+      max: 10
     },
-    password:{
-        type: String,
-        required: true,
-        trim: true
+    comment: {
+      type: String,
+      trim: true
     },
-    description: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    follows: [{
-        type: Schema.Types.ObjectId,
-        ref: 'User'
-    }]
+    status: {
+      type: String,
+      enum: ['completed', 'watching'],
+      default: 'watching'
+    }
+  }]
 })
 
-const User= mongoose.model<IUser>('User', userSchema)
+const User = mongoose.model<IUser>('User', userSchema)
 
 export default User
