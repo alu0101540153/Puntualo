@@ -1,0 +1,20 @@
+node_modules/
+
+# Build output
+dist/
+
+# Environment / secrets
+.env
+.env.*
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+
+# Keep lockfiles (package-lock.json/yarn.lock/pnpm-lock.yaml) committed by default
+
+# Misc / local
+userAndPwd
