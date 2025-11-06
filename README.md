@@ -1,6 +1,6 @@
-# 🎬 CulturaConecta — Red Social Cultural
+# 🎬 Puntualo.com — Red Social Cultural
 
-**CulturaConecta** es una red social innovadora desarrollada por el **Equipo 20** del proyecto SYTW.  
+**Puntualo** es una red social innovadora desarrollada por el **Equipo 20** del proyecto SYTW.  
 Está pensada para los amantes del entretenimiento —libros, películas y series— que desean compartir sus experiencias culturales, descubrir nuevas obras y conectar con otros usuarios con gustos similares.  
 
 ---
@@ -65,4 +65,6 @@ A continuación se describen los pasos para ejecutar **tanto el backend como el 
    git clone git@github.com:SyTW2526/Proyecto-E20.git
    cd backend
 ### 🧩 Fronted
+
+
 
