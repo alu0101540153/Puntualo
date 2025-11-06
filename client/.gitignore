@@ -37,3 +37,14 @@ __screenshots__/
 
 test-results/
 playwright-report/
+
+# Vite / local cache
+.vite/
+
+# Environment files (local secrets)
+.env
+.env.*
+
+# Optional: ignore local npm/yarn/pnpm lock generated caches
+.pnp.cjs
+

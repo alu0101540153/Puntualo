@@ -1,21 +1,52 @@
-import express from 'express' // sintaxis de ESM
-import cors from 'cors'
-import 'dotenv/config';
-import router from './router';
-import { connectDB } from './config/db';
-import { corsConfig } from './config/cors';
-connectDB()
+import express,{Express} from 'express';
+import morgan from 'morgan';
+import cors from 'cors';
 
+import {connectDB} from './database';
+import {PORT} from './config'
+import {routes} from './routes'
 
-const app = express();
+export class Server{
+  private app:Express;
 
-// cors
-app.use(cors(corsConfig))
+  constructor(){
+    this.app = express();
+    this.configuration();
+    this.middlewares();
+    this.routes();
+  }
 
-// read form data
-app.use(express.json())
+  configuration(){
+    this.app.set('port', PORT || 3000);
+  }
 
+  middlewares(){
+    this.app.use(morgan('dev'));
+    this.app.use(cors());
+    this.app.use(express.json());
+  }
 
-app.use('/', router)  // 
+  routes(){
+    this.app.get('/', (req, res)=>{
+      res.status(200).json({
+        name:'API REST TASK'
+      })
+    });
 
-export default app
+    this.app.use('/api/v1/puntualo', routes.TaskRoute);
+  }
+
+  listen(){
+    // Conectar a la base de datos primero y luego arrancar el servidor
+    connectDB()
+      .then(()=>{
+        this.app.listen(this.app.get('port'), ()=>{
+          console.log(`Server esta corriendo en el puerto ${this.app.get('port')}`);
+        })
+      })
+      .catch((err)=>{
+        console.error('No fue posible iniciar el servidor por error en la BD:', err);
+      });
+  }
+
+}

@@ -1,46 +1,45 @@
-# Dependencies
+# ---- Global / root .gitignore for Proyecto-E20 ----
+
+# Node (root-level)
 node_modules/
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
+pnpm-debug.log*
 
-# MongoDB Memory Server
-.mongodb/
-node_modules/.cache/mongodb-memory-server/
-# Caché general
+# Build / output
+dist/
+build/
+public/build/
+
+# Environment files (don't commit secrets)
+.env
+.env.*
+
+# TypeScript
+*.tsbuildinfo
+
+# Test coverage and reports
+coverage/
+coverage-final.json
+nyc_output/
+playwright-report/
+
+# Vite / cache
+.vite/
 .cache/
 
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
-logs
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# IDE
+# Editor / OS
+.DS_Store
+Thumbs.db
+desktop.ini
 .vscode/
 .idea/
-*.swp
-*.swo
 
-# OS
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# Ignore node_modules for subprojects explicitly (keeps workspace tidy)
+/client/node_modules/
+/server/node_modules/
+
+# Optional: lockfiles should usually be committed. Do not ignore package-lock.json / yarn.lock / pnpm-lock.yaml unless intentional.
+
+# End of root .gitignore
+
