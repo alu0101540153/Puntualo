@@ -1,7 +1,7 @@
 # 🎬 Puntualo.com — Red Social Cultural
 
 **Puntualo** es una red social innovadora desarrollada por el **Equipo 20** del proyecto SYTW.  
-Está pensada para los amantes del entretenimiento —libros, películas y series— que desean compartir sus experiencias culturales, descubrir nuevas obras y conectar con otros usuarios con gustos similares.  
+Está pensada para los amantes del entretenimiento —libros, películas y series— que desean compartir sus experiencias culturales, descubrir nuevas obras y conectar con otros usuarios con gustos similares.   
 
 ---
 
