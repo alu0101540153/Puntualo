@@ -6,6 +6,3 @@
 // App.vue se mantiene limpio, solo contiene el router view
 </script>
 
-<style>
-/* Estilos globales si los necesitas */
-</style>

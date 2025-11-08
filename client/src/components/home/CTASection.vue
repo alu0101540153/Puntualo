@@ -3,9 +3,9 @@
     <h2 class="cta-title text-white text-2xl md:text-4xl font-bold mb-8 drop-shadow-md">
       mira que ven o leen tus amigos
     </h2>
-    <button class="btn-register bg-white text-gray-700 px-10 py-4 rounded-full text-xl font-bold shadow-lg transition-all duration-300 hover:bg-gray-600 hover:text-white hover:-translate-y-1 hover:shadow-xl">
+    <RouterLink to="/register" class="btn-register bg-white text-gray-700 px-10 py-4 rounded-full text-xl font-bold shadow-lg transition-all duration-300 hover:bg-gray-600 hover:text-white hover:-translate-y-1 hover:shadow-xl">
       Regístrate hoy mismo
-    </button>
+    </RouterLink>
   </section>
 </template>
 

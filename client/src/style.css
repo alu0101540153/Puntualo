@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* asegurar fondo global y evitar que hijos directos cubran con fondo opaco */
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-image: linear-gradient(180deg,#2b2b2b 0%,#8a8a8a 50%,#f3f4f6 100%) !important;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+#app > * {
+  background: transparent !important;
+}
