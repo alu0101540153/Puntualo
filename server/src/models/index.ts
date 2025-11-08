@@ -1,1 +1,2 @@
-export {TaskModel} from './task.model';
+export { default as ItemModel } from './item.model';
+export {UserModel} from './user.model';

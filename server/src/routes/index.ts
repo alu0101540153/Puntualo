@@ -1,6 +1,7 @@
-import TaskRoute from './task.route';
-
+import ItemRoute from './item.route';
+import UserRoute from './user.route';
 
 export const routes = {
-  TaskRoute
+  ItemRoute,
+  UserRoute
 }

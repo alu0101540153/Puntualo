@@ -29,11 +29,13 @@ export class Server{
   routes(){
     this.app.get('/', (req, res)=>{
       res.status(200).json({
-        name:'API REST TASK'
+        name:'API REST ITEM'
       })
     });
 
-    this.app.use('/api/v1/puntualo', routes.TaskRoute);
+    this.app.use('/api/v1/puntualo/item', routes.ItemRoute);
+    // Rutas para usuarios
+    this.app.use('/api/v1/puntualo/users', routes.UserRoute);
   }
 
   listen(){
