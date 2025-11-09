@@ -1,0 +1,40 @@
+<template>
+    <div class="bg-gray-800 bg-opacity-30 rounded-2xl p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transition-all duration-300">
+    <div class="flex gap-6">
+      <!-- Imagen Rectangular -->
+      <div class="relative flex-shrink-0">
+        <img :src="recommendation.image" :alt="recommendation.title" class="w-32 h-48 object-cover rounded-xl shadow-lg">
+        <!-- Icono tipo de contenido -->
+        <div class="absolute top-1 right-1 w-8 h-8 bg-white bg-opacity-80 rounded-full flex items-center justify-center text-lg shadow-lg">
+          {{ recommendation.mediaType }}
+        </div>
+      </div>
+
+      <!-- Información al lado -->
+      <div class="flex-1">
+        <h3 class="text-white font-bold text-xl mb-3">{{ recommendation.title }}</h3>
+        <p class="text-gray-300 mb-4 leading-relaxed">
+          {{ recommendation.description }}
+        </p>
+        <div class="flex items-center gap-4 text-sm text-gray-200 mb-4">
+          <span v-for="(genre, index) in recommendation.genres" :key="genre">
+            {{ genre }}<span v-if="index < recommendation.genres.length - 1"> • </span>
+          </span>
+          <span>•</span>
+          <span>{{ recommendation.ageRating }}</span>
+        </div>
+        <button class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+          Ver detalles
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { Recommendation } from './types'
+
+defineProps<{
+  recommendation: Recommendation
+}>()
+</script>
