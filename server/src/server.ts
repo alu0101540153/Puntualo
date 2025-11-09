@@ -1,54 +1,110 @@
-import express,{Express} from 'express';
+// import express,{Express} from 'express';
+// import morgan from 'morgan';
+// import cors from 'cors';
+
+// import {connectDB} from './database';
+// import {PORT} from './config'
+// import {routes} from './routes'
+
+// export class Server{
+//   private app:Express;
+
+//   constructor(){
+//     this.app = express();
+//     this.configuration();
+//     this.middlewares();
+//     this.routes();
+//   }
+
+//   configuration(){
+//     this.app.set('port', PORT || 3000);
+//   }
+
+//   middlewares(){
+//     this.app.use(morgan('dev'));
+//     this.app.use(cors());
+//     this.app.use(express.json());
+//   }
+
+//   routes(){
+//     this.app.get('/', (req, res)=>{
+//       res.status(200).json({
+//         name:'API REST ITEM'
+//       })
+//     });
+
+//     this.app.use('/api/v1/puntualo/item', routes.ItemRoute);
+//     // Rutas para usuarios
+//     this.app.use('/api/v1/puntualo/users', routes.UserRoute);
+//   }
+
+//   listen(){
+//     // Conectar a la base de datos primero y luego arrancar el servidor
+//     connectDB()
+//       .then(()=>{
+//         this.app.listen(this.app.get('port'), ()=>{
+//           console.log(`Server esta corriendo en el puerto ${this.app.get('port')}`);
+//         })
+//       })
+//       .catch((err)=>{
+//         console.error('No fue posible iniciar el servidor por error en la BD:', err);
+//       });
+//   }
+
+// }
+
+import express, { Express } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 
-import {connectDB} from './database';
-import {PORT} from './config'
-import {routes} from './routes'
+import { connectDB } from './database';
+import { PORT } from './config';
+import { routes } from './routes';
 
-export class Server{
-  private app:Express;
+export class Server {
+  private app: Express;
 
-  constructor(){
+  constructor() {
     this.app = express();
     this.configuration();
     this.middlewares();
     this.routes();
   }
 
-  configuration(){
+  configuration() {
     this.app.set('port', PORT || 3000);
   }
 
-  middlewares(){
+  middlewares() {
     this.app.use(morgan('dev'));
     this.app.use(cors());
     this.app.use(express.json());
   }
 
-  routes(){
-    this.app.get('/', (req, res)=>{
+  routes() {
+    // Ruta base de prueba
+    this.app.get('/', (req, res) => {
       res.status(200).json({
-        name:'API REST ITEM'
-      })
+        name: 'API REST ITEM',
+        status: 'Running ✅'
+      });
     });
 
+    // Rutas principales
     this.app.use('/api/v1/puntualo/item', routes.ItemRoute);
-    // Rutas para usuarios
     this.app.use('/api/v1/puntualo/users', routes.UserRoute);
+    this.app.use('/api/v1/puntualo/auth', routes.AuthRoute);
   }
 
-  listen(){
-    // Conectar a la base de datos primero y luego arrancar el servidor
+  listen() {
     connectDB()
-      .then(()=>{
-        this.app.listen(this.app.get('port'), ()=>{
-          console.log(`Server esta corriendo en el puerto ${this.app.get('port')}`);
-        })
+      .then(() => {
+        this.app.listen(this.app.get('port'), () => {
+          console.log(`✅ Servidor corriendo en el puerto ${this.app.get('port')}`);
+        });
       })
-      .catch((err)=>{
-        console.error('No fue posible iniciar el servidor por error en la BD:', err);
+      .catch((err) => {
+        console.error('❌ Error al conectar con la base de datos:', err);
       });
   }
-
 }
