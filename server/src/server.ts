@@ -96,6 +96,11 @@ export class Server {
     this.app.use('/api/v1/puntualo/auth', routes.AuthRoute);
   }
 
+  // Exponer la instancia de Express para tests (sin arrancar el listener)
+  getApp(): Express {
+    return this.app;
+  }
+
   listen() {
     connectDB()
       .then(() => {
