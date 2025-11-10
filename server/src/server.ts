@@ -94,6 +94,7 @@ export class Server {
     this.app.use('/api/v1/puntualo/item', routes.ItemRoute);
     this.app.use('/api/v1/puntualo/users', routes.UserRoute);
     this.app.use('/api/v1/puntualo/auth', routes.AuthRoute);
+    this.app.use('/api/v1/puntualo/search', routes.SearchRoute);
   }
 
   // Exponer la instancia de Express para tests (sin arrancar el listener)

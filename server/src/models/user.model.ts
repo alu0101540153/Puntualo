@@ -15,6 +15,7 @@ export interface IUser extends Document {
     score: number
     comment: string
     status: RatedStatus
+    lastModified?: Date
   }[]
 }
 
@@ -77,6 +78,11 @@ const userSchema = new Schema({
       type: String,
       enum: Object.values(RatedStatus),
       default: RatedStatus.WATCHING
+    }
+    ,
+    lastModified: {
+      type: Date,
+      default: Date.now
     }
     }],
     default: []
