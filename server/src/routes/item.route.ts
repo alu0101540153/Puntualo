@@ -1,15 +1,16 @@
 import {Router} from 'express';
 
 import {itemController} from '../controllers'
+import { verifyToken } from '../middlewares/auth.middleware'
 
 const router = Router();
 
 router.get('/', itemController.getAllItem);
 
-router.post('/', itemController.create);
+router.post('/', verifyToken, itemController.create);
 
-router.patch('/:id', itemController.update);
+router.patch('/:id', verifyToken, itemController.update);
 
-router.delete('/:id', itemController.delete);
+router.delete('/:id', verifyToken, itemController.delete);
 
 export default router;

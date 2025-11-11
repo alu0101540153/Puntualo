@@ -7,8 +7,9 @@ export const authController = {
   login: async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body
-      const user = await authService.login(email, password)
-      res.json(user)
+      const result = await authService.login(email, password)
+      // result: { user, token }
+      res.json(result)
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }
@@ -21,7 +22,9 @@ export const authController = {
       // No devolvemos el hash de la contraseña (userService lo guarda hasheada)
       const obj = data.toObject ? data.toObject() : data
       if (obj.password) delete obj.password
-      res.status(201).json(obj)
+      // Generar token para el usuario recién creado
+      const token = authService.generateToken(data)
+      res.status(201).json({ user: obj, token })
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }

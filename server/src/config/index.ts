@@ -15,3 +15,7 @@ export const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
 export const TEST_MONGO_URI = process.env.TEST_MONGO_URI || 'mongodb://localhost:27017';
 export const DB_NAME = process.env.DB_NAME || 'Puntualo';
 export const TEST_DB_NAME = process.env.TEST_DB_NAME || 'Puntualo_test';
+
+// JWT 
+export const JWT_SECRET = process.env.JWT_SECRET || 'change_this_secret';
+export const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
