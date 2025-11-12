@@ -64,7 +64,7 @@ A continuación se describen los pasos para ejecutar **tanto el backend como el 
    ```bash
    git clone git@github.com:SyTW2526/Proyecto-E20.git
    cd backend
-### 🧩 Fronted
+### 🧩 Fronted 
 
 
 
