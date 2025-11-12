@@ -9,8 +9,10 @@ export interface IItem extends Document {
     cover?: string
     description?: string
     author?: string
-    externalId?: string
+    genres?: string[]
   }
+  // Identificador externo (por ejemplo, ID de Google Books) en nivel raíz
+  externalId?: string
 }
 
 const itemSchema = new Schema({
@@ -42,12 +44,19 @@ const itemSchema = new Schema({
         type: String,
         trim: true
       },
-      externalId: {
-        type: String,
-        trim: true
-      }
+      genres: {
+        type: [String],
+        default: []
+      },
+      // externalId moved to root level
     }, { _id: false }),
     default: {}
+  }
+  ,
+  externalId: {
+    type: String,
+    trim: true,
+    default: ''
   }
 })
 

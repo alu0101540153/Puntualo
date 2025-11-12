@@ -1,9 +1,9 @@
 import axios from 'axios';
-import { itemService } from './item.service';
 import { ItemType } from '../models/enums';
+import { itemService } from './item.service';
 
 /*
-  searchService
+  BookService
 
   - searchBooksByTitle: realiza una búsqueda por título en la Google Books API
     y devuelve tanto los items mapeados como la respuesta completa en `raw`.
@@ -17,12 +17,13 @@ import { ItemType } from '../models/enums';
   o de mostrarlos en el cliente.
 */
 
-export const searchService = {
+export const BookService = {
   searchBooksByTitle: async (title: string) => {
     if (!title) throw new Error('Title is required');
 
     const q = `intitle:${title}`;
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=40`;
+  // Pedimos un máximo de 8 resultados para limitar el tamaño de la respuesta
+  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8`;
 
     const { data } = await axios.get(url);
 
@@ -30,7 +31,7 @@ export const searchService = {
     if (!data) return { total: 0, items: [], raw: data };
 
     // Mapeo ligero por compatibilidad
-    const items = (data.items || []).map((it: any) => {
+  const items = (data.items || []).slice(0, 8).map((it: any) => {
       const v = it.volumeInfo || {};
       return {
         id: it.id,
@@ -41,6 +42,7 @@ export const searchService = {
         description: v.description || '',
         pageCount: v.pageCount || null,
         categories: v.categories || [],
+        genres: v.categories || [],
         thumbnail: v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || null,
         infoLink: v.infoLink || ''
       };
@@ -50,21 +52,28 @@ export const searchService = {
     return { total: data.totalItems || items.length, items, raw: data };
   },
 
-  // Consulta un volumen por su ID de Google Books y lo guarda en la colección `items`.
-  fetchAndStoreBookByGoogleId: async (googleId: string) => {
+
+  fetchBookByGoogleId: async (googleId: string) => {
     if (!googleId) throw new Error('googleId is required');
 
-    const url = `https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(googleId)}`;
-    const { data } = await axios.get(url).catch((err) => {
-      // Propagar error con mensaje más claro
-      throw new Error(`Google Books API error: ${err?.response?.status || err.message}`);
-    });
+  // 1) Comprobar si ya existe en la BD por externalId (solo books)
+  const existing = await itemService.findByExternalId(googleId, ItemType.BOOK);
+    if (existing) {
+      // Si ya existe, devolvemos el item almacenado y no intentamos crear duplicados
+      return { item: existing, raw: null, fromDb: true };
+    }
 
-    if (!data) throw new Error('Book not found');
+    // 2) Si no existe, consultar Google Books y crear el registro
+    const url = `https://www.googleapis.com/books/v1/volumes/${encodeURIComponent(googleId)}`;
+
+    const { data } = await axios.get(url);
+
+    // Si no hay datos, devolvemos null en item y el raw tal cual
+    if (!data) return { item: null, raw: data };
 
     const v = data.volumeInfo || {};
 
-    // Construimos la entidad acorde a item.model
+    // Construir la entidad para persistir en la colección `items`
     const entity: any = {
       itemType: ItemType.BOOK,
       title: v.title || 'Untitled',
@@ -72,15 +81,17 @@ export const searchService = {
         type: 'book',
         cover: v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || '',
         description: v.description || '',
-        author: (v.authors || []).join(', '),
-        externalId: data.id || googleId
-      }
+        author: Array.isArray(v.authors) ? v.authors.join(', ') : (v.authors || '').toString(),
+        genres: v.categories || []
+      },
+      // Guardamos el ID de Google como externalId para futuras búsquedas
+      externalId: data.id
     };
 
-    // Guardamos en la base de datos usando el servicio existente de items
+    // Persistir en la BD
     const created = await itemService.create(entity);
 
-    // Devolvemos tanto la respuesta cruda de Google como el documento creado en DB
-    return { google: data, created };
+    // Devolver el item creado y la respuesta cruda de Google
+    return { item: created, raw: data, fromDb: false };
   }
 };
