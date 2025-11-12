@@ -17,8 +17,10 @@
       </div>
 
       <div style="margin-top:18px">
-        <Button @click="register" :disabled="showEmailError">CREAR CUENTA</Button>
+        <Button @click="register" :disabled="showEmailError || loading">{{ loading ? 'CREANDO...' : 'CREAR CUENTA' }}</Button>
       </div>
+
+      <div v-if="error" class="text-center mt-4" style="color:#ff9b9b">{{ error }}</div>
 
       <div class="text-center" style="margin-top:20px">
         <span style="color:#c7c7c7;margin-right:8px">¿Ya tienes cuenta?</span>
@@ -34,12 +36,15 @@ import { useRouter } from 'vue-router'
 import Card from '@/components/Card.vue'
 import Input from '@/components/Input.vue'
 import Button from '@/components/Button.vue'
+import { registerUser, saveAuth } from '@/services/auth'
 
 const router = useRouter()
 const username = ref('')
 const fullName = ref('')
 const email = ref('')
 const password = ref('')
+const loading = ref(false)
+const error = ref<string | null>(null)
 
 const isEmailValid = computed(() => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -50,8 +55,31 @@ const showEmailError = computed(() => !!email.value && !isEmailValid.value)
 
 const emailClass = computed(() => (showEmailError.value ? 'border border-red-500 rounded' : ''))
 
-const register = () => {
+const register = async () => {
+  error.value = null
   if (showEmailError.value) return
-  console.log('Register:', fullName.value, username.value, email.value, password.value)
+  loading.value = true
+  try {
+    // map fields to backend shape: name, handle, email, password
+    const payload = {
+      name: fullName.value,
+      handle: username.value,
+      email: email.value,
+      password: password.value
+    }
+    const res = await registerUser(payload)
+    // backend returns { user, token }
+    if (res?.token) {
+      saveAuth(res.user, res.token)
+      // Redirect a dashboard o inicio
+      router.push('/dashboard')
+    } else {
+      router.push('/login')
+    }
+  } catch (err: any) {
+    error.value = err?.message || 'Error al registrar'
+  } finally {
+    loading.value = false
+  }
 }
 </script>

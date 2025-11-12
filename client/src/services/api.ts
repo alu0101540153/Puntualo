@@ -1,0 +1,65 @@
+// Por defecto usamos el puerto 5000 (server/.env tiene PORT=5000). Puedes sobreescribir con VITE_API_URL
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1/puntualo'
+
+type FetchOptions = {
+  method?: string
+  body?: any
+  headers?: Record<string, string>
+  auth?: boolean
+}
+
+function getToken() {
+  return localStorage.getItem('token')
+}
+
+export async function apiFetch(path: string, options: FetchOptions = {}) {
+  const url = `${BASE_URL}${path}`
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers || {})
+  }
+
+  if (options.auth) {
+    const token = getToken()
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  }
+
+  let res: Response
+  try {
+    res = await fetch(url, {
+      method: options.method || 'GET',
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined
+    })
+  } catch (networkErr: any) {
+    // Network error (server down, CORS blocked, wrong port...)
+    throw new Error(`Network error: ${networkErr.message || networkErr}`)
+  }
+
+  const text = await res.text()
+  let data: any = null
+  try {
+    data = text ? JSON.parse(text) : null
+  } catch (e) {
+    // response no-json
+    data = text
+  }
+
+  if (!res.ok) {
+    // Try to surface sensible error message
+    const msg = data?.message || data?.errors || res.statusText
+    throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg))
+  }
+
+  return data
+}
+
+export function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('user')
+}
+
+export default {
+  apiFetch,
+  logout
+}
