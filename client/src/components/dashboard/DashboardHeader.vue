@@ -37,7 +37,7 @@
       </div>
       <button
         @click="handleLogout"
-        class="ml-3 text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded"
+        class="ml-3 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded"
       >
         Cerrar sesión
       </button>
