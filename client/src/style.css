@@ -15,3 +15,26 @@ html, body, #app {
 #app > * {
   background: transparent !important;
 }
+
+/* Centrar el contenedor principal y limitar su ancho máximo */
+#app {
+  max-width: 1280px;
+  margin: 0 auto !important;
+  padding: 2rem !important;
+  box-sizing: border-box !important;
+  display: block !important;
+}
+
+/* Evitar que body sea transformado por alguna regla posterior en display:flex */
+body {
+  display: block !important;
+}
+
+/* Asegurar que las secciones principales usen el contenedor centrado */
+.container {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto !important;
+  padding: 0 1rem !important;
+  box-sizing: border-box !important;
+}
