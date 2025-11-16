@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/Loginview.vue'
 import RegisterView from '../views/Register.vue'
 import DashboardView from '../views/DashboardView.vue'
+import { getToken } from '@/services/auth'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,23 @@ const router = createRouter({
       component: DashboardView,
     }
   ],
+})
+
+// Guard global simple: protege /dashboard y evita entrar a /login o /register si ya hay token
+router.beforeEach((to, from, next) => {
+  const token = getToken()
+
+  if (to.path === '/dashboard' && !token) {
+    // usuario no autenticado -> login
+    return next('/login')
+  }
+
+  if ((to.path === '/login' || to.path === '/register') && token) {
+    // si ya está autenticado, no permitir ver login/register
+    return next('/dashboard')
+  }
+
+  return next()
 })
 
 export default router

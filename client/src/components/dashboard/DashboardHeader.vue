@@ -35,6 +35,12 @@
       <div class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold">
         {{ userInitial }}
       </div>
+      <button
+        @click="handleLogout"
+        class="ml-3 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded"
+      >
+        Cerrar sesión
+      </button>
     </div>
   </header>
 </template>
@@ -51,5 +57,17 @@ const navigation: NavigationItem[] = [
   { name: 'Amigos', active: false }
 ]
 
-const userInitial = 'J'
+import { useRouter } from 'vue-router'
+import { getUser } from '@/services/auth'
+import { logout } from '@/services/api'
+
+const router = useRouter()
+
+const user = getUser()
+const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'J'
+
+const handleLogout = () => {
+  logout()
+  router.push('/login')
+}
 </script>
