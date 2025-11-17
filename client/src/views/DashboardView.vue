@@ -5,12 +5,27 @@
     <main class="max-w-6xl mx-auto px-4 py-8">
       <WelcomeSection />
       
-      <RecommendationsGrid 
-        :recommendations="recommendations"
-        @see-more="handleSeeMoreRecommendations"
-      />
-      
+      <!-- Personal recommendations shown above friends when available -->
+      <section v-if="personalRecommendations.length > 0" class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4">Recomendaciones para ti</h2>
+        <RecommendationsGrid 
+          :recommendations="personalRecommendations"
+          @see-more="handleSeeMoreRecommendations"
+        />
+      </section>
+
+      <!-- Generic recommendations (fallback) -->
+      <section v-if="recommendations.length > 0" class="mb-8">
+        <h2 class="text-2xl font-bold text-white mb-4">Te podría interesar ...</h2>
+        <RecommendationsGrid 
+          :recommendations="recommendations"
+          @see-more="handleSeeMoreRecommendations"
+        />
+      </section>
+
+      <!-- Only show friends activities when there are no personal recommendations -->
       <FriendsGrid 
+        v-if="personalRecommendations.length === 0"
         :activities="friendActivities"
       />
     </main>
@@ -27,54 +42,15 @@ import FriendsGrid from '@/components/dashboard/FriendsGrid.vue'
 // Types
 import type { Recommendation, FriendActivity } from '../components/dashboard/types'
 
-// Images
-import alasSangre from '@/assets/imagenes/alasSangre.jpg'
-import trono from '@/assets/imagenes/juegoTronos.jpg.avif'
-import culpaTuya from '@/assets/imagenes/culpaTuya.jpg'
-import anillos from '@/assets/imagenes/señorAnillos.jpg'
+import { ref, onMounted, watch } from 'vue'
+import { getAllItems, getRecommendationsForUser } from '@/services/item'
+import { getUser } from '@/services/auth'
+import localRecommendations from '@/data/recommendations'
 import breakingBad from '@/assets/imagenes/brekingbad.jpeg'
 import fastFurious from '@/assets/imagenes/fastfurios.jpg'
 import stragerThings from '@/assets/imagenes/imagen2.jpg.webp'
-
-// Datos de recomendaciones
-const recommendations: Recommendation[] = [
-  {
-    id: 1,
-    title: 'Alas de Sangre',
-    description: 'Una épica historia de fantasía con romance, batallas y criaturas mágicas en un mundo lleno de misterio.',
-    image: alasSangre,
-    mediaType: '📖',
-    genres: ['Fantasy', 'Romance'],
-    ageRating: '+16'
-  },
-  {
-    id: 2,
-    title: 'Juego de Tronos',
-    description: 'Asesina, princesa y rebelde. Una joven lucha por su libertad en una competencia mortal por el trono.',
-    image: trono,
-    mediaType: '📖',
-    genres: ['Fantasy', 'Aventura'],
-    ageRating: '+14'
-  },
-  {
-    id: 3,
-    title: 'Culpa Tuya',
-    description: 'Una historia de amor intensa y prohibida que explora los límites del perdón y la redención.',
-    image: culpaTuya,
-    mediaType: '📖',
-    genres: ['Romance', 'Drama'],
-    ageRating: '+18'
-  },
-  {
-    id: 4,
-    title: 'Señor de los Anillos',
-    description: 'Un legado familiar que desata pasiones, secretos y una lucha por el poder en la alta sociedad.',
-    image: anillos,
-    mediaType: '📖',
-    genres: ['Romance', 'Suspense'],
-    ageRating: '+16'
-  }
-]
+import alasSangre from '@/assets/imagenes/alasSangre.jpg'
+import culpaTuya from '@/assets/imagenes/culpaTuya.jpg'
 
 // Datos de actividades de amigos
 const friendActivities: FriendActivity[] = [
@@ -214,6 +190,86 @@ const friendActivities: FriendActivity[] = [
   }
 ]
 
+
+// Recomendaciones cargadas desde la API (fallback a datos locales)
+const recommendations = ref<Recommendation[]>([])
+// recomendaciones personalizadas (por usuario)
+const personalRecommendations = ref<Recommendation[]>([])
+
+function mapServerToRecommendation(it: any, allowFallback = false): Recommendation {
+  const media = it.itemType || (it.data && it.data.type) || 'book'
+  const mediaType = media === 'movie' ? '🎬' : media === 'series' ? '📺' : '📖'
+  const mapped = {
+    id: it._id || String(it.id || ''),
+    title: it.title || (it.data && it.data.title) || 'Sin título',
+    description: (it.data && it.data.description) || it.description || '',
+    image: (it.data && it.data.cover) || it.cover || '',
+    mediaType,
+    genres: (it.data && it.data.genres) || [],
+    ageRating: ''
+  }
+
+  // If allowFallback is true, fill missing image/description with placeholders instead of dropping
+  if (allowFallback) {
+    if (!mapped.image) mapped.image = '/img/placeholder-book.png'
+    if (!mapped.description) mapped.description = 'Sin descripción disponible.'
+    return mapped as Recommendation
+  }
+
+  // Filtrar items sin imagen o sin descripción: devolvemos null para ser filtrados posteriormente
+  if (!mapped.image || !mapped.description) return null as any
+
+  return mapped as Recommendation
+}
+
+async function loadRecommendations() {
+  try {
+    const user = getUser()
+    let data: any = null
+    if (user && user._id) {
+      data = await getRecommendationsForUser(user._id)
+      // support API returning { items: [...] }
+      const items = Array.isArray(data) ? data : (data && Array.isArray(data.items) ? data.items : null)
+      // map into personalRecommendations if any (allow fallback placeholders)
+      if (Array.isArray(items) && items.length > 0) {
+        personalRecommendations.value = items.map((it: any) => mapServerToRecommendation(it, true)).filter(Boolean)
+      }
+    }
+
+    // si no vino nada para el usuario, caer a getAllItems
+    if (!data) {
+      data = await getAllItems()
+    }
+
+    if (Array.isArray(data) && data.length > 0) {
+      // if personalRecommendations already set, keep generic recommendations below
+      recommendations.value = data.map((it: any) => mapServerToRecommendation(it)).filter(Boolean)
+      return
+    }
+
+    // si la API devuelve { items: [...] }
+    if (data && Array.isArray(data.items) && data.items.length > 0) {
+      recommendations.value = data.items.map((it: any) => mapServerToRecommendation(it)).filter(Boolean)
+      return
+    }
+  } catch (err) {
+    // console.warn('Error al cargar recomendaciones desde API, usando fallback local', err)
+  }
+
+  // fallback local
+  recommendations.value = localRecommendations as unknown as Recommendation[]
+}
+
+onMounted(() => {
+  loadRecommendations()
+})
+
+// Recarga cuando se añade ?refresh=timestamp (ItemDetail redirige con esta query al puntuar)
+import { useRoute } from 'vue-router'
+const route = useRoute()
+watch(() => route.query.refresh, () => {
+  if (route.name === 'dashboard') loadRecommendations()
+})
 // Handlers
 const handleSeeMoreRecommendations = () => {
   console.log('Ver más recomendaciones clickeado')

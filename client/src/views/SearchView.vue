@@ -135,13 +135,15 @@ function nextPage() {
 // Map API items into Recommendation[] expected by RecommendationsGrid
 const recommendationsList = computed<Recommendation[]>(() => {
   return results.value.map((r: any, idx: number) => ({
-    id: r.id || idx,
+    id: String(r.id || idx),
     title: r.title || r.name || 'Sin título',
     description: r.overview || r.description || '',
     image: r.thumbnail || r.cover || '',
     mediaType: selectedType.value === 'movies' ? '🎬' : selectedType.value === 'books' ? '📖' : '📺',
     genres: r.genres || r.categories || [],
-    ageRating: r.ageRating || ''
+    ageRating: r.ageRating || '',
+    externalId: String(r.id || idx),
+    originType: selectedType.value
   }))
 })
 

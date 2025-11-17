@@ -17,4 +17,10 @@ router.patch('/:id', verifyToken, checkOwnership, userController.update);
 
 router.delete('/:id', verifyToken, checkOwnership, userController.delete);
 
+// Añadir una puntuación (solo el propio usuario puede añadirla)
+router.post('/:id/rate', verifyToken, checkOwnership, userController.addRating);
+
+// Obtener las puntuaciones del usuario (solo el propio usuario puede verlas)
+router.get('/:id/ratings', verifyToken, checkOwnership, userController.getRatings);
+
 export default router;

@@ -40,6 +40,19 @@ const router = createRouter({
     }
     ,
     {
+      path: '/items/:id',
+      name: 'item-detail',
+      component: () => import('../views/ItemDetail.vue'),
+      props: true
+    }
+    ,
+    {
+      path: '/my-ratings',
+      name: 'my-ratings',
+      component: () => import('../views/MyRatingsView.vue')
+    }
+    ,
+    {
       path: '/search',
       name: 'search',
       component: SearchView,

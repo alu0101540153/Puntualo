@@ -7,6 +7,8 @@ const router = Router();
 
 router.get('/', itemController.getAllItem);
 
+router.get('/:id', itemController.getById);
+
 router.post('/', verifyToken, itemController.create);
 
 router.patch('/:id', verifyToken, itemController.update);

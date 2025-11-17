@@ -25,4 +25,16 @@ export const userService = {
   delete: async (id: string) => {
     return await UserModel.findByIdAndDelete(id)
   },
+  
+  addRating: async (userId: string, rating: any) => {
+    // rating: { itemId, itemType, score, comment?, status? }
+    return await UserModel.findByIdAndUpdate(userId, { $push: { ratedItems: rating } }, { new: true })
+  }
+  ,
+  getRatings: async (userId: string) => {
+    // Devuelve los ratedItems del usuario con el item poblado
+    const user = await UserModel.findById(userId).populate('ratedItems.itemId').lean()
+    if (!user) return []
+    return (user.ratedItems || [])
+  }
 }

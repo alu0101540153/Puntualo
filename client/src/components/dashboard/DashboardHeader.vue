@@ -14,7 +14,7 @@
         @click="router.push(item.to)"
         :class="[
           'font-semibold pb-1 transition-colors cursor-pointer',
-          item.active 
+          isActive(item.to) 
             ? 'text-white border-b-2 border-white' 
             : 'text-gray-300 hover:text-white'
         ]"
@@ -50,21 +50,30 @@
 <script setup lang="ts">
 interface NavigationItem {
   name: string
-  active: boolean
   to: string
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Inicio', active: true, to: '/dashboard' },
-  { name: 'Perfil', active: false, to: '/dashboard' },
-  { name: 'Amigos', active: false, to: '/dashboard' }
+  { name: 'Inicio', to: '/dashboard' },
+  { name: 'Mis puntuados', to: '/my-ratings' },
+  { name: 'Perfil', to: '/dashboard' },
+  { name: 'Amigos', to: '/dashboard' }
 ]
 
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { computed } from 'vue'
 import { getUser } from '@/services/auth'
 import { logout } from '@/services/api'
 
 const router = useRouter()
+const route = useRoute()
+
+// ruta reactiva actual
+const currentPath = computed(() => route.path)
+
+const isActive = (to: string) => {
+  return currentPath.value === to
+}
 
 const user = getUser()
 const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'J'
