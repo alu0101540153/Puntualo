@@ -17,22 +17,30 @@ import { TMDB_API_KEY } from '../config';
 */
 
 export const MovieService = {
-  searchMoviesByTitle: async (title: string) => {
+  searchMoviesByTitle: async (title: string, page = 1) => {
     if (!title) throw new Error('Title is required');
 
     const apiKey = TMDB_API_KEY;
     if (!apiKey) throw new Error('TMDB_API_KEY is required');
 
-    // Pedimos la página 1 y limitaremos localmente a 8 resultados
+    // TMDB devuelve 20 resultados por página. Queremos paginar en 10 items por página
+    // mapeando cada página del servidor a la página de TMDB.
+    const serverPage = Math.max(1, page);
+    const tmdbPage = Math.ceil(serverPage / 2);
+
     const url = `https://api.themoviedb.org/3/search/movie?api_key=${encodeURIComponent(
       apiKey
-    )}&query=${encodeURIComponent(title)}&page=1`;
+    )}&query=${encodeURIComponent(title)}&page=${tmdbPage}`;
 
     const { data } = await axios.get(url);
     if (!data) return { total: 0, items: [], raw: data };
 
-    // Limitamos a los primeros 8 resultados
-    const items = (data.results || []).slice(0, 8).map((it: any) => ({
+    const results = data.results || [];
+    // Si serverPage es impar => tomar primeros 10; si es par => tomar siguientes 10
+    const offset = ((serverPage - 1) % 2) * 10;
+    const pageSlice = results.slice(offset, offset + 10);
+
+    const items = pageSlice.map((it: any) => ({
       id: it.id,
       title: it.title || it.original_title || '',
       release_date: it.release_date || '',

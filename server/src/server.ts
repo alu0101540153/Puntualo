@@ -78,7 +78,7 @@ export class Server {
 
   middlewares() {
     this.app.use(morgan('dev'));
-    this.app.use(cors());
+    this.app.use(cors()); // poner la direccion del front (whitelist)
     this.app.use(express.json());
   }
 

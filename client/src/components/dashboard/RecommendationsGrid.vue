@@ -1,14 +1,6 @@
 <template>
   <section class="mb-16">
-    <div class="flex items-center justify-between mb-8">
-      <h2 class="text-3xl font-bold text-white">{{ title }}</h2>
-      <button 
-        class="bg-gray-800 bg-opacity-30 hover:bg-opacity-30 text-white px-8 py-3 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105"
-        @click="$emit('seeMore')"
-      >
-        {{ buttonText }}
-      </button>
-    </div>
+    <!-- Header removed by request: title and see-more button omitted -->
 
     <!-- Grid de Recomendaciones -->
     <div :class="gridClass">

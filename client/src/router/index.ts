@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/Loginview.vue'
 import RegisterView from '../views/Register.vue'
 import DashboardView from '../views/DashboardView.vue'
+import SearchView from '../views/SearchView.vue'
 import { getToken } from '@/services/auth'
 
 const router = createRouter({
@@ -36,6 +37,12 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
+    }
+    ,
+    {
+      path: '/search',
+      name: 'search',
+      component: SearchView,
     }
   ],
 })

@@ -4,8 +4,7 @@
     <!-- Centered card (Spotify-like) - compact like Spotify login -->
     <Card>
       <div class="flex flex-col items-center mb-8" style="text-align:center">
-        <h1 class="text-2xl md:text-3xl lg:text-4xl font-bold" style="color: #ffffff;">Puntualo</h1>
-        <p class="text-sm mt-1" style="color: #c7c7c7">Inicia sesión en Puntualo.com</p>
+        <img src="/Logo_white.svg" alt="Puntúalo" class="h-20 mb-6" />
       </div>
 
       <div class="flex flex-col mb-8" style="row-gap: clamp(16px,3vw,32px); margin-bottom:24px;">

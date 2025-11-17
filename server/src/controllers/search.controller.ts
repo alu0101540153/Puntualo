@@ -6,9 +6,10 @@ export const searchController = {
   searchBooks: async (req: Request, res: Response) => {
     try {
       const title = (req.query.title as string) || '';
+      const page = parseInt((req.query.page as string) || '1', 10) || 1;
       if (!title) return res.status(400).json({ message: 'Query param "title" is required' });
 
-  const result = await BookService.searchBooksByTitle(title);
+      const result = await BookService.searchBooksByTitle(title, page);
       res.json(result);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -20,9 +21,10 @@ export const searchController = {
   searchMovies: async (req: Request, res: Response) => {
     try {
       const title = (req.query.title as string) || '';
+      const page = parseInt((req.query.page as string) || '1', 10) || 1;
       if (!title) return res.status(400).json({ message: 'Query param "title" is required' });
 
-      const result = await MovieService.searchMoviesByTitle(title);
+      const result = await MovieService.searchMoviesByTitle(title, page);
       res.json(result);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
@@ -65,9 +67,10 @@ export const searchController = {
   searchSeries: async (req: Request, res: Response) => {
     try {
       const title = (req.query.title as string) || '';
+      const page = parseInt((req.query.page as string) || '1', 10) || 1;
       if (!title) return res.status(400).json({ message: 'Query param "title" is required' });
 
-      const result = await SeriesService.searchShowsByTitle(title);
+      const result = await SeriesService.searchShowsByTitle(title, page);
       res.json(result);
     } catch (error: any) {
       res.status(500).json({ message: error.message });

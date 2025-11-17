@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
     <DashboardHeader />
     
-    <main class="max-w-7xl mx-auto px-4 py-8">
+    <main class="max-w-6xl mx-auto px-4 py-8">
       <WelcomeSection />
       
       <RecommendationsGrid 
@@ -79,6 +79,73 @@ const recommendations: Recommendation[] = [
 // Datos de actividades de amigos
 const friendActivities: FriendActivity[] = [
   {
+    id: 1,
+    friendName: 'Paula',
+    friendInitial: 'P',
+    friendColor: 'bg-pink-500',
+    action: 'ha empezado a ver',
+    content: 'Breaking Bad',
+    contentImage: breakingBad,
+    contentMediaType: '📺',
+    time: 'Hace 2h',
+    comment: 'Por ahora me esta gustando mucho.',
+    genres: ['Drama', 'Crimen', '+18']
+  },
+  {
+    id: 2,
+    friendName: 'Saray',
+    friendInitial: 'S',
+    friendColor: 'bg-purple-500',
+    action: 'ha puntuado',
+    content: 'Culpa Tuya',
+    contentImage: culpaTuya,
+    contentMediaType: '📖',
+    time: 'Hace 1h',
+    rating: '9/10',
+    ratingColor: 'bg-green-500',
+    genres: ['Romance', 'Drama', '+18']
+  },
+  {
+    id: 3,
+    friendName: 'Ayoze',
+    friendInitial: 'A',
+    friendColor: 'bg-amber-500',
+    action: 'esta viendo',
+    content: 'Fast and Furious',
+    contentImage: fastFurious,
+    contentMediaType: '🎬',
+    time: 'Ahora',
+    comment: 'Quiero ser Toretto 🏎️',
+    genres: ['Acción', 'Aventura', '+13']
+  },
+  {
+    id: 4,
+    friendName: 'Alex',
+    friendInitial: 'A',
+    friendColor: 'bg-gray-500',
+    action: 'ha terminado de ver',
+    content: 'Stranger Things',
+    contentImage: stragerThings,
+    contentMediaType: '🎬',
+    time: 'Hace 30m',
+    comment: 'No me esperaba para nada ese final...',
+    genres: ['Drama', 'Fantasía', '+16']
+  },
+  {
+    id: 5,
+    friendName: 'Abian',
+    friendInitial: 'A',
+    friendColor: 'bg-teal-500',
+    action: 'ha puntuado',
+    content: 'Alas de Sangre',
+    contentImage: alasSangre,
+    contentMediaType: '📖',
+    time: 'Hace 3h',
+    rating: '6/10',
+    ratingColor: 'bg-orange-500',
+    genres: ['Fantasy', 'Romance', '+16']
+  },
+    {
     id: 1,
     friendName: 'Paula',
     friendInitial: 'P',

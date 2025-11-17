@@ -14,7 +14,7 @@
       <div class="flex-1">
         <h3 class="text-white font-bold text-xl mb-3">{{ recommendation.title }}</h3>
         <p class="text-gray-300 mb-4 leading-relaxed">
-          {{ recommendation.description }}
+          {{ truncatedDescription }}
         </p>
         <div class="flex items-center gap-4 text-sm text-gray-200 mb-4">
           <span v-for="(genre, index) in recommendation.genres" :key="genre">
@@ -33,8 +33,15 @@
 
 <script setup lang="ts">
 import type { Recommendation } from './types'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   recommendation: Recommendation
 }>()
+
+const truncatedDescription = computed(() => {
+  const desc = props.recommendation?.description || ''
+  if (desc.length <= 100) return desc
+  return desc.slice(0, 100).trimEnd() + '...'
+})
 </script>

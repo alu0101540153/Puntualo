@@ -2,9 +2,15 @@
 <html lang="">
   <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
+    <!-- SVG favicon (primary). Add query param to bust cache during development. -->
+    <link rel="icon" href="/icon_logo.svg?v=2" type="image/svg+xml">
+    <!-- PNG/Safari fallback using the white logo -->
+    <link rel="apple-touch-icon" href="/Logo_white.svg">
+    <!-- Keep classic .ico as final fallback -->
+    <link rel="shortcut icon" href="/favicon.ico">
+    <meta name="theme-color" content="#000000">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PUNTUALO App</title>
+    <title>PUNTUALO</title>
   </head>
   <body>
     <div id="app"></div>

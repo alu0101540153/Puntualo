@@ -18,12 +18,16 @@ import { itemService } from './item.service';
 */
 
 export const BookService = {
-  searchBooksByTitle: async (title: string) => {
+  searchBooksByTitle: async (title: string, page = 1) => {
     if (!title) throw new Error('Title is required');
 
     const q = `intitle:${title}`;
-  // Pedimos un máximo de 8 resultados para limitar el tamaño de la respuesta
-  const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}&maxResults=8`;
+    // Google Books soporta startIndex y maxResults. Usamos paginación de 10 items.
+    const maxResults = 10;
+    const startIndex = (Math.max(1, page) - 1) * maxResults;
+    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+      q
+    )}&startIndex=${startIndex}&maxResults=${maxResults}`;
 
     const { data } = await axios.get(url);
 
@@ -31,7 +35,7 @@ export const BookService = {
     if (!data) return { total: 0, items: [], raw: data };
 
     // Mapeo ligero por compatibilidad
-  const items = (data.items || []).slice(0, 8).map((it: any) => {
+    const items = (data.items || []).map((it: any) => {
       const v = it.volumeInfo || {};
       return {
         id: it.id,
