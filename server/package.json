@@ -33,5 +33,7 @@
     "supertest": "^6.3.0",
     "ts-node": "^10.9.1",
     "vitest": "^0.34.3"
+    ,
+    "mongodb-memory-server": "^8.12.0"
   }
 }
