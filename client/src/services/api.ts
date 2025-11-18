@@ -14,8 +14,10 @@ function getToken() {
 
 export async function apiFetch(path: string, options: FetchOptions = {}) {
   const url = `${BASE_URL}${path}`
+  // Si el body es FormData no establecemos Content-Type; el navegador lo pone correctamente
+  const isFormData = options.body && typeof FormData !== 'undefined' && options.body instanceof FormData
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers || {})
   }
 
@@ -29,7 +31,8 @@ export async function apiFetch(path: string, options: FetchOptions = {}) {
     res = await fetch(url, {
       method: options.method || 'GET',
       headers,
-      body: options.body ? JSON.stringify(options.body) : undefined
+      // si es FormData, no stringificamos
+      body: options.body && isFormData ? options.body : options.body ? JSON.stringify(options.body) : undefined
     })
   } catch (networkErr: any) {
     // Network error (server down, CORS blocked, wrong port...)

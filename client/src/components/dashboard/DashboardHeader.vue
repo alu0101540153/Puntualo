@@ -56,7 +56,7 @@ interface NavigationItem {
 const navigation: NavigationItem[] = [
   { name: 'Inicio', to: '/dashboard' },
   { name: 'Mis puntuados', to: '/my-ratings' },
-  { name: 'Perfil', to: '/dashboard' },
+  { name: 'Perfil', to: '/profile' },
   { name: 'Amigos', to: '/dashboard' }
 ]
 
@@ -71,8 +71,13 @@ const route = useRoute()
 // ruta reactiva actual
 const currentPath = computed(() => route.path)
 
+// Consider route prefixes active (so /dashboard and /dashboard/child count as active)
 const isActive = (to: string) => {
-  return currentPath.value === to
+  try {
+    return currentPath.value.startsWith(to)
+  } catch {
+    return currentPath.value === to
+  }
 }
 
 const user = getUser()

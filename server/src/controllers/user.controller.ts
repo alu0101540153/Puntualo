@@ -68,4 +68,15 @@ export const userController = {
       res.status(400).json({ message: error.message })
     }
   }
+  ,
+  deleteRating: async (req: Request, res: Response) => {
+    try {
+      const { id, ratingId } = req.params
+      const data = await userService.removeRating(id, ratingId)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
+  
 }
