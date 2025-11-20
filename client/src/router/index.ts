@@ -66,6 +66,12 @@ const router = createRouter({
     }
     ,
     {
+      path: '/my-seen',
+      name: 'my-seen',
+      component: () => import('../views/MySeenView.vue')
+    }
+    ,
+    {
       path: '/search',
       name: 'search',
       component: SearchView,

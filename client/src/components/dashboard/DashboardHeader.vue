@@ -34,7 +34,15 @@
         >
         <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
       </div>
-      <div class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold">
+      <div
+        class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold cursor-pointer"
+        role="button"
+        aria-label="Ir al perfil"
+        title="Ver perfil"
+        @click="router.push('/profile')"
+        tabindex="0"
+        @keyup.enter="router.push('/profile')"
+      >
         {{ userInitial }}
       </div>
       <button
@@ -55,8 +63,6 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
   { name: 'Inicio', to: '/dashboard' },
-  { name: 'Mis puntuados', to: '/my-ratings' },
-  { name: 'Perfil', to: '/profile' },
   { name: 'Amigos', to: '/dashboard' }
 ]
 

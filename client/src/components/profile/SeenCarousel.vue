@@ -9,6 +9,7 @@
         v-for="item in items"
         :key="item.id"
         :item="item"
+        @select="onSelect"
       />
     </div>
 
@@ -19,28 +20,95 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
+import { getMyRatings } from '@/services/user'
+import { getUser } from '@/services/auth'
 
-// mock items - replace with API data when ready
-const items = [
-  { id: 1, image: 'juegoTronos.jpg.avif', rating: '10/10', type: '📺' },
-  { id: 2, image: 'juegoTronos.jpg.avif', rating: '3/10', type: '📺' },
-  { id: 3, image: 'juegoTronos.jpg.avif', rating: '8/10', type: '📺' },
-  { id: 4, image: 'juegoTronos.jpg.avif', rating: '9/10', type: '📺' },
-  { id: 5, image: 'juegoTronos.jpg.avif', rating: '7/10', type: '📺' },
-  { id: 6, image: 'juegoTronos.jpg.avif', rating: '7/10', type: '📺' },
-  { id: 7, image: 'juegoTronos.jpg.avif', rating: '6/10', type: '📺' },
-  { id: 8, image: 'juegoTronos.jpg.avif', rating: '8/10', type: '📺' }
-]
-
+const items = ref<any[]>([])
 const carousel = ref<HTMLElement | null>(null)
+const router = useRouter()
 
 function scrollCarousel(direction: number) {
   if (carousel.value) {
     const scrollAmount = 240 // matches MediaCarousel item width
     carousel.value.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' })
   }
+}
+
+function getCover(r: any) {
+  return (r.itemId && r.itemId.data && r.itemId.data.cover) || r.itemId?.image || r.cover || '/img/placeholder-book.png'
+}
+
+function getTypeEmoji(r: any) {
+  const t = (r.itemId && (r.itemId.type || r.itemId.data?.type)) || r.type || ''
+  if (!t) return '🎬'
+  const low = String(t).toLowerCase()
+  if (low.includes('book') || low.includes('lib') || low.includes('book')) return '📚'
+  if (low.includes('film') || low.includes('movie') || low.includes('pel') || low.includes('cine')) return '🎬'
+  if (low.includes('serie') || low.includes('tv') || low.includes('show')) return '📺'
+  return '🎞️'
+}
+
+function getTitle(r: any) {
+  return (r.itemId && (r.itemId.title || r.itemId.data?.title)) || r.title || 'Sin título'
+}
+
+async function loadFinished() {
+  const user = getUser()
+  if (!user || !user._id) {
+    items.value = []
+    return
+  }
+
+  try {
+    const data: any[] = await getMyRatings(user._id) || []
+    // normalize to latest per item
+    const map = new Map<string, any>()
+    for (const entry of data) {
+      const rawId = entry.itemId?._id || entry.itemId?.id || String(entry.itemId || entry._id || '')
+      if (!rawId) continue
+      const existing = map.get(rawId)
+      if (!existing) map.set(rawId, entry)
+      else {
+        const a = existing.lastModified ? new Date(existing.lastModified).getTime() : 0
+        const b = entry.lastModified ? new Date(entry.lastModified).getTime() : 0
+        if (b >= a) map.set(rawId, entry)
+      }
+    }
+
+    const latest = Array.from(map.values())
+    // filter those completed/terminado
+    const completed = latest.filter((x: any) => {
+      const s = (x.status || '').toString().toLowerCase()
+      return s === 'completed' || s === 'terminado' || s === 'finished'
+    })
+
+    // map to items expected by MediaCarouselItem
+    items.value = completed.map((r: any, idx: number) => ({
+        id: r._id || idx,
+        detailId: r.itemId?._id || r.itemId?.id || r._id,
+      image: getCover(r),
+      rating: r.score ? `${r.score}/10` : '-/10',
+      type: getTypeEmoji(r),
+      title: getTitle(r)
+    }))
+  } catch (e) {
+    console.error('Error cargando vistos terminados', e)
+    items.value = []
+  }
+}
+
+onMounted(() => {
+  loadFinished()
+  window.addEventListener('ratingsChanged', loadFinished)
+})
+
+function onSelect(selected: any) {
+  const id = selected?.detailId || selected?.id
+  if (!id) return
+  router.push({ name: 'item-detail', params: { id: String(id) } })
 }
 </script>
 
