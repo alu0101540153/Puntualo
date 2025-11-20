@@ -63,11 +63,23 @@ export const userService = {
     }
   }
   ,
-  getRatings: async (userId: string) => {
+  getRatings: async (userId: string, order: string = 'desc') => {
     // Devuelve los ratedItems del usuario con el item poblado
+    // order: 'desc' => más reciente primero, 'asc' => más antiguo primero
     const user = await UserModel.findById(userId).populate('ratedItems.itemId').lean()
     if (!user) return []
-    return (user.ratedItems || [])
+    const items = (user.ratedItems || []) as any[]
+
+    // Normalize order and sort by lastModified (fallback to createdAt/_id if needed)
+    const dir = order === 'asc' ? 1 : -1
+    items.sort((a: any, b: any) => {
+      const ta = a && a.lastModified ? new Date(a.lastModified).getTime() : 0
+      const tb = b && b.lastModified ? new Date(b.lastModified).getTime() : 0
+      // If both timestamps are zero, keep original order
+      return dir * (ta - tb)
+    })
+
+    return items
   }
   ,
   removeRating: async (userId: string, ratingId: string) => {

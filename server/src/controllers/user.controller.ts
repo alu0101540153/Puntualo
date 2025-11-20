@@ -62,7 +62,8 @@ export const userController = {
   getRatings: async (req: Request, res: Response) => {
     try {
       const { id } = req.params
-      const data = await userService.getRatings(id)
+      const order = (req.query.order as string) || 'desc'
+      const data = await userService.getRatings(id, order)
       return res.json(data)
     } catch (error: any) {
       res.status(400).json({ message: error.message })

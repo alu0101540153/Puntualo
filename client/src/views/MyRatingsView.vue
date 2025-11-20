@@ -3,7 +3,18 @@
     <!-- Colocar la cabecera en el tope para que su posición sea consistente -->
     <DashboardHeader />
     <main class="max-w-5xl mx-auto px-4 py-8 mt-6">
-      <h2 class="text-2xl font-bold text-white mb-6">Mis puntuados</h2>
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-white">Mis puntuados</h2>
+
+        <!-- Ordenación: más reciente / más antiguo -->
+        <div class="flex items-center gap-3">
+          <label class="text-sm text-gray-300">Ordenar:</label>
+          <select v-model="sortOrder" @change="onSortChange" class="bg-gray-800 text-white text-sm px-3 py-1 rounded">
+            <option value="desc">Más reciente</option>
+            <option value="asc">Más antiguo</option>
+          </select>
+        </div>
+      </div>
 
       <div v-if="loading" class="text-gray-300">Cargando tus puntuados...</div>
       <div v-else-if="ratings.length === 0" class="text-gray-300">No tienes puntuaciones todavía.</div>
@@ -69,6 +80,7 @@ import { useRouter } from 'vue-router'
 
 const ratings = ref<any[]>([])
 const loading = ref(true)
+const sortOrder = ref<'desc' | 'asc'>('desc')
 const router = useRouter()
 const currentUser = getUser()
 const userName = (currentUser && (currentUser.name || currentUser.handle)) || 'Tú'
@@ -84,7 +96,7 @@ async function loadRatings() {
   }
 
   try {
-    const data: any = await getMyRatings(user._id)
+    const data: any = await getMyRatings(user._id, sortOrder.value)
     ratings.value = data || []
   } catch (e) {
     console.error('Error cargando mis puntuados', e)
@@ -92,6 +104,11 @@ async function loadRatings() {
   } finally {
     loading.value = false
   }
+}
+
+function onSortChange() {
+  // recargar con nuevo orden
+  loadRatings()
 }
 
 function ratingClass(score: number) {

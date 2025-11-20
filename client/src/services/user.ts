@@ -4,8 +4,10 @@ export async function addRating(userId: string, payload: any) {
   return api.apiFetch(`/users/${userId}/rate`, { method: 'POST', body: payload, auth: true })
 }
 
-export async function getMyRatings(userId: string) {
-  return api.apiFetch(`/users/${userId}/ratings`, { auth: true })
+export async function getMyRatings(userId: string, order: 'asc' | 'desc' = 'desc') {
+  // order: 'desc' => más reciente primero, 'asc' => más antiguo primero
+  const qs = `?order=${encodeURIComponent(order)}`
+  return api.apiFetch(`/users/${userId}/ratings${qs}`, { auth: true })
 }
 
 
