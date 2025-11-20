@@ -4,9 +4,9 @@ export async function addRating(userId: string, payload: any) {
   return api.apiFetch(`/users/${userId}/rate`, { method: 'POST', body: payload, auth: true })
 }
 
-export async function getMyRatings(userId: string, order: 'asc' | 'desc' = 'desc') {
-  // order: 'desc' => más reciente primero, 'asc' => más antiguo primero
-  const qs = `?order=${encodeURIComponent(order)}`
+export async function getMyRatings(userId: string, sortBy: 'date' | 'score' = 'date', order: 'asc' | 'desc' = 'desc') {
+  // sortBy: 'date'|'score', order: 'desc' => más reciente/alto primero, 'asc' => más antiguo/bajo primero
+  const qs = `?sortBy=${encodeURIComponent(sortBy)}&order=${encodeURIComponent(order)}`
   return api.apiFetch(`/users/${userId}/ratings${qs}`, { auth: true })
 }
 

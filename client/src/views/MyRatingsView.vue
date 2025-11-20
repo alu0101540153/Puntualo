@@ -6,12 +6,14 @@
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-2xl font-bold text-white">Mis puntuados</h2>
 
-        <!-- Ordenación: más reciente / más antiguo -->
+        <!-- Ordenación: fecha / puntuación -->
         <div class="flex items-center gap-3">
           <label class="text-sm text-gray-300">Ordenar:</label>
-          <select v-model="sortOrder" @change="onSortChange" class="bg-gray-800 text-white text-sm px-3 py-1 rounded">
-            <option value="desc">Más reciente</option>
-            <option value="asc">Más antiguo</option>
+          <select v-model="sortOption" @change="onSortChange" class="bg-gray-800 text-white text-sm px-3 py-1 rounded">
+            <option value="date:desc">Más reciente</option>
+            <option value="date:asc">Más antiguo</option>
+            <option value="score:asc">Puntuación: más baja</option>
+            <option value="score:desc">Puntuación: más alta</option>
           </select>
         </div>
       </div>
@@ -80,7 +82,8 @@ import { useRouter } from 'vue-router'
 
 const ratings = ref<any[]>([])
 const loading = ref(true)
-const sortOrder = ref<'desc' | 'asc'>('desc')
+// sortOption stored as '<sortBy>:<order>' e.g. 'date:desc' or 'score:asc'
+const sortOption = ref<string>('date:desc')
 const router = useRouter()
 const currentUser = getUser()
 const userName = (currentUser && (currentUser.name || currentUser.handle)) || 'Tú'
@@ -96,7 +99,9 @@ async function loadRatings() {
   }
 
   try {
-    const data: any = await getMyRatings(user._id, sortOrder.value)
+    // parse sort option
+    const [sortBy, order] = (sortOption.value || 'date:desc').split(':') as [any, any]
+    const data: any = await getMyRatings(user._id, (sortBy === 'score' ? 'score' : 'date') as any, (order === 'asc' ? 'asc' : 'desc'))
     ratings.value = data || []
   } catch (e) {
     console.error('Error cargando mis puntuados', e)

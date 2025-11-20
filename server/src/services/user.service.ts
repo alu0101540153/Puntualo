@@ -63,21 +63,31 @@ export const userService = {
     }
   }
   ,
-  getRatings: async (userId: string, order: string = 'desc') => {
+  getRatings: async (userId: string, sortBy: string = 'date', order: string = 'desc') => {
     // Devuelve los ratedItems del usuario con el item poblado
-    // order: 'desc' => más reciente primero, 'asc' => más antiguo primero
+    // sortBy: 'date'|'score'. order: 'desc'|'asc'
     const user = await UserModel.findById(userId).populate('ratedItems.itemId').lean()
     if (!user) return []
     const items = (user.ratedItems || []) as any[]
 
-    // Normalize order and sort by lastModified (fallback to createdAt/_id if needed)
+    // Determine sort direction
     const dir = order === 'asc' ? 1 : -1
-    items.sort((a: any, b: any) => {
-      const ta = a && a.lastModified ? new Date(a.lastModified).getTime() : 0
-      const tb = b && b.lastModified ? new Date(b.lastModified).getTime() : 0
-      // If both timestamps are zero, keep original order
-      return dir * (ta - tb)
-    })
+
+    if (sortBy === 'score') {
+      // Sort by numeric score
+      items.sort((a: any, b: any) => {
+        const sa = (a && a.score != null) ? Number(a.score) : 0
+        const sb = (b && b.score != null) ? Number(b.score) : 0
+        return dir * (sa - sb)
+      })
+    } else {
+      // Default: sort by lastModified date (fallback to 0)
+      items.sort((a: any, b: any) => {
+        const ta = a && a.lastModified ? new Date(a.lastModified).getTime() : 0
+        const tb = b && b.lastModified ? new Date(b.lastModified).getTime() : 0
+        return dir * (ta - tb)
+      })
+    }
 
     return items
   }
