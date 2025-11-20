@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/Loginview.vue'
 import RegisterView from '../views/Register.vue'
 import DashboardView from '../views/DashboardView.vue'
+import ProfileView from '../views/ProfileView.vue'
 import SearchView from '../views/SearchView.vue'
 import { getToken } from '@/services/auth'
 
@@ -37,6 +38,37 @@ const router = createRouter({
       path: '/dashboard',
       name: 'dashboard',
       component: DashboardView,
+    }
+    ,
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+    }
+    ,
+    {
+      path: '/profile/edit',
+      name: 'profile-edit',
+      component: () => import('../views/EditProfileView.vue')
+    }
+    ,
+    {
+      path: '/items/:id',
+      name: 'item-detail',
+      component: () => import('../views/ItemDetail.vue'),
+      props: true
+    }
+    ,
+    {
+      path: '/my-ratings',
+      name: 'my-ratings',
+      component: () => import('../views/MyRatingsView.vue')
+    }
+    ,
+    {
+      path: '/my-seen',
+      name: 'my-seen',
+      component: () => import('../views/MySeenView.vue')
     }
     ,
     {

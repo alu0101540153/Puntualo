@@ -48,4 +48,37 @@ export const userController = {
       })
     }
   },
+  addRating: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params; // user id
+      const payload = req.body;
+      const data = await userService.addRating(id, payload);
+      return res.json(data);
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
+  ,
+  getRatings: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const sortBy = (req.query.sortBy as string) || 'date'
+      const order = (req.query.order as string) || 'desc'
+      const data = await userService.getRatings(id, sortBy, order)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
+  ,
+  deleteRating: async (req: Request, res: Response) => {
+    try {
+      const { id, ratingId } = req.params
+      const data = await userService.removeRating(id, ratingId)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
+  
 }

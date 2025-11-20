@@ -1,12 +1,15 @@
 // Tipos para las recomendaciones
 export interface Recommendation {
-  id: number
+  id: string
   title: string
   description: string
   image: string
   mediaType: '📖' | '🎬' | '📺'
   genres: string[]
   ageRating: string
+  // Optional fields for search-origin items
+  externalId?: string
+  originType?: 'books' | 'movies' | 'series'
 }
 
 // Tipos para actividades de amigos

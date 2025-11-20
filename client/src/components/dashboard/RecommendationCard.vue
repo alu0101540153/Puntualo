@@ -23,7 +23,7 @@
           <span>•</span>
           <span>{{ recommendation.ageRating }}</span>
         </div>
-        <button class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+        <button @click="goToDetails" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-lg font-medium transition-colors">
           Ver detalles
         </button>
       </div>
@@ -34,10 +34,48 @@
 <script setup lang="ts">
 import type { Recommendation } from './types'
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { createBookByGoogleId, createMovieByTmdbId, createSeriesByTmdbId } from '@/services/searchCreate'
 
 const props = defineProps<{
   recommendation: Recommendation
 }>()
+
+const router = useRouter()
+
+function goToDetails() {
+  const id = String(props.recommendation?.id ?? '')
+  if (!id) return
+  // If recommendation is from external search and not yet stored, create it via server
+  const external = props.recommendation.externalId && props.recommendation.originType
+  if (external) {
+    // call the appropriate create endpoint then navigate to the created item's detail if created
+    (async () => {
+      try {
+        let res: any = null
+        if (props.recommendation.originType === 'books') {
+          res = await createBookByGoogleId(props.recommendation.externalId as string)
+        } else if (props.recommendation.originType === 'movies') {
+          res = await createMovieByTmdbId(props.recommendation.externalId as string)
+        } else if (props.recommendation.originType === 'series') {
+          res = await createSeriesByTmdbId(props.recommendation.externalId as string)
+        }
+
+        // server returns created item in res.item or the item itself; try to obtain _id
+        const created = res?.item || res
+        const targetId = created?._id || created?.item?._id || created?.id || id
+        router.push({ name: 'item-detail', params: { id: String(targetId) } })
+        return
+      } catch (e) {
+        // fallback: navigate using the current id (could be external id)
+        router.push({ name: 'item-detail', params: { id } })
+      }
+    })()
+    return
+  }
+
+  router.push({ name: 'item-detail', params: { id } })
+}
 
 const truncatedDescription = computed(() => {
   const desc = props.recommendation?.description || ''

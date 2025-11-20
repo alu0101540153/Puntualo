@@ -14,7 +14,7 @@
         @click="router.push(item.to)"
         :class="[
           'font-semibold pb-1 transition-colors cursor-pointer',
-          item.active 
+          isActive(item.to) 
             ? 'text-white border-b-2 border-white' 
             : 'text-gray-300 hover:text-white'
         ]"
@@ -34,7 +34,15 @@
         >
         <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
       </div>
-      <div class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold">
+      <div
+        class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold cursor-pointer"
+        role="button"
+        aria-label="Ir al perfil"
+        title="Ver perfil"
+        @click="router.push('/profile')"
+        tabindex="0"
+        @keyup.enter="router.push('/profile')"
+      >
         {{ userInitial }}
       </div>
       <button
@@ -50,21 +58,33 @@
 <script setup lang="ts">
 interface NavigationItem {
   name: string
-  active: boolean
   to: string
 }
 
 const navigation: NavigationItem[] = [
-  { name: 'Inicio', active: true, to: '/dashboard' },
-  { name: 'Perfil', active: false, to: '/dashboard' },
-  { name: 'Amigos', active: false, to: '/dashboard' }
+  { name: 'Inicio', to: '/dashboard' },
+  { name: 'Amigos', to: '/dashboard' }
 ]
 
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { computed } from 'vue'
 import { getUser } from '@/services/auth'
 import { logout } from '@/services/api'
 
 const router = useRouter()
+const route = useRoute()
+
+// ruta reactiva actual
+const currentPath = computed(() => route.path)
+
+// Consider route prefixes active (so /dashboard and /dashboard/child count as active)
+const isActive = (to: string) => {
+  try {
+    return currentPath.value.startsWith(to)
+  } catch {
+    return currentPath.value === to
+  }
+}
 
 const user = getUser()
 const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'J'

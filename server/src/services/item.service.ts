@@ -1,5 +1,6 @@
 import { ItemModel } from '../models'
 import { ItemType } from '../models/enums'
+import { UserModel } from '../models'
 
 export const itemService = {
   getAll: async()=>{
@@ -22,7 +23,10 @@ export const itemService = {
   update: async(id:string, body:object)=>{
     return await ItemModel.findByIdAndUpdate(id, body);
   },
-
+  
+  getById: async(id:string)=>{
+    return await ItemModel.findById(id);
+  },
   delete: async(id:string)=>{
     return await ItemModel.findByIdAndDelete(id);
   }

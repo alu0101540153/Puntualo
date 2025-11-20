@@ -47,4 +47,16 @@ export const itemController = {
       })
     }
   },
+  getById: async(req:Request, res:Response)=>{
+    try {
+      const {id} = req.params;
+      const data = await itemService.getById(id);
+      if(!data) return res.status(404).json({ message: 'Item not found' })
+      return res.json(data);
+    } catch (error:any) {
+      res.status(400).json({
+        message: error.message
+      })
+    }
+  },
 }
