@@ -5,8 +5,6 @@ import { validateUser } from '../middlewares/validateUser.middleware'
 import { verifyToken } from '../middlewares/auth.middleware'
 import { checkOwnership } from '../middlewares/owner.middleware'
 
-// Este archivo define las rutas de usuario (sin manejo de archivos)
-
 const router = Router();
 
 router.get('/', userController.getAllUser);
@@ -15,18 +13,26 @@ router.get('/', userController.getAllUser);
 router.post('/', validateUser, userController.create);
 
 // Proteger actualización y eliminación — sólo el usuario propietario puede hacerlo
-// Permitimos subida de avatar en el campo 'avatar' (multipart/form-data)
 router.patch('/:id', verifyToken, checkOwnership, userController.update);
 
 router.delete('/:id', verifyToken, checkOwnership, userController.delete);
 
-// Añadir una puntuación (solo el propio usuario puede añadirla)
-router.post('/:id/rate', verifyToken, checkOwnership, userController.addRating);
+// Follow / unfollow a user (protected)
+router.post('/:id/follow', verifyToken, userController.follow);
+router.post('/:id/unfollow', verifyToken, userController.unfollow);
 
-// Obtener las puntuaciones del usuario (solo el propio usuario puede verlas)
-router.get('/:id/ratings', verifyToken, checkOwnership, userController.getRatings);
+// Get all books of a specific user
+router.get('/:id/books', userController.getBooks);
 
-// Eliminar una puntuación específica del usuario
-router.delete('/:id/ratings/:ratingId', verifyToken, checkOwnership, userController.deleteRating);
+// Feed and single user
+router.get('/:id/feed', userController.getFeed);
+router.get('/:id', userController.getById);
+
+// Rate item with embedded data (no Item document) - protected
+router.post('/item', verifyToken, userController.rateEmbedded);
+
+// Rate/unrate item (protected)
+router.post('/item/:id/rate', verifyToken, userController.rateItem);
+router.delete('/item/:id/rate', verifyToken, userController.unrateItem);
 
 export default router;

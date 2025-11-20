@@ -25,81 +25,188 @@ export const userService = {
   delete: async (id: string) => {
     return await UserModel.findByIdAndDelete(id)
   },
-  
-  addRating: async (userId: string, rating: any) => {
-    // rating: { itemId, itemType, score, comment?, status? }
-    // If the user already has a rating for the same itemId, update that subdocument instead of pushing a duplicate.
-    try {
-      const itemId = rating.itemId
-      if (!itemId) {
-        // If there's no itemId, fallback to pushing (legacy behavior)
-        rating.lastModified = new Date()
-        return await UserModel.findByIdAndUpdate(userId, { $push: { ratedItems: rating } }, { new: true })
-      }
 
-      // Try to update existing subdocument matching itemId
-      const updated = await UserModel.findOneAndUpdate(
-        { _id: userId, 'ratedItems.itemId': itemId },
-        { $set: {
-            'ratedItems.$.score': rating.score,
-            'ratedItems.$.comment': rating.comment || '',
-            'ratedItems.$.status': rating.status || 'watching',
-            'ratedItems.$.itemType': rating.itemType || 'book',
-            'ratedItems.$.lastModified': new Date()
-          }
-        },
-        { new: true }
-      )
+  // Add a user to the 'follows' array of followerId (avoid duplicates)
+  addFollow: async (followerId: string, targetId: string) => {
+    if (followerId === targetId) throw new Error('No puedes seguirte a ti mismo');
+    return await UserModel.findByIdAndUpdate(
+      followerId,
+      { $addToSet: { follows: targetId } },
+      { new: true }
+    )
+  },
 
-      if (updated) return updated
+  // Remove a user from the 'follows' array
+  removeFollow: async (followerId: string, targetId: string) => {
+    return await UserModel.findByIdAndUpdate(
+      followerId,
+      { $pull: { follows: targetId } },
+      { new: true }
+    )
+  },
 
-      // not found -> push as new
-      rating.lastModified = new Date()
-      return await UserModel.findByIdAndUpdate(userId, { $push: { ratedItems: rating } }, { new: true })
-    } catch (err) {
-      // fallback to original behavior on error
-      rating.lastModified = new Date()
-      return await UserModel.findByIdAndUpdate(userId, { $push: { ratedItems: rating } }, { new: true })
+  // Return rated items for a user or full user with populated ratedItems
+  getByIdWithRated: async (id: string) => {
+    return await UserModel.findById(id).populate('ratedItems.itemId');
+  },
+
+  // Get feed for a user: collect rated books from users they follow,
+  // populate item data and return flat list ordered by lastModified desc
+  // Returns paginated feed. page and limit are 1-based and optional.
+  getFeed: async (userId: string, page = 1, limit = 20) => {
+    const user = await UserModel.findById(userId).lean();
+    if (!user) throw new Error('Usuario no encontrado');
+
+    const follows = (user as any).follows || [];
+    if (follows.length === 0) return [];
+
+    // Load followed users with their ratedItems populated
+    const followedUsers = await UserModel.find({ _id: { $in: follows } })
+      .select('name handle ratedItems')
+      .populate('ratedItems.itemId')
+      .lean();
+
+    const feed: any[] = [];
+
+    followedUsers.forEach((fu: any) => {
+      const rated = fu.ratedItems || [];
+      rated.forEach((r: any) => {
+        // Only include books in the feed
+        if (r.itemType === 'book') {
+          // Use populated item document if present, otherwise fall back to embedded itemData
+          const item = r.itemId || r.itemData || null;
+          feed.push({
+            user: { id: fu._id, name: fu.name, handle: fu.handle },
+            item,
+            score: r.score,
+            comment: r.comment,
+            status: r.status,
+            lastModified: r.lastModified
+          });
+        }
+      });
+    });
+
+    // Sort by lastModified desc
+    feed.sort((a, b) => {
+      const da = a.lastModified ? new Date(a.lastModified).getTime() : 0;
+      const db = b.lastModified ? new Date(b.lastModified).getTime() : 0;
+      return db - da;
+    });
+
+    // Pagination (page is 1-based)
+    const total = feed.length;
+    const p = Math.max(1, Number(page) || 1);
+    const l = Math.max(1, Number(limit) || 20);
+    const start = (p - 1) * l;
+    const end = start + l;
+    const items = feed.slice(start, end);
+
+    return { items, total, page: p, limit: l };
+  },
+
+  // Add or update a rating entry for a user's ratedItems array
+  // itemId can be undefined when providing embedded itemData inside payload
+  rateItem: async (userId: string, itemId: string | undefined, itemType: string, payload: { score?: number; comment?: string; status?: string; itemData?: any }) => {
+    const { score, comment, status, itemData } = payload;
+    // Ensure score range if provided
+    if (score !== undefined && (score < 0 || score > 10)) throw new Error('Score debe estar entre 0 y 10');
+
+    const user = await UserModel.findById(userId);
+    if (!user) throw new Error('Usuario no encontrado');
+
+    // Try to find existing rating either by itemId or by itemData.externalId when no itemId
+    let existing: any | undefined;
+    if (itemId) {
+      existing = (user as any).ratedItems?.find((r: any) => String(r.itemId) === String(itemId));
+    } else if (itemData && itemData.externalId) {
+      existing = (user as any).ratedItems?.find((r: any) => (r.itemData && r.itemData.externalId) === itemData.externalId);
     }
-  }
-  ,
-  getRatings: async (userId: string, sortBy: string = 'date', order: string = 'desc') => {
-    // Devuelve los ratedItems del usuario con el item poblado
-    // sortBy: 'date'|'score'. order: 'desc'|'asc'
-    const user = await UserModel.findById(userId).populate('ratedItems.itemId').lean()
-    if (!user) return []
-    const items = (user.ratedItems || []) as any[]
-
-    // Determine sort direction
-    const dir = order === 'asc' ? 1 : -1
-
-    if (sortBy === 'score') {
-      // Sort by numeric score
-      items.sort((a: any, b: any) => {
-        const sa = (a && a.score != null) ? Number(a.score) : 0
-        const sb = (b && b.score != null) ? Number(b.score) : 0
-        return dir * (sa - sb)
-      })
+    if (existing) {
+      // update fields
+      if (score !== undefined) existing.score = score;
+      if (comment !== undefined) existing.comment = comment;
+      if (status !== undefined) existing.status = status;
+      existing.lastModified = new Date();
+      // update itemData if provided
+      if (itemData) existing.itemData = itemData;
     } else {
-      // Default: sort by lastModified date (fallback to 0)
-      items.sort((a: any, b: any) => {
-        const ta = a && a.lastModified ? new Date(a.lastModified).getTime() : 0
-        const tb = b && b.lastModified ? new Date(b.lastModified).getTime() : 0
-        return dir * (ta - tb)
-      })
+      (user as any).ratedItems = (user as any).ratedItems || [];
+      const entry: any = { itemType, score: score ?? 0, comment: comment ?? '', status: status ?? 'watching', lastModified: new Date() };
+      if (itemId) entry.itemId = itemId;
+      if (itemData) entry.itemData = itemData;
+      (user as any).ratedItems.push(entry);
     }
 
-    return items
+    await user.save();
+    return user;
+  },
+
+  // Remove rating for an item from user's ratedItems
+  unrateItem: async (userId: string, itemId: string) => {
+    return await UserModel.findByIdAndUpdate(userId, { $pull: { ratedItems: { itemId } } }, { new: true });
+  },
+
+  // Remove rating by embedded itemData.externalId
+  unrateByExternalId: async (userId: string, externalId: string) => {
+    return await UserModel.findByIdAndUpdate(userId, { $pull: { ratedItems: { 'itemData.externalId': externalId } } }, { new: true });
   }
+
   ,
-  removeRating: async (userId: string, ratingId: string) => {
-    // Remove a ratedItems subdocument by its _id
-    const updated = await UserModel.findByIdAndUpdate(userId, { $pull: { ratedItems: { _id: ratingId } } }, { new: true })
-    return updated
-  }
-  ,
-  deleteRating: async (userId: string, ratingId: string) => {
-    // Elimina un ratedItem por su _id dentro del array
-    return await UserModel.findByIdAndUpdate(userId, { $pull: { ratedItems: { _id: ratingId } } }, { new: true })
+
+  // Get recent users (sorted by newest) with pagination and without sensitive fields
+  getRecentUsers: async (page = 1, limit = 10) => {
+    const p = Math.max(1, Number(page) || 1);
+    const l = Math.max(1, Math.min(100, Number(limit) || 10));
+    const skip = (p - 1) * l;
+
+    const [items, total] = await Promise.all([
+      UserModel.find()
+        .select('-password')
+        .sort({ _id: -1 })
+        .skip(skip)
+        .limit(l)
+        .lean(),
+      UserModel.countDocuments()
+    ]);
+
+    return { items, total, page: p, limit: l };
+  },
+
+  // Search users by name or handle (case-insensitive) with pagination
+  searchUsers: async (term: string, page = 1, limit = 10) => {
+    const q = (term || '').trim();
+    const p = Math.max(1, Number(page) || 1);
+    const l = Math.max(1, Math.min(100, Number(limit) || 10));
+    const skip = (p - 1) * l;
+
+    // Build match stage if query provided
+    const matchStage: any = {};
+    if (q) {
+      const regex = new RegExp(q, 'i');
+      matchStage.$or = [{ name: regex }, { handle: regex }, { email: regex }];
+    }
+
+    // Aggregation pipeline: optional match -> sort newest -> group by lowercase name (dedupe) taking most recent -> replaceRoot -> project
+    const pipeline: any[] = [];
+    if (q) pipeline.push({ $match: matchStage });
+    pipeline.push({ $sort: { _id: -1 } });
+    // group by lowercased name to deduplicate users with same name (case-insensitive)
+    pipeline.push({ $group: { _id: { $toLower: '$name' }, doc: { $first: '$$ROOT' } } });
+    pipeline.push({ $replaceRoot: { newRoot: '$doc' } });
+
+    // Get total count of unique names matching
+    const countAgg = await UserModel.aggregate([...pipeline, { $count: 'count' }]);
+    const total = (countAgg && countAgg[0] && countAgg[0].count) ? countAgg[0].count : 0;
+
+    // Get paginated items, exclude password field
+    const itemsAgg = await UserModel.aggregate([
+      ...pipeline,
+      { $project: { password: 0 } },
+      { $skip: skip },
+      { $limit: l }
+    ]);
+
+    return { items: itemsAgg, total, page: p, limit: l };
   }
 }

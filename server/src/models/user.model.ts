@@ -10,7 +10,14 @@ export interface IUser extends Document {
   description: string
   follows: string[]
   ratedItems?: {
-    itemId: string
+    itemId?: string
+    itemData?: {
+      externalId?: string
+      title?: string
+      author?: string
+      cover?: string
+      description?: string
+    }
     itemType: ItemType
     score: number
     comment: string
@@ -58,7 +65,18 @@ const userSchema = new Schema({
     itemId: {
       type: Schema.Types.ObjectId,
       ref: 'Item',
-      required: true
+      required: false
+    },
+    // Optional embedded item data when no Item doc is created
+    itemData: {
+      type: new Schema({
+        externalId: { type: String, trim: true, default: '' },
+        title: { type: String, trim: true },
+        author: { type: String, trim: true },
+        cover: { type: String, trim: true },
+        description: { type: String, trim: true },
+      }, { _id: false }),
+      default: {}
     },
     itemType: {
       type: String,
@@ -78,8 +96,7 @@ const userSchema = new Schema({
       type: String,
       enum: Object.values(RatedStatus),
       default: RatedStatus.WATCHING
-    }
-    ,
+    },
     lastModified: {
       type: Date,
       default: Date.now
@@ -89,7 +106,7 @@ const userSchema = new Schema({
   }
 })
 
-const User = mongoose.model<IUser>('User', userSchema)
+const User = (mongoose.models && (mongoose.models.User as mongoose.Model<IUser>)) || mongoose.model<IUser>('User', userSchema)
 
 // Export named UserModel for backward compatibility with existing imports
 export const UserModel = User
