@@ -28,6 +28,20 @@ export const userService = {
   
   addRating: async (userId: string, rating: any) => {
     // rating: { itemId, itemType, score, comment?, status? }
+    try {
+      const s = Number(rating.score)
+      if (!isNaN(s)) {
+        let normalized = Math.round(s * 10) / 10
+        if (normalized < 0) normalized = 0
+        if (normalized > 10) normalized = 10
+        rating.score = normalized
+      } else {
+        // fallback to 0 if invalid
+        rating.score = 0
+      }
+    } catch (e) {
+      rating.score = 0
+    }
     // If the user already has a rating for the same itemId, update that subdocument instead of pushing a duplicate.
     try {
       const itemId = rating.itemId
