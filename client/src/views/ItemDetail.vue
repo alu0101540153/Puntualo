@@ -49,8 +49,9 @@
                 </div>
                 <div class="md:col-span-2">
                   <div class="mb-3">
-                    <label class="block text-sm text-gray-300">Tu puntuación</label>
-                    <input v-model.number="userScore" type="number" min="0" max="10" step="1" class="w-24 mt-2 p-2 rounded bg-white/6 text-gray-900" />
+                    <label class="block text-sm text-gray-300">Tu puntuación (1-10)</label>
+                    <input v-model="userScoreRaw" type="text" inputmode="decimal" placeholder="0 - 10" class="w-24 mt-2 p-2 rounded bg-white/6 text-gray-900" />
+                    <div v-if="userScoreError" class="text-rose-400 text-sm mt-1">{{ userScoreError }}</div>
                   </div>
 
                   <div class="mb-3">
@@ -107,6 +108,8 @@ const id = String(route.params.id || '')
 const item = ref<any>({})
 const itemImage = ref('')
 const userScore = ref<number>(9)
+const userScoreRaw = ref<string>(String(userScore.value))
+const userScoreError = ref<string>('')
 const showReview = ref(false)
 const userStatus = ref<string>('watching')
 const userComment = ref<string>('')
@@ -212,6 +215,7 @@ onMounted(async () => {
 
           if (mine) {
             userScore.value = Number(mine.score) || userScore.value
+            userScoreRaw.value = String(userScore.value).replace('.', ',')
             userStatus.value = mine.status || userStatus.value
             userComment.value = mine.comment || userComment.value
           }
@@ -279,6 +283,25 @@ async function submitRating() {
       console.error('Error al crear item en servidor antes de puntuar', err)
     }
   }
+
+  // Parse and validate userScoreRaw (accepts ',' or '.' as decimal separator)
+  const raw = String(userScoreRaw.value || '')
+  const parsed = parseFloat(raw.replace(',', '.'))
+  if (isNaN(parsed)) {
+    userScoreError.value = 'Introduce un número válido entre 0 y 10 (puedes usar coma o punto).'
+    isSubmitting.value = false
+    return
+  }
+
+  // Round to one decimal place and clamp between 0 and 10
+  let normalized = Math.round(parsed * 10) / 10
+  if (normalized < 0) normalized = 0
+  if (normalized > 10) normalized = 10
+
+  // update displayed values
+  userScore.value = normalized
+  userScoreRaw.value = String(normalized).replace('.', ',')
+  userScoreError.value = ''
 
   const payload = {
     itemId: dbItemId,
