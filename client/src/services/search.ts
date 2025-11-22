@@ -15,4 +15,9 @@ export async function searchSeries(title: string, page = 1) {
   return api.apiFetch(`/search/series${q}`)
 }
 
-export default { searchBooks, searchMovies, searchSeries }
+export async function searchFriends(query = '', page = 1) {
+  const q = `?q=${encodeURIComponent(query)}&page=${page}`
+  return api.apiFetch(`/search/friends${q}`)
+}
+
+export default { searchBooks, searchMovies, searchSeries, searchFriends }
