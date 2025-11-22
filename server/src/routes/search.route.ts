@@ -12,9 +12,6 @@ router.get('/movies', searchController.searchMovies);
 // GET /series?title=... -> devuelve series que coinciden con el título (TMDB)
 router.get('/series', searchController.searchSeries);
 
-// GET /friends?q=... -> devuelve usuarios recientes o que coinciden con la búsqueda
-router.get('/friends', searchController.searchFriends);
-
 // POST /books/:googleId -> busca en Google Books por ID y guarda el libro en la BD
 router.post('/books/:googleId', searchController.fetchBook);
 
