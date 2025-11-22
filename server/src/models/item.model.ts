@@ -58,15 +58,8 @@ const itemSchema = new Schema({
     trim: true,
     default: ''
   }
-
-  ,
-  owner: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  }
 })
 
-const Item = (mongoose.models && (mongoose.models.Item as mongoose.Model<IItem>)) || mongoose.model<IItem>('Item', itemSchema)
+const Item = mongoose.model<IItem>('Item', itemSchema)
 
 export default Item

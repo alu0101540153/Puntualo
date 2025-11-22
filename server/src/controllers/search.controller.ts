@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { BookService, MovieService, SeriesService, userService } from '../services';
+import { BookService, MovieService, SeriesService } from '../services';
 
 export const searchController = {
   // GET /?title=...
@@ -31,8 +31,6 @@ export const searchController = {
     }
   },
 
-  // GET /friends?q=...&page=1 -> returns recent users or search users
-  // GET /friends?q=...&page=1 -> returns recent users or search users
   // POST /books/:googleId -> consulta Google Books por ID y guarda el libro en la BD
   fetchBook: async (req: Request, res: Response) => {
     try {
@@ -89,21 +87,6 @@ export const searchController = {
 
       // Devolvemos 201 Created con la info de TMDB y el documento creado
       res.status(201).json(result);
-    } catch (error: any) {
-      res.status(500).json({ message: error.message });
-    }
-  },
-
-  // GET /friends?q=...&page=1 -> returns recent users or search users
-  searchFriends: async (req: Request, res: Response) => {
-    try {
-      const q = (req.query.q as string) || (req.query.title as string) || '';
-      const page = parseInt((req.query.page as string) || '1', 10) || 1;
-
-      console.debug('[searchFriends] q=', JSON.stringify(q), 'page=', page);
-      const result = await userService.searchUsers(q, page, 10);
-      console.debug('[searchFriends] found=', Array.isArray(result.items) ? result.items.length : 'no-items', ' total=', result.total);
-      res.json(result);
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

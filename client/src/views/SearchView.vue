@@ -12,7 +12,7 @@
 
         <div class="grid gap-4">
           <div class="flex flex-col md:flex-row gap-4 items-stretch">
-            <Input v-model="query" :placeholder="selectedType === 'friends' ? 'Buscar usuarios...' : 'Introduce un título...'" class="flex-1" />
+            <Input v-model="query" placeholder="Introduce un título..." class="flex-1" />
 
             <div class="flex gap-3 w-full md:w-auto">
               <button
@@ -29,10 +29,6 @@
                 @click="selectType('series')"
                 :class="buttonClass('series')"
               >📺 Series</button>
-              <button
-                @click="selectType('friends')"
-                :class="buttonClass('friends')"
-              >👥 Amigos</button>
             </div>
           </div>
 
@@ -43,34 +39,10 @@
 
           <div v-if="loading" class="text-gray-300">Buscando...</div>
 
-          <div v-if="!loading && results.length === 0 && searched">
-            <div v-if="selectedType === 'friends'" class="text-gray-300">No existe ese usuario.</div>
-            <div v-else class="text-gray-300">No se han encontrado resultados.</div>
-          </div>
+          <div v-if="!loading && results.length === 0 && searched" class="text-gray-300">No se han encontrado resultados.</div>
 
-          <!-- Use RecommendationsGrid to display mapped results for media; for friends show a users list -->
-          <RecommendationsGrid v-if="selectedType !== 'friends' && recommendationsList.length" :recommendations="recommendationsList" :gridClass="gridClass" />
-
-          <div v-if="selectedType === 'friends'" class="grid grid-cols-1 gap-4">
-            <div v-for="user in results" :key="user._id || user.id" class="bg-gray-800 p-4 rounded-lg flex items-center justify-between">
-
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-white">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 20C3.732 16.943 6.79 15 12 15s8.268 1.943 9.542 5" />
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-white font-semibold">{{ user.name }}</div>
-                </div>
-              </div>
-
-              <div class="flex items-center">
-                <button disabled class="bg-green-500 text-black px-4 py-2 rounded-full font-semibold opacity-60 cursor-not-allowed">Añadir</button>
-              </div>
-            </div>
-          </div>
+          <!-- Use RecommendationsGrid to display mapped results -->
+          <RecommendationsGrid v-if="recommendationsList.length" :recommendations="recommendationsList" :gridClass="gridClass" />
 
           <div v-if="totalPages > 1" class="flex items-center justify-center gap-3 mt-4">
             <button @click="prevPage" :disabled="page === 1" class="px-4 py-2 rounded bg-gray-700 text-white transition hover:bg-gray-600">Anterior</button>
@@ -89,19 +61,19 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import Card from '@/components/Card.vue'
 import Input from '@/components/Input.vue'
 import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
-import { searchBooks, searchMovies, searchSeries, searchFriends } from '@/services/search'
+import { searchBooks, searchMovies, searchSeries } from '@/services/search'
 
 import type { Recommendation } from '@/components/dashboard/types'
 
 const query = ref('')
-const selectedType = ref<'movies' | 'books' | 'series' | 'friends'>('movies')
+const selectedType = ref<'movies' | 'books' | 'series'>('movies')
 const loading = ref(false)
 const results = ref<any[]>([])
 const total = ref(0)
 const page = ref(1)
 const searched = ref(false)
 
-function selectType(t: 'movies' | 'books' | 'series' | 'friends') {
+function selectType(t: 'movies' | 'books' | 'series') {
   selectedType.value = t
   page.value = 1
   results.value = []
@@ -121,12 +93,8 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
 
 const gridClass = 'grid grid-cols-1 lg:grid-cols-2 gap-6'
 
-async function onSearch(keepPage = false) {
-  if (!query.value.trim() && selectedType.value !== 'friends') return
-
-  // If this is a new search initiated by the search button, reset to page 1
-  if (!keepPage) page.value = 1
-
+async function onSearch() {
+  if (!query.value.trim()) return
   loading.value = true
   searched.value = true
   try {
@@ -136,11 +104,7 @@ async function onSearch(keepPage = false) {
     } else if (selectedType.value === 'movies') {
       res = await searchMovies(query.value, page.value)
     } else {
-      if (selectedType.value === 'series') {
-        res = await searchSeries(query.value, page.value)
-      } else if (selectedType.value === 'friends') {
-        res = await searchFriends(query.value, page.value)
-      }
+      res = await searchSeries(query.value, page.value)
     }
 
     results.value = res.items || []
@@ -157,14 +121,14 @@ async function onSearch(keepPage = false) {
 function prevPage() {
   if (page.value > 1) {
     page.value--
-    onSearch(true)
+    onSearch()
   }
 }
 
 function nextPage() {
   if (page.value < totalPages.value) {
     page.value++
-    onSearch(true)
+    onSearch()
   }
 }
 
@@ -183,7 +147,7 @@ const recommendationsList = computed<Recommendation[]>(() => {
   }))
 })
 
-function buttonClass(type: 'movies' | 'books' | 'series' | 'friends') {
+function buttonClass(type: 'movies' | 'books' | 'series') {
   const base = 'px-4 py-2 rounded-full font-semibold transition transform hover:-translate-y-1 hover:scale-105'
   return [
     base,
