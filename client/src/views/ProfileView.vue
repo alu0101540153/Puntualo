@@ -3,7 +3,7 @@
     <!-- Mantener la cabecera alineada con el tope de la página -->
     <DashboardHeader />
 
-    <div class="max-w-7xl mx-auto py-8">
+  <div class="max-w-7xl mx-auto py-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start mt-6">
             <ProfileSidebar :profileUser="profileUser" class="md:col-span-1" />
 
@@ -18,9 +18,10 @@
                     <h3 class="text-2xl font-semibold text-white mb-4">Perfil público: {{ profileUser.name }}</h3>
                   </div>
                   <div class="mt-3">
-                    <button v-if="isViewingOther" @click="toggleFollow" :disabled="followProcessing" :class="isFollowing ? 'bg-red-600 text-white' : 'bg-green-600 text-black'" class="px-4 py-2 rounded-full font-semibold">
+                    <Button v-if="isViewingOther" @click="toggleFollow" :disabled="followProcessing"
+                      :variant="isFollowing ? 'danger' : 'primary'" size="md" class="px-4 py-2 font-semibold">
                       {{ isFollowing ? 'Dejar de seguir' : 'Seguir' }}
-                    </button>
+                    </Button>
                   </div>
                   <div v-if="profileUser.items && profileUser.items.length">
                     <ul class="space-y-3">
@@ -40,7 +41,7 @@
                 <div class="space-y-4">
                   <div class="flex items-center justify-between">
                     <h3 class="text-2xl font-semibold text-white">Mis vistos</h3>
-                    <button @click="goToAllSeen" class="bg-white/10 text-white px-3 py-1 rounded-full">Ver todos mis vistos</button>
+                    <Button @click="goToAllSeen" variant="secondary" size="sm" class="px-3 py-1">Ver todos mis vistos</Button>
                   </div>
 
                   <SeenCarousel />
@@ -59,7 +60,7 @@
                   <div class="space-y-4">
                     <div class="flex items-center justify-between">
                       <h3 class="text-2xl font-semibold text-white">Vistos de {{ profileUser?.name }}</h3>
-                      <button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" class="bg-white/10 text-white px-3 py-1 rounded-full">Ver todos sus vistos</button>
+            <Button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" variant="secondary" size="sm">Ver todos sus vistos</Button>
                     </div>
 
                     <SeenCarousel :userId="profileUser?._id" :ratings="profileUser?.ratedItems" />
@@ -73,7 +74,7 @@
                 <div class="space-y-4">
                   <div class="flex items-center justify-between">
                     <h3 class="text-2xl font-semibold text-white">Mis puntuados</h3>
-                    <button @click="goToAllRatings" class="bg-white/10 text-white px-3 py-1 rounded-full">Ver mis puntuados</button>
+                    <Button @click="goToAllRatings" variant="secondary" size="sm">Ver mis puntuados</Button>
                   </div>
 
                   <div v-if="loadingRatings" class="text-gray-300">Cargando resumen...</div>
@@ -101,7 +102,7 @@
                 <div class="space-y-4">
                   <div class="flex items-center justify-between">
                     <h3 class="text-2xl font-semibold text-white">Puntuados de {{ profileUser?.name }}</h3>
-                    <button @click="goToUsersRatings" class="bg-white/10 text-white px-3 py-1 rounded-full">Ver sus puntuados</button>
+                    <Button @click="goToUsersRatings" variant="secondary" size="sm">Ver sus puntuados</Button>
                   </div>
 
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -135,6 +136,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
+import Button from '@/components/Button.vue'
 import ProfileSidebar from '@/components/profile/ProfileSidebar.vue'
 import CurrentlyWatching from '@/components/profile/CurrentlyWatching.vue'
 import SeenCarousel from '@/components/profile/SeenCarousel.vue'

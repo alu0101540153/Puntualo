@@ -17,15 +17,15 @@
         <Input v-model="password" type="password" placeholder="Contraseña" />
       </div>
 
-      <div style="margin-top:18px">
-        <Button @click="register" :disabled="showEmailError || loading">{{ loading ? 'CREANDO...' : 'CREAR CUENTA' }}</Button>
-      </div>
+      <div class="w-full flex flex-col items-center gap-4" style="margin-top:18px">
+        <Button @click="register" :disabled="showEmailError || loading" size="lg" class="w-full">{{ loading ? 'CREANDO...' : 'CREAR CUENTA' }}</Button>
 
-      <div v-if="error" class="text-center mt-4" style="color:#ff9b9b">{{ error }}</div>
+        <div class="text-center mt-4 w-full">
+          <span class="text-sm text-gray-300">¿Ya tienes cuenta?</span>
+          <RouterLink to="/login" class="ml-2 text-emerald-400 font-semibold">Inicia sesión</RouterLink>
+        </div>
 
-      <div class="text-center" style="margin-top:20px">
-        <span style="color:#c7c7c7;margin-right:8px">¿Ya tienes cuenta?</span>
-        <RouterLink to="/login" style="color:#1DB954;font-weight:600;">Inicia sesión</RouterLink>
+        <div v-if="error" class="text-center mt-2" style="color:#ff9b9b">{{ error }}</div>
       </div>
     </Card>
   </div>

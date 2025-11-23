@@ -7,37 +7,27 @@
       <Card>
         <div class="mb-6">
           <h2 class="text-3xl font-bold text-white mb-2">Buscar</h2>
-          <p class="text-gray-300">Busca películas, libros o series. Selecciona el tipo y usa la paginación.</p>
+          <p class="text-gray-300 mb-6">Busca películas, libros, series o amigos. Selecciona el tipo y usa la paginación.</p>
 
         <div class="grid gap-4">
-            <div class="flex flex-col md:flex-row gap-4 items-stretch">
-            <Input v-model="query" :placeholder="selectedType === 'friends' ? 'Introduce un username...' : 'Introduce un título...'" class="flex-1" />
-              <button
-                @click="selectType('movies')"
-                :class="buttonClass('movies')"
-              >🎬 Películas</button>
-
-              <button
-                @click="selectType('books')"
-                :class="buttonClass('books')"
-              >📖 Libros</button>
-
-              <button
-                @click="selectType('series')"
-                :class="buttonClass('series')"
-              >📺 Series</button>
- 
-              <button
-                @click="selectType('friends')"
-                :class="buttonClass('friends')"
-              >👥 Amigos</button>
-            </div>
+          <!-- Input on its own row so it has breathing room -->
+          <div class="w-full">
+            <Input v-model="query" :placeholder="selectedType === 'friends' ? 'Introduce un username...' : 'Introduce un título...'" class="w-full min-w-0" />
           </div>
 
-          <!-- separar más visualmente las opciones de los botones -->
-          <div class="flex gap-3 mt-4">
-            <button @click="onSearch" class="flex-1 bg-green-500 text-black py-3 rounded-full font-bold transition transform hover:-translate-y-1 hover:scale-105">Buscar</button>
-            <button @click="clear" class="flex-1 bg-gray-700 text-white py-3 rounded-full transition transform hover:-translate-y-1 hover:scale-105">Limpiar</button>
+          <!-- Selection buttons grouped on the next row, wrap when needed -->
+          <div class="flex flex-wrap gap-4 items-center">
+            <button @click="selectType('movies')" :class="buttonClass('movies')">🎬 Películas</button>
+            <button @click="selectType('books')" :class="buttonClass('books')">📖 Libros</button>
+            <button @click="selectType('series')" :class="buttonClass('series')">📺 Series</button>
+            <button @click="selectType('friends')" :class="buttonClass('friends')">👥 Amigos</button>
+          </div>
+        </div>
+
+          <!-- acciones principales: apilar en móvil, alinear en desktop -->
+          <div class="flex flex-col md:flex-row gap-4 mt-8">
+            <Button @click="onSearch" class="flex-1" size="lg">{{ 'Buscar' }}</Button>
+            <Button @click="clear" class="flex-1" size="lg" variant="secondary">Limpiar</Button>
           </div>
 
           <div v-if="loading" class="text-gray-300">Buscando...</div>
@@ -48,22 +38,24 @@
           </div>
 
           <!-- Use RecommendationsGrid to display mapped results -->
-          <RecommendationsGrid v-if="recommendationsList.length" :recommendations="recommendationsList" :gridClass="gridClass" />
+          <div class="mt-6">
+            <RecommendationsGrid v-if="recommendationsList.length" :recommendations="recommendationsList" :gridClass="gridClass" />
+          </div>
 
           <!-- Friends list: simple list with add button -->
-          <div v-if="selectedType === 'friends' && results.length" class="bg-gray-800 rounded p-4">
-            <ul class="space-y-3">
+          <div v-if="selectedType === 'friends' && results.length" class="bg-slate-800/60 rounded p-6 mt-6 border border-slate-700">
+            <ul class="space-y-4">
               <li v-for="(u, idx) in results" :key="u._id" class="py-0">
-                <div class="flex items-center justify-between p-3 rounded-lg bg-gray-900/40">
-                  <div class="flex items-center gap-3">
+                <div class="flex items-center justify-between p-4 rounded-md bg-slate-900/80 border border-slate-700 shadow-sm">
+                  <div class="flex items-center gap-4">
                     <div class="flex flex-col">
                       <div class="text-white font-bold text-lg">{{ u.name || u.handle || 'Sin nombre' }}</div>
-                      <div class="text-gray-400 text-sm truncate">@{{ u.handle }}</div>
+                      <div class="text-gray-300 text-sm truncate">@{{ u.handle }}</div>
                     </div>
                   </div>
                   <div class="flex items-center">
                     <!-- View profile button -->
-                    <button @click="viewProfile(u._id)" class="w-10 h-10 mr-2 flex items-center justify-center rounded-full bg-white/10 text-white" title="Ver perfil">
+                    <button @click="viewProfile(u._id)" class="w-10 h-10 mr-2 flex items-center justify-center rounded-full bg-white/6 text-white" title="Ver perfil">
                       <!-- eye icon -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"></path>
@@ -111,6 +103,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import Card from '@/components/Card.vue'
 import Input from '@/components/Input.vue'
 import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
+import Button from '@/components/Button.vue'
 import { searchBooks, searchMovies, searchSeries, searchFriends } from '@/services/search'
 import { followUser } from '@/services/user'
 import { getUser } from '@/services/auth'
@@ -166,24 +159,25 @@ async function onSearch() {
       res = await searchFriends(query.value, page.value)
     }
 
-    // dedupe results by handle (username) to avoid showing duplicate usernames
+    // dedupe results: prefer handle (users), then try several id fields ("_id", "id", "externalId")
     const items = res.items || []
     const seen = new Set<string>()
     const deduped: any[] = []
     for (const it of items) {
-      const h = (it.handle || '').toLowerCase()
-      if (h) {
-        if (!seen.has(h)) {
-          seen.add(h)
+      const handle = (it && (it.handle || it.name || '')).toString().toLowerCase()
+      if (handle) {
+        if (!seen.has(handle)) {
+          seen.add(handle)
           deduped.push(it)
         }
-      } else {
-        // fallback to dedupe by _id if no handle
-        const idStr = String(it._id)
-        if (!seen.has(idStr)) {
-          seen.add(idStr)
-          deduped.push(it)
-        }
+        continue
+      }
+
+      // try multiple id-like fields to dedupe generic items (movies/books/series)
+      const idCandidate = String(it && (it._id ?? it.id ?? it.externalId ?? ''))
+      if (!seen.has(idCandidate)) {
+        seen.add(idCandidate)
+        deduped.push(it)
       }
     }
     // mark entries that are already followed so UI shows the tick
@@ -312,7 +306,8 @@ function viewProfile(userId: string) {
 }
 
 function buttonClass(type: 'movies' | 'books' | 'series' | 'friends') {
-  const base = 'px-4 py-2 rounded-full font-semibold transition transform hover:-translate-y-1 hover:scale-105'
+  // ensure buttons don't shrink awkwardly and keep their text on a single line
+  const base = 'px-4 py-2 rounded-full font-semibold transition transform hover:-translate-y-1 hover:scale-105 shrink-0 whitespace-nowrap'
   return [
     base,
     selectedType.value === type ? 'bg-white text-black shadow-lg' : 'bg-black/60 text-white hover:bg-black/50'

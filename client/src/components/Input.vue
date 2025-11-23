@@ -5,13 +5,11 @@
     :placeholder="placeholder"
     :value="modelValue"
     @input="onInput"
-    class="w-full"
-    :style="inputStyle"
+    class="w-full bg-white/5 text-white placeholder-gray-300 px-4 py-3 rounded-lg border border-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400 focus:ring-opacity-20 transition"
   />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
 const props = defineProps({
   modelValue: { type: [String, Number], default: '' },
   type: { type: String, default: 'text' },
@@ -19,13 +17,13 @@ const props = defineProps({
 })
 const emit = defineEmits(['update:modelValue'])
 
-const inputStyle = computed(
-  () =>
-    'width:100%; padding: clamp(12px,2vw,20px) clamp(14px,2.2vw,22px); border-radius:14px; background: rgba(255,255,255,0.04); color:#fff; border:none; outline:none; box-sizing:border-box; font-size: clamp(14px,1.6vw,16px);'
-)
-
 function onInput(e: Event) {
   const t = e.target as HTMLInputElement
   emit('update:modelValue', t?.value ?? '')
 }
 </script>
+
+<style scoped>
+/* ensure inputs look crisp on dark backgrounds */
+input { font-size: 14px; }
+</style>

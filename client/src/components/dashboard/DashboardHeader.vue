@@ -30,12 +30,12 @@
           type="text" 
           placeholder="Buscar..."
           readonly
-          class="pl-4 pr-10 py-2 rounded-full bg-gray-600 bg-opacity-50 border border-gray-500 text-white placeholder-gray-400 cursor-pointer text-sm w-40"
+          class="pl-4 pr-10 py-2 rounded-full bg-white/3 border border-white/6 text-white placeholder-gray-400 cursor-pointer text-sm w-48 transition hover:shadow-md"
         >
-        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">🔍</span>
+        <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300">🔍</span>
       </div>
       <div
-        class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white font-semibold cursor-pointer"
+        class="w-10 h-10 md:w-11 md:h-11 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full flex items-center justify-center text-black font-bold cursor-pointer ring-2 ring-black/30"
         role="button"
         aria-label="Ir al perfil"
         title="Ver perfil"
@@ -45,12 +45,7 @@
       >
         {{ userInitial }}
       </div>
-      <button
-        @click="handleLogout"
-        class="ml-3 text-sm bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded"
-      >
-        Cerrar sesión
-      </button>
+      <Button @click="handleLogout" variant="secondary" size="sm">Cerrar sesión</Button>
     </div>
   </header>
 </template>
@@ -71,6 +66,7 @@ import { computed } from 'vue'
 import { getUser } from '@/services/auth'
 import { logout } from '@/services/api'
 
+import Button from '@/components/Button.vue'
 const router = useRouter()
 const route = useRoute()
 
