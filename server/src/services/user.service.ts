@@ -60,7 +60,13 @@ export const userService = {
     return await UserModel.findByIdAndUpdate(userId, { $pull: { items: { _id: itemSubId } } }, { new: true })
   },
   getById: async (id: string) => {
-    return await UserModel.findById(id).select('-password').lean()
+    // Populate related item documents so public profile views have titles/covers available.
+    // Populate both ratedItems.itemId and items.itemId (if present).
+    return await UserModel.findById(id)
+      .select('-password')
+      .populate('ratedItems.itemId')
+      .populate('items.itemId')
+      .lean()
   },
 
   getFollows: async (id: string) => {

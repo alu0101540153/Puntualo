@@ -14,6 +14,9 @@ router.get('/', userController.getAllUser);
 // Obtener usuario por id (public info)
 router.get('/:id', userController.getUserById);
 
+// Public access to a user's friends (follows) so others can view someone's friends list
+router.get('/:id/friends', userController.getFollows);
+
 // Validamos el cuerpo antes de crear el usuario
 router.post('/', validateUser, userController.create);
 

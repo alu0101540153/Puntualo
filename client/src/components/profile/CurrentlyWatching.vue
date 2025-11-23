@@ -1,12 +1,17 @@
 <template>
   <div class="bg-white/5 rounded-lg p-6 text-white">
-    <div class="flex items-start justify-between">
+    <div v-if="!hideHeader" class="flex items-start justify-between">
       <div>
-        <h3 class="text-2xl font-semibold">Actualmente viendo</h3>
+        <h3 class="text-2xl font-semibold">{{ userName ? `Actualmente viendo de ${userName}` : 'Actualmente viendo' }}</h3>
         <p class="text-sm text-gray-300">Sigue lo que estás viendo ahora</p>
       </div>
 
-      <router-link to="/search" class="bg-white/10 text-white px-3 py-1 rounded-full">Añadir</router-link>
+      <!-- If this is a friend's profile view, show 'Ver más' and navigate to the user's watching page.
+           Otherwise keep the original 'Añadir' link for the current user. -->
+      <div>
+        <button v-if="friendView && userId" @click="goToUserWatching" class="bg-white/10 text-white px-3 py-1 rounded-full">Ver más</button>
+        <router-link v-else to="/search" class="bg-white/10 text-white px-3 py-1 rounded-full">Añadir</router-link>
+      </div>
     </div>
 
     <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
@@ -33,14 +38,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { getMyRatings } from '@/services/user'
 import { useRouter } from 'vue-router'
 import { getUser } from '@/services/auth'
 
+const props = defineProps<{ userId?: string; ratings?: any[]; hideHeader?: boolean; friendView?: boolean; userName?: string }>()
+const { userId, ratings, hideHeader, friendView, userName } = props
+
 const items = ref<any[]>([])
 const loading = ref(false)
 const router = useRouter()
+
+function goToUserWatching() {
+  if (!userId) return
+  router.push({ name: 'user-watching', params: { id: String(userId) } })
+}
 
 function getCover(r: any) {
   return (r.itemId && r.itemId.data && r.itemId.data.cover) || r.itemId?.image || r.cover || '/img/placeholder-book.png'
@@ -63,33 +76,40 @@ function goToDetail(r: any) {
 }
 
 async function load() {
-  const user = getUser()
-  if (!user || !user._id) return
+  // allow passing ratings array via props.ratings
   loading.value = true
-    try {
-      const data: any = await getMyRatings(user._id)
-      // data is an array of ratedItems. We want the latest rating per itemId
-      const arr = Array.isArray(data) ? data : []
+  try {
+    const data: any = ratings && Array.isArray(ratings) ? ratings : (userId ? await getMyRatings(userId) : (getUser() ? await getMyRatings(getUser()._id) : []))
+    const arr = Array.isArray(data) ? data : []
 
-      // normalize item id and compute latest per item
-      const map = new Map<string, any>()
-      for (const entry of arr) {
-        const rawId = entry.itemId?._id || entry.itemId?.id || String(entry.itemId || entry._id || '')
-        if (!rawId) continue
-        const existing = map.get(rawId)
-        // Prefer the one with newer lastModified if present, otherwise the current one (array order assumed chronological)
-        if (!existing) {
-          map.set(rawId, entry)
-        } else {
-          const a = existing.lastModified ? new Date(existing.lastModified).getTime() : 0
-          const b = entry.lastModified ? new Date(entry.lastModified).getTime() : 0
-          if (b >= a) map.set(rawId, entry)
-        }
+    // normalize item id and compute latest per item
+    const map = new Map<string, any>()
+    for (const entry of arr) {
+      const rawId = entry.itemId?._id || entry.itemId?.id || String(entry.itemId || entry._id || '')
+      if (!rawId) continue
+      const existing = map.get(rawId)
+      // Prefer the one with newer lastModified if present, otherwise the current one (array order assumed chronological)
+      if (!existing) {
+        map.set(rawId, entry)
+      } else {
+        const a = existing.lastModified ? new Date(existing.lastModified).getTime() : 0
+        const b = entry.lastModified ? new Date(entry.lastModified).getTime() : 0
+        if (b >= a) map.set(rawId, entry)
       }
+    }
 
-      const latest = Array.from(map.values())
-      // keep those whose latest status is 'watching'
-      items.value = latest.filter((x: any) => (x.status || '').toLowerCase() === 'watching')
+    const latest = Array.from(map.values())
+    // keep those whose latest status is 'watching' (accept several common variants)
+    function isWatchingStatus(s: any) {
+      if (!s) return false
+      const low = String(s).toLowerCase()
+      return low === 'watching' || low === 'viendo' || low === 'in-progress' || low === 'inprogress' || low === 'in_progress'
+    }
+
+    // debug helper to trace incoming data when embedded for another user
+    try { console.debug('CurrentlyWatching.load: incoming entries', arr.length, 'latestUnique', latest.length) } catch (e) {}
+
+    items.value = latest.filter((x: any) => isWatchingStatus(x.status))
   } catch (err) {
     console.error('Error loading ratings', err)
     items.value = []
@@ -102,6 +122,11 @@ onMounted(() => {
   load()
   // listen for ratings changes globally
   window.addEventListener('ratingsChanged', load)
+})
+
+watch(() => props.userId, () => load())
+watch(() => props.ratings, () => {
+  if (props.ratings) load()
 })
 </script>
 

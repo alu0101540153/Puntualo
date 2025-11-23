@@ -20,12 +20,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
 import { getMyRatings } from '@/services/user'
 import { getUser } from '@/services/auth'
 
+const props = defineProps<{ userId?: string; ratings?: any[] }>()
 const items = ref<any[]>([])
 const carousel = ref<HTMLElement | null>(null)
 const router = useRouter()
@@ -56,14 +57,20 @@ function getTitle(r: any) {
 }
 
 async function loadFinished() {
-  const user = getUser()
-  if (!user || !user._id) {
+  // allow passing ratings array directly via props.ratings for reuse
+  if (props.ratings && Array.isArray(props.ratings)) {
+    normalizeAndSet(props.ratings)
+    return
+  }
+
+  const uid = props.userId || (getUser() && getUser()._id)
+  if (!uid) {
     items.value = []
     return
   }
 
   try {
-    const data: any[] = await getMyRatings(user._id) || []
+    const data: any[] = (await getMyRatings(uid)) || []
     // normalize to latest per item
     const map = new Map<string, any>()
     for (const entry of data) {
@@ -100,11 +107,45 @@ async function loadFinished() {
   }
 }
 
+function normalizeAndSet(data: any[]) {
+  const map = new Map<string, any>()
+  for (const entry of data) {
+    const rawId = entry.itemId?._id || entry.itemId?.id || String(entry.itemId || entry._id || '')
+    if (!rawId) continue
+    const existing = map.get(rawId)
+    if (!existing) map.set(rawId, entry)
+    else {
+      const a = existing.lastModified ? new Date(existing.lastModified).getTime() : 0
+      const b = entry.lastModified ? new Date(entry.lastModified).getTime() : 0
+      if (b >= a) map.set(rawId, entry)
+    }
+  }
+  const latest = Array.from(map.values())
+  const completed = latest.filter((x: any) => {
+    const s = (x.status || '').toString().toLowerCase()
+    return s === 'completed' || s === 'terminado' || s === 'finished'
+  })
+  items.value = completed.map((r: any, idx: number) => ({
+    id: r._id || idx,
+    detailId: r.itemId?._id || r.itemId?.id || r._id,
+    image: getCover(r),
+    rating: r.score ? `${r.score}/10` : '-/10',
+    type: getTypeEmoji(r),
+    title: getTitle(r)
+  }))
+}
+
 onMounted(() => {
   loadFinished()
   window.addEventListener('ratingsChanged', loadFinished)
 })
 
+watch(() => props.userId, () => {
+  loadFinished()
+})
+watch(() => props.ratings, () => {
+  if (props.ratings) normalizeAndSet(props.ratings)
+})
 function onSelect(selected: any) {
   const id = selected?.detailId || selected?.id
   if (!id) return

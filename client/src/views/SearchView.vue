@@ -55,10 +55,22 @@
             <ul class="space-y-3">
               <li v-for="(u, idx) in results" :key="u._id" class="py-0">
                 <div class="flex items-center justify-between p-3 rounded-lg bg-gray-900/40">
-                  <div>
-                    <div class="text-white font-semibold">{{ u.name }}</div>
+                  <div class="flex items-center gap-3">
+                    <div class="flex flex-col">
+                      <div class="text-white font-bold text-lg">{{ u.name || u.handle || 'Sin nombre' }}</div>
+                      <div class="text-gray-400 text-sm truncate">@{{ u.handle }}</div>
+                    </div>
                   </div>
-                  <div>
+                  <div class="flex items-center">
+                    <!-- View profile button -->
+                    <button @click="viewProfile(u._id)" class="w-10 h-10 mr-2 flex items-center justify-center rounded-full bg-white/10 text-white" title="Ver perfil">
+                      <!-- eye icon -->
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+
                     <div v-if="String(u._id) === String(me?._id || me?.id)" class="w-10 h-10"></div>
                     <button v-else-if="following.includes(String(u._id)) || u.__followed" disabled class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-600 text-white">
                       <!-- check mark -->
@@ -94,7 +106,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import Card from '@/components/Card.vue'
 import Input from '@/components/Input.vue'
@@ -115,6 +127,7 @@ const searched = ref(false)
 const errorMsg = ref('')
 
 const route = useRoute()
+const router = useRouter()
 
 function selectType(t: 'movies' | 'books' | 'series' | 'friends') {
   selectedType.value = t
@@ -285,6 +298,16 @@ async function handleFollow(targetId: string, index: number) {
     }
   } catch (err) {
     console.error('Follow error', err)
+  }
+}
+
+function viewProfile(userId: string) {
+  // navigate to public profile view with query param userId
+  try {
+    router.push({ path: '/profile', query: { userId: String(userId) } })
+  } catch (e) {
+    // fallback: direct path
+    router.push(`/profile?userId=${encodeURIComponent(String(userId))}`)
   }
 }
 

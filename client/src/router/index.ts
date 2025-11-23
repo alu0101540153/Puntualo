@@ -82,6 +82,34 @@ const router = createRouter({
       name: 'search',
       component: SearchView,
     }
+    ,
+    {
+      path: '/users/:id/watching',
+      name: 'user-watching',
+      component: () => import('../views/UserWatchingView.vue'),
+      props: true
+    }
+    ,
+    {
+      path: '/users/:id/seen',
+      name: 'user-seen',
+      component: () => import('../views/UserSeenView.vue'),
+      props: true
+    }
+    ,
+    {
+      path: '/users/:id/ratings',
+      name: 'user-ratings',
+      component: () => import('../views/UserRatingsView.vue'),
+      props: true
+    }
+    ,
+    {
+      path: '/users/:id/friends',
+      name: 'user-friends',
+      component: () => import('../views/UserFriendsView.vue'),
+      props: true
+    }
   ],
 })
 
