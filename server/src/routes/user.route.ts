@@ -11,6 +11,9 @@ const router = Router();
 
 router.get('/', userController.getAllUser);
 
+// Obtener usuario por id (public info)
+router.get('/:id', userController.getUserById);
+
 // Validamos el cuerpo antes de crear el usuario
 router.post('/', validateUser, userController.create);
 
@@ -28,5 +31,16 @@ router.get('/:id/ratings', verifyToken, checkOwnership, userController.getRating
 
 // Eliminar una puntuación específica del usuario
 router.delete('/:id/ratings/:ratingId', verifyToken, checkOwnership, userController.deleteRating);
+
+// Obtener la lista de follows del usuario (solo propietario)
+router.get('/:id/follows', verifyToken, checkOwnership, userController.getFollows);
+
+// Follow/unfollow another user (authenticated user acts on themselves following target id)
+router.post('/:id/follow', verifyToken, userController.follow);
+router.delete('/:id/follow', verifyToken, userController.unfollow);
+
+// Manage personal items list (only owner)
+router.post('/:id/items', verifyToken, checkOwnership, userController.addItem);
+router.delete('/:id/items/:itemId', verifyToken, checkOwnership, userController.deleteItem);
 
 export default router;

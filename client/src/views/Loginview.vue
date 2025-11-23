@@ -4,7 +4,9 @@
     <!-- Centered card (Spotify-like) - compact like Spotify login -->
     <Card>
       <div class="flex flex-col items-center mb-8" style="text-align:center">
-        <img src="/Logo_white.svg" alt="Puntúalo" class="h-20 mb-6" />
+        <RouterLink to="/">
+          <img src="/Logo_white.svg" alt="Puntúalo" class="h-20 mb-6" />
+        </RouterLink>
       </div>
 
       <div class="flex flex-col mb-8" style="row-gap: clamp(16px,3vw,32px); margin-bottom:24px;">
@@ -48,7 +50,18 @@ const login = async () => {
       router.push('/dashboard')
     }
   } catch (err: any) {
-    error.value = err?.message || 'Error en el inicio de sesión'
+    // api.apiFetch throws Error with message possibly JSON
+    const raw = err?.message || 'Error en el inicio de sesión'
+    try {
+      const parsed = JSON.parse(raw)
+      // parsed can be { message } or { errors }
+      if (parsed?.message) error.value = parsed.message
+      else if (Array.isArray(parsed)) error.value = parsed.map((e: any) => e.message || e).join(', ')
+      else if (parsed?.errors) error.value = (parsed.errors.map ? parsed.errors.map((e: any) => e.message).join(', ') : String(parsed.errors))
+      else error.value = String(parsed)
+    } catch (e) {
+      error.value = raw
+    }
   } finally {
     loading.value = false
   }

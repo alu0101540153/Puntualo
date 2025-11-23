@@ -2,7 +2,9 @@
   <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-300 flex items-center justify-center p-8">
     <Card>
       <div class="flex flex-col items-center mb-8" style="text-align:center">
-        <img src="/Logo_white.svg" alt="Puntúalo" class="h-20 mb-6" />
+        <RouterLink to="/">
+          <img src="/Logo_white.svg" alt="Puntúalo" class="h-20 mb-6" />
+        </RouterLink>
       </div>
 
       <div class="flex flex-col mb-8" style="row-gap: clamp(16px,3vw,32px);">
@@ -76,7 +78,15 @@ const register = async () => {
       router.push('/login')
     }
   } catch (err: any) {
-    error.value = err?.message || 'Error al registrar'
+    const raw = err?.message || 'Error al registrar'
+    try {
+      const parsed = JSON.parse(raw)
+      if (parsed?.message) error.value = parsed.message
+      else if (parsed?.errors) error.value = (Array.isArray(parsed.errors) ? parsed.errors.map((e: any) => e.message).join(', ') : String(parsed.errors))
+      else error.value = String(parsed)
+    } catch (e) {
+      error.value = raw
+    }
   } finally {
     loading.value = false
   }

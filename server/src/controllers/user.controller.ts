@@ -80,5 +80,71 @@ export const userController = {
       res.status(400).json({ message: error.message })
     }
   }
+  ,
+  getUserById: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const data = await userService.getById(id)
+      if (!data) return res.status(404).json({ message: 'User not found' })
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  },
+
+  getFollows: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const items = await userService.getFollows(id)
+      return res.json(items)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
+  ,
+  follow: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params // target to follow
+      const me = (req as any).user
+      if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
+      const data = await userService.followUser(me.id, id)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  },
+
+  unfollow: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params // target to unfollow
+      const me = (req as any).user
+      if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
+      const data = await userService.unfollowUser(me.id, id)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  },
+
+  addItem: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params // user id (must be owner)
+      const payload = req.body
+      const data = await userService.addItemToUser(id, payload)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  },
+
+  deleteItem: async (req: Request, res: Response) => {
+    try {
+      const { id, itemId } = req.params // id=user id, itemId=subdocument id
+      const data = await userService.removeItemFromUser(id, itemId)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
   
 }

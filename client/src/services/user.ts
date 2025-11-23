@@ -20,4 +20,17 @@ export async function deleteRating(userId: string, ratingId: string) {
   return api.apiFetch(`/users/${userId}/ratings/${ratingId}`, { method: 'DELETE', auth: true })
 }
 
+export async function followUser(targetUserId: string) {
+  // current user token will be attached by apiFetch when auth:true
+  return api.apiFetch(`/users/${targetUserId}/follow`, { method: 'POST', auth: true })
+}
+
+export async function unfollowUser(targetUserId: string) {
+  return api.apiFetch(`/users/${targetUserId}/follow`, { method: 'DELETE', auth: true })
+}
+
+export async function getUserById(userId: string) {
+  return api.apiFetch(`/users/${userId}`)
+}
+
 export default { addRating, getMyRatings, updateUser, deleteRating }

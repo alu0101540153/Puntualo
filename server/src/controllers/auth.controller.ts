@@ -11,7 +11,12 @@ export const authController = {
       // result: { user, token }
       res.json(result)
     } catch (error: any) {
-      res.status(400).json({ message: error.message })
+      // Map known auth errors to 401
+      const msg = error?.message || 'Login error'
+      if (msg.toLowerCase().includes('no encontrado') || msg.toLowerCase().includes('contrase')) {
+        return res.status(401).json({ message: msg })
+      }
+      res.status(400).json({ message: msg })
     }
   },
 
@@ -26,7 +31,14 @@ export const authController = {
       const token = authService.generateToken(data)
       res.status(201).json({ user: obj, token })
     } catch (error: any) {
-      res.status(400).json({ message: error.message })
+      // Handle mongoose duplicate key errors
+      const msg = error?.message || 'Registration error'
+      if (error && error.code === 11000) {
+        // parse which field
+        const field = Object.keys(error.keyValue || {})[0]
+        return res.status(409).json({ message: `${field} already exists`, field })
+      }
+      return res.status(400).json({ message: msg })
     }
   }
 }

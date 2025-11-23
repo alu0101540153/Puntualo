@@ -8,7 +8,24 @@
             <ProfileSidebar class="md:col-span-1" />
 
             <div class="md:col-span-3 space-y-6">
-              <CurrentlyWatching />
+              <template v-if="!profileUser">
+                <CurrentlyWatching />
+              </template>
+
+              <template v-else>
+                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
+                  <h3 class="text-2xl font-semibold text-white mb-4">Perfil público: {{ profileUser.name }}</h3>
+                  <div v-if="profileUser.items && profileUser.items.length">
+                    <ul class="space-y-3">
+                      <li v-for="it in profileUser.items" :key="it._id" class="p-3 rounded bg-gray-900/40">
+                        <div class="text-white font-semibold">{{ it.title }}</div>
+                        <div class="text-gray-400 text-sm">{{ it.itemType }}</div>
+                      </li>
+                    </ul>
+                  </div>
+                  <div v-else class="text-gray-300">No hay items públicos.</div>
+                </div>
+              </template>
 
               <!-- Mis vistos: usar contenedor más ligero y que ocupe todo el ancho disponible -->
               <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
@@ -57,13 +74,14 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import ProfileSidebar from '@/components/profile/ProfileSidebar.vue'
 import CurrentlyWatching from '@/components/profile/CurrentlyWatching.vue'
 import SeenCarousel from '@/components/profile/SeenCarousel.vue'
 import { getUser } from '@/services/auth'
 import { getMyRatings } from '@/services/user'
+import { getUserById } from '@/services/user'
 
 const loadingRatings = ref(true)
 const totalRatings = ref(0)
@@ -71,6 +89,9 @@ const avgScore = ref<string | number>('—')
 const lastRatedTitle = ref('')
 
 const router = useRouter()
+const route = useRoute()
+
+const profileUser = ref<any | null>(null)
 
 function goToAllSeen() {
   router.push('/my-seen')
@@ -124,6 +145,15 @@ onMounted(() => {
   loadRatingsSummary()
   // listen for global ratings changes (other components dispatch this event)
   window.addEventListener('ratingsChanged', loadRatingsSummary)
+  // If query param userId is present, load that user's public profile
+  const otherId = route.query.userId as string | undefined
+  if (otherId) {
+    getUserById(otherId).then((u) => {
+      profileUser.value = u
+    }).catch((e) => {
+      console.error('Error loading profile user', e)
+    })
+  }
 })
 </script>
 

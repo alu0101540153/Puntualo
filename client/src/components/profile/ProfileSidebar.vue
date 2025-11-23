@@ -12,7 +12,7 @@
 
     <div class="mt-5 space-y-3">
       <Button class="w-full" @click="$router.push('/profile/edit')">Editar Perfil</Button>
-      <Button class="w-full" style="background:#6B7280">Mis amigos</Button>
+      <Button class="w-full" style="background:#6B7280" @click="$router.push('/my-friends')">Mis amigos</Button>
     </div>
 
     <div class="mt-6 bg-white/3 p-3 rounded">
