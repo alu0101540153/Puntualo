@@ -3,7 +3,7 @@
     <!-- Reuse the dashboard header for consistency -->
     <DashboardHeader />
 
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <main class="max-w-screen-2xl mx-auto px-4 py-8">
       <Card>
         <div class="mb-6">
           <h2 class="text-3xl font-bold text-white mb-2">Buscar</h2>

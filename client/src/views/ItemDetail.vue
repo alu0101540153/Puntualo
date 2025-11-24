@@ -162,6 +162,37 @@ function mapServerItem(data: any) {
 
 onMounted(async () => {
   if (!id) return
+
+  async function tryPrefillForItem() {
+    try {
+      const user = getUser()
+      if (user && user._id && item.value && (item.value._id || item.value.id)) {
+        const myRatings: any = await getMyRatings(user._id)
+        if (Array.isArray(myRatings) && myRatings.length) {
+          const rawId = item.value._id || item.value.id || String(item.value._id || '')
+          if (!rawId) return
+          const mine = myRatings.filter((x: any) => {
+            const id = x.itemId?._id || x.itemId?.id || String(x.itemId || x._id || '')
+            return String(id) === String(rawId)
+          }).sort((a: any, b: any) => {
+            const ta = a.lastModified ? new Date(a.lastModified).getTime() : 0
+            const tb = b.lastModified ? new Date(b.lastModified).getTime() : 0
+            return tb - ta
+          })[0]
+
+          if (mine) {
+            userScore.value = Number(mine.score) || userScore.value
+            userScoreRaw.value = String(userScore.value).replace('.', ',')
+            userStatus.value = mine.status || userStatus.value
+            userComment.value = mine.comment || userComment.value
+          }
+        }
+      }
+    } catch (err) {
+      // ignore prefill errors
+    }
+  }
+
   try {
     const data: any = await getItemById(id)
     if (data && typeof data === 'object') {
@@ -172,6 +203,8 @@ onMounted(async () => {
       if (route.query && (route.query.openReview === '1' || route.query.openReview === 'true' || route.query.openReview === '')) {
         showReview.value = true
       }
+      // prefill user's rating now that item is available
+      await tryPrefillForItem()
       return
     }
   } catch (err) {
@@ -195,36 +228,7 @@ onMounted(async () => {
   }
 
   // Try to prefill user's existing rating for this item (latest)
-  try {
-    const user = getUser()
-    if (user && user._id) {
-      const myRatings: any = await getMyRatings(user._id)
-      if (Array.isArray(myRatings) && myRatings.length) {
-        // find latest rating for this item
-        const rawId = item.value._id || item.value.id || String(item.value._id || '')
-        if (rawId) {
-          // normalize and pick latest
-          const mine = myRatings.filter((x: any) => {
-            const id = x.itemId?._id || x.itemId?.id || String(x.itemId || x._id || '')
-            return String(id) === String(rawId)
-          }).sort((a: any, b: any) => {
-            const ta = a.lastModified ? new Date(a.lastModified).getTime() : 0
-            const tb = b.lastModified ? new Date(b.lastModified).getTime() : 0
-            return tb - ta
-          })[0]
-
-          if (mine) {
-            userScore.value = Number(mine.score) || userScore.value
-            userScoreRaw.value = String(userScore.value).replace('.', ',')
-            userStatus.value = mine.status || userStatus.value
-            userComment.value = mine.comment || userComment.value
-          }
-        }
-      }
-    }
-  } catch (err) {
-    // ignore
-  }
+  await tryPrefillForItem()
 })
 
 async function submitRating() {
@@ -293,10 +297,20 @@ async function submitRating() {
     return
   }
 
-  // Round to one decimal place and clamp between 0 and 10
+  // Round to one decimal place
   let normalized = Math.round(parsed * 10) / 10
-  if (normalized < 0) normalized = 0
-  if (normalized > 10) normalized = 10
+
+  // Validate range explicitly and show error if out of bounds
+  if (normalized < 0) {
+    userScoreError.value = 'La nota no puede ser menor que 0.'
+    isSubmitting.value = false
+    return
+  }
+  if (normalized > 10) {
+    userScoreError.value = 'La nota no puede ser mayor que 10.'
+    isSubmitting.value = false
+    return
+  }
 
   // update displayed values
   userScore.value = normalized

@@ -3,7 +3,7 @@
     <!-- Mantener la cabecera alineada con el tope de la página -->
     <DashboardHeader />
 
-  <div class="max-w-7xl mx-auto py-8">
+  <div class="max-w-screen-2xl mx-auto py-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start mt-6">
             <ProfileSidebar :profileUser="profileUser" class="md:col-span-1" />
 
