@@ -28,14 +28,35 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libssl1.1 || true
 
-      - name: (Optional) Start system MongoDB if available
-        # If the runner provides system mongodb via apt, starting it here
-        # can allow tests to connect using TEST_MONGO_URI. This step is
-        # best-effort and won't fail the job if it can't start.
+      - name: Install and start MongoDB (official repo)
+        # Install MongoDB server from MongoDB's official repository and start it.
+        # This gives a system `mongod` binary the tests can connect to and
+        # avoids mongodb-memory-server binary compatibility issues on hosted runners.
         run: |
-          if command -v mongod >/dev/null 2>&1; then
-            sudo systemctl start mongod || sudo service mongod start || true
-          fi
+          set -e
+          # Add MongoDB official apt repo (MongoDB 6.0)
+          wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add - || true
+          echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          sudo apt-get update
+          sudo apt-get install -y mongodb-org || sudo apt-get install -y mongodb || true
+          # Try to start mongod service (varies by image)
+          sudo systemctl enable mongod || true
+          sudo systemctl start mongod || sudo service mongod start || true
+          # Wait for mongod to accept connections
+          for i in 1 2 3 4 5; do
+            if nc -z 127.0.0.1 27017; then
+              echo "mongod is listening"
+              break
+            fi
+            echo "waiting for mongod... ($i)"
+            sleep 1
+          done
+        env:
+          DEBIAN_FRONTEND: noninteractive
+
+      - name: Export TEST_MONGO_URI
+        run: |
+          echo "TEST_MONGO_URI=mongodb://127.0.0.1:27017" >> $GITHUB_ENV
 
       - name: Install server deps
         run: |
