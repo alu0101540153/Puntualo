@@ -1,0 +1,31 @@
+name: Server Tests
+
+on:
+  push:
+    branches: [ 'dev', 'main' ]
+    paths:
+      - 'server/**'
+
+jobs:
+  test-server:
+    name: Run server tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies (server)
+        working-directory: server
+        run: npm ci
+
+      - name: Run server tests
+        working-directory: server
+        env:
+          CI: true
+        run: npm test

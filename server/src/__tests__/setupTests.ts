@@ -1,23 +1,25 @@
-import { beforeAll, afterAll } from 'vitest';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 
-let mongod: MongoMemoryServer | undefined;
-
-beforeAll(async () => {
-  // If TEST_MONGO_URI is already provided (for example the CI runner started a
-  // local mongod and exported TEST_MONGO_URI), skip creating an in-memory
-  // instance and reuse the provided MongoDB.
-  if (process.env.TEST_MONGO_URI && process.env.TEST_MONGO_URI.length > 0) {
-    // Use existing Mongo (no-op)
+// Inicia un servidor MongoDB en memoria antes de que corran los tests
+(async () => {
+  try {
+    const mongod = await MongoMemoryServer.create();
+    process.env.TEST_MONGO_URI = mongod.getUri();
     process.env.TEST_DB_NAME = process.env.TEST_DB_NAME || 'Puntualo_test';
-    return;
+    (globalThis as any).__MONGOD__ = mongod;
+
+    // Asegurarse de detener el servidor in-memory cuando el proceso termine
+    process.on('exit', async () => {
+      try {
+        await mongod.stop();
+      } catch (err) {
+        // noop
+      }
+    });
+  } catch (err) {
+    // Si falla, dejamos que los tests informen del error
+    // no forzamos exit para que el runner capture el fallo
+    // eslint-disable-next-line no-console
+    console.error('Error starting in-memory mongo:', err);
   }
-
-  mongod = await MongoMemoryServer.create();
-  process.env.TEST_MONGO_URI = mongod.getUri();
-  process.env.TEST_DB_NAME = process.env.TEST_DB_NAME || 'Puntualo_test';
-});
-
-afterAll(async () => {
-  if (mongod) await mongod.stop();
-});
+})();
