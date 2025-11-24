@@ -6,7 +6,7 @@
       </div>
       <div class="min-w-0">
         <h2 class="text-xl md:text-2xl font-bold leading-tight break-words">{{ displayName }}</h2>
-        <p class="text-sm text-gray-300 break-words">{{ atUsername }}</p>
+        <p v-if="atUsername" class="text-sm text-gray-300 break-words">{{ atUsername }}</p>
       </div>
     </div>
 
@@ -21,12 +21,9 @@
     </div>
 
     <div class="mt-6 bg-white/3 p-3 rounded-lg">
-      <p class="font-semibold mb-2 text-sm">Actividad</p>
-      <ul class="space-y-2 text-sm text-gray-200">
-        <li>• Paula ha empezado a ver Bre...</li>
-        <li>• Saray ha puntuado Culpa Tuya</li>
-        <li>• Ayoze está viendo Fast and...</li>
-      </ul>
+      <p class="font-semibold mb-2 text-sm">Descripción</p>
+      <div class="text-sm text-gray-200 italic leading-relaxed" v-if="description">{{ description }}</div>
+      <div class="text-sm text-gray-500" v-else>Sin descripción.</div>
     </div>
   </aside>
 </template>
@@ -62,8 +59,15 @@ const displayName = computed(() => {
 
 const atUsername = computed(() => {
   const user = displayedUser.value
-  if (!user) return '@usuario'
-  return user.username ? `@${user.username}` : user.email ? user.email : '@usuario'
+  if (!user) return ''
+  // Prefer the 'handle' field from the server model; fall back to username if present.
+  return user.handle ? `@${user.handle}` : (user.username ? `@${user.username}` : '')
+})
+
+const description = computed(() => {
+  const user = displayedUser.value
+  if (!user) return ''
+  return user.description || ''
 })
 
 const userInitial = computed(() => {

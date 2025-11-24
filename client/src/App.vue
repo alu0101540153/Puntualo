@@ -3,6 +3,6 @@
 </template>
 
 <script setup lang="ts">
-// App.vue se mantiene limpio, solo contiene el router view
+// App.vue envuelve el RouterView en `.container` para mantener un ancho consistente entre páginas
 </script>
 
