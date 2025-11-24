@@ -28,7 +28,18 @@ jobs:
           cd server
           npm ci
 
+      - name: Check TEST_MONGO_URI presence
+        run: |
+          if [ -z "$TEST_MONGO_URI" ]; then
+            echo "ERROR: TEST_MONGO_URI not set"
+            exit 1
+          else
+            echo "TEST_MONGO_URI is present"
+          fi
+
       - name: Run server unit tests
+        env:
+          TEST_MONGO_URI: ${{ secrets.TEST_MONGO_URI }}
         run: |
           cd server
           npm test
