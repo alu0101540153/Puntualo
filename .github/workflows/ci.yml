@@ -10,7 +10,7 @@ on:
 jobs:
   server-tests:
     name: Server tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, private-runner, linux, x64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,49 +21,10 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Ensure libssl1.1 is available (required by mongodb-memory-server)
-        run: |
-          sudo apt-get update
-          # try install from repos first
-          sudo apt-get install -y libssl1.1 || true
-          # if still missing, download a compatible deb and install
-          if ! ldconfig -p | grep -q libcrypto.so.1.1; then
-            echo "libcrypto.so.1.1 not found — attempting to download package"
-            wget -qO /tmp/libssl1.1.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb || true
-            sudo dpkg -i /tmp/libssl1.1.deb || sudo apt-get -f install -y || true
-          fi
-
       - name: Install server deps
         run: |
           cd server
-          npm install
-
-      - name: Install and start MongoDB server (for CI)
-        run: |
-          sudo apt-get update
-          # Install mongodb (package name varies between distros; try common package)
-          sudo apt-get install -y mongodb || sudo apt-get install -y mongodb-server || sudo apt-get install -y mongodb-org || true
-          # Try to start the service if available
-          if command -v systemctl >/dev/null 2>&1; then
-            sudo systemctl enable --now mongodb || sudo systemctl enable --now mongod || true
-          else
-            sudo service mongodb start || sudo service mongod start || true
-          fi
-      - name: Wait for local MongoDB to be ready
-        run: |
-          # wait for mongodb on localhost:27017
-          n=0
-          until nc -z 127.0.0.1 27017 || [ $n -ge 12 ]; do
-            echo "waiting for mongo..."
-            sleep 5
-            n=$((n+1))
-          done
-          if ! nc -z 127.0.0.1 27017; then
-            echo "MongoDB not listening on 127.0.0.1:27017"
-            exit 1
-          fi
-      - name: Set TEST_MONGO_URI env for tests
-        run: echo "TEST_MONGO_URI=mongodb://127.0.0.1:27017" >> $GITHUB_ENV
+          npm ci
 
       - name: Run server unit tests
         run: |
