@@ -36,7 +36,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gnupg ca-certificates curl
           curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.gpg
-          echo "deb [signed-by=/usr/share/keyrings/mongodb-server-6.gpg] https://repo.mongodb.org/apt/ubuntu $(lsb_release -sc)/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+          # GitHub runners currently run Ubuntu 24.04 (noble). The MongoDB
+          # official repo doesn't publish a 'noble' distribution. Use the
+          # 'jammy' (22.04) repo which is compatible on the hosted runner.
+          echo "deb [signed-by=/usr/share/keyrings/mongodb-server-6.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
           sudo apt-get update
           sudo apt-get install -y mongodb-org
           # Start mongod
