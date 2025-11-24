@@ -10,7 +10,7 @@ on:
 jobs:
   server-tests:
     name: Server tests
-    runs-on: [self-hosted, private-runner, linux, x64]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,6 +20,22 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Install system libs for mongodb-memory-server
+        # Some ubuntu images don't include the older libssl needed by
+        # mongodb-memory-server prebuilt binaries. Try installing it.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl1.1 || true
+
+      - name: (Optional) Start system MongoDB if available
+        # If the runner provides system mongodb via apt, starting it here
+        # can allow tests to connect using TEST_MONGO_URI. This step is
+        # best-effort and won't fail the job if it can't start.
+        run: |
+          if command -v mongod >/dev/null 2>&1; then
+            sudo systemctl start mongod || sudo service mongod start || true
+          fi
 
       - name: Install server deps
         run: |
