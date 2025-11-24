@@ -10,7 +10,7 @@ on:
 jobs:
   server-tests:
     name: Server tests
-    runs-on: [self-hosted, private-runner, linux, x64]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,13 +21,12 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Use self-hosted runner's MongoDB
-        # This workflow expects the self-hosted runner to have MongoDB available
-        # and listening on 127.0.0.1:27017. The runner should also have npm/node
-        # installed. If you need help registering a runner, see the README below.
+      - name: Prepare environment
+        # Tests use an in-memory MongoDB (mongodb-memory-server) via the test setup
+        # file, so no external MongoDB is required. Ensure node/npm are available.
         run: |
-          echo "Assuming self-hosted runner provides mongod on 127.0.0.1:27017"
-          echo "If your runner uses a different host/port, set TEST_MONGO_URI in repository secrets or runner env."
+          node --version
+          npm --version
 
       - name: Install server deps
         run: |
