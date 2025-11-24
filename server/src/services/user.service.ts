@@ -15,10 +15,25 @@ export const userService = {
   },
 
   update: async (id: string, body: any) => {
+    // Si nos envían un nuevo handle (username), comprobar unicidad antes de actualizar
+    if (body.handle) {
+      const normalizedHandle = String(body.handle).toLowerCase().trim()
+      const exists = await UserModel.findOne({ handle: normalizedHandle, _id: { $ne: id } })
+      if (exists) {
+        const err: any = new Error('Handle ya en uso por otro usuario')
+        err.name = 'ConflictError'
+        err.field = 'handle'
+        throw err
+      }
+      // normalizamos el handle para que coincida con el esquema (lowercase, trim)
+      body.handle = normalizedHandle
+    }
+
     // Si hay contraseña nueva, también la hasheamos
     if (body.password) {
       body.password = await argon2.hash(body.password)
     }
+
     return await UserModel.findByIdAndUpdate(id, body, { new: true, runValidators: true })
   },
 
