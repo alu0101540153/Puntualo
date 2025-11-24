@@ -10,7 +10,7 @@ on:
 jobs:
   server-tests:
     name: Server tests
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,6 +20,18 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Ensure libssl1.1 is available (required by mongodb-memory-server)
+        run: |
+          sudo apt-get update
+          # try install from repos first
+          sudo apt-get install -y libssl1.1 || true
+          # if still missing, download a compatible deb and install
+          if ! ldconfig -p | grep -q libcrypto.so.1.1; then
+            echo "libcrypto.so.1.1 not found — attempting to download package"
+            wget -qO /tmp/libssl1.1.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.16_amd64.deb || true
+            sudo dpkg -i /tmp/libssl1.1.deb || sudo apt-get -f install -y || true
+          fi
 
       - name: Install server deps
         run: |
