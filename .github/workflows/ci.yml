@@ -40,7 +40,7 @@ jobs:
       - name: Install server deps
         run: |
           cd server
-          npm ci
+          npm install
 
       - name: Run server unit tests
         run: |
