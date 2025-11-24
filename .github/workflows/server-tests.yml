@@ -22,8 +22,7 @@ jobs:
 
       - name: Install dependencies (server)
         working-directory: server
-        # use `npm install` because `npm ci` fails when package.json and lockfile
-        # are not in sync (this repo currently has mismatched lockfile versions).
+        # instalar dependencias (lockfile no está sincronizado)
         run: npm install
 
       - name: Run server tests

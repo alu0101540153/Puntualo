@@ -22,29 +22,25 @@ jobs:
           cache: 'npm'
 
       - name: Prepare environment
-        # Tests use an in-memory MongoDB (mongodb-memory-server) via the test setup
-        # file, so no external MongoDB is required. Ensure node/npm are available.
+        # comprobar node y npm
         run: |
           node --version
           npm --version
 
       - name: Install MongoDB (server) and start service
-        # Install official MongoDB package so tests can connect to a local mongod
-        # without requiring mongodb-memory-server to spawn a binary needing old openssl.
+        # instalar MongoDB local para los tests
         run: |
           set -e
           sudo apt-get update
           sudo apt-get install -y gnupg ca-certificates curl
           curl -fsSL https://www.mongodb.org/static/pgp/server-6.0.asc | sudo gpg --dearmor -o /usr/share/keyrings/mongodb-server-6.gpg
-          # GitHub runners currently run Ubuntu 24.04 (noble). The MongoDB
-          # official repo doesn't publish a 'noble' distribution. Use the
-          # 'jammy' (22.04) repo which is compatible on the hosted runner.
+          # usar repo 'jammy' compatible con el runner
           echo "deb [signed-by=/usr/share/keyrings/mongodb-server-6.gpg] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
           sudo apt-get update
           sudo apt-get install -y mongodb-org
-          # Start mongod
+          # iniciar mongod
           sudo systemctl enable --now mongod || sudo service mongod start || true
-          # wait briefly for mongod to be ready
+          # esperar a que esté listo
           for i in {1..10}; do
             nc -z 127.0.0.1 27017 && break || sleep 1
           done
@@ -62,7 +58,7 @@ jobs:
         env:
           TEST_MONGO_URI: 'mongodb://127.0.0.1:27017'
 
-  # Frontend tests commented out until frontend is finished. Uncomment when ready.
+  # Tests frontend comentados hasta que esté listo el cliente.
   # client-unit:
   #   name: Client unit tests
   #   runs-on: ubuntu-latest
