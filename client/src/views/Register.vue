@@ -13,6 +13,7 @@
         <div>
           <Input v-model="email" type="email" placeholder="Correo electrónico" :class="emailClass" />
           <p v-if="showEmailError" class="text-sm" style="color:#ff9b9b; margin-top:8px">Introduce un correo válido</p>
+          <p v-if="emailFieldError" class="text-sm" style="color:#ff9b9b; margin-top:8px">{{ emailFieldError }}</p>
         </div>
         <Input v-model="password" type="password" placeholder="Contraseña" />
       </div>
@@ -46,6 +47,7 @@ const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref<string | null>(null)
+const emailFieldError = ref<string | null>(null)
 
 const isEmailValid = computed(() => {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -58,6 +60,7 @@ const emailClass = computed(() => (showEmailError.value ? 'border border-red-500
 
 const register = async () => {
   error.value = null
+  emailFieldError.value = null
   if (showEmailError.value) return
   loading.value = true
   try {
@@ -78,14 +81,64 @@ const register = async () => {
       router.push('/login')
     }
   } catch (err: any) {
-    const raw = err?.message || 'Error al registrar'
+    // Mejor extracción de mensajes de error para distintos formatos
+    // Log raw error for debugging in browser console
+    // eslint-disable-next-line no-console
+    console.error('register error (raw):', err)
+    let out = 'Error al registrar'
     try {
-      const parsed = JSON.parse(raw)
-      if (parsed?.message) error.value = parsed.message
-      else if (parsed?.errors) error.value = (Array.isArray(parsed.errors) ? parsed.errors.map((e: any) => e.message).join(', ') : String(parsed.errors))
-      else error.value = String(parsed)
+      if (err == null) out = 'Error al registrar'
+      else if (typeof err === 'string') out = err
+      else if (err?.response && err.response.data) {
+        // axios-style
+        out = err.response.data.message || JSON.stringify(err.response.data)
+      } else if (err?.message) {
+        const raw = err.message
+        try {
+          const parsed = JSON.parse(raw)
+          // support formats: { message }, { errors }, or { status, body: { message } }
+          if (parsed?.message) out = parsed.message
+          else if (parsed?.errors) out = Array.isArray(parsed.errors) ? parsed.errors.map((e: any) => e.message).join(', ') : String(parsed.errors)
+          else if (parsed?.body && parsed.body.message) out = parsed.body.message
+          else if (parsed?.body && parsed?.body.errors) out = Array.isArray(parsed.body.errors) ? parsed.body.errors.map((e: any) => e.message).join(', ') : String(parsed.body.errors)
+          else out = String(parsed)
+        } catch (e) {
+          // If message is '[object Object]' or similar, try stringify the original error
+          if (raw === '[object Object]') {
+            try { out = JSON.stringify(err) } catch { out = raw }
+          } else {
+            out = raw
+          }
+        }
+      } else {
+        out = String(err)
+      }
     } catch (e) {
-      error.value = raw
+      out = 'Error al registrar'
+    }
+    // If the backend included a `field` property, show it near the related input
+    try {
+      const maybe = typeof out === 'string' ? out : String(out)
+      // try to parse original err.message for { field } in several possible shapes
+      if (err?.message) {
+        try {
+          const parsedMsg = JSON.parse(String(err.message))
+          // possible shapes: { message, field } or { status, body: { message, field } }
+          const field = parsedMsg?.field || parsedMsg?.body?.field
+          const msg = parsedMsg?.message || parsedMsg?.body?.message || maybe
+          if (field === 'email') {
+            emailFieldError.value = msg
+          } else {
+            error.value = msg
+          }
+        } catch {
+          error.value = maybe
+        }
+      } else {
+        error.value = out
+      }
+    } catch {
+      error.value = out
     }
   } finally {
     loading.value = false

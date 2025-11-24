@@ -1,6 +1,6 @@
 import { Request, Response } from 'express'
 import { authService } from '../services/auth.service'
-import { userService } from '../services'
+import { userService, sendRegisterEmail } from '../services'
 
 export const authController = {
   // Login existente
@@ -30,13 +30,24 @@ export const authController = {
       // Generar token para el usuario recién creado
       const token = authService.generateToken(data)
       res.status(201).json({ user: obj, token })
+
+      // Envío de email de bienvenida en background (no bloquea la respuesta)
+      if (obj && obj.email) {
+        const displayName = (obj as any).name || (obj as any).handle || (obj as any).username || '';
+        void sendRegisterEmail(obj.email, displayName);
+      }
     } catch (error: any) {
       // Handle mongoose duplicate key errors
       const msg = error?.message || 'Registration error'
       if (error && error.code === 11000) {
         // parse which field
         const field = Object.keys(error.keyValue || {})[0]
-        return res.status(409).json({ message: `${field} already exists`, field })
+        let message = `${field} already exists`
+        // Provide friendly Spanish messages for common duplicated fields
+        if (field === 'email') message = 'Ya existe un usuario registrado con ese correo electrónico.'
+        else if (field === 'handle' || field === 'username') message = 'El nombre de usuario ya está en uso.'
+        else if (field === 'name') message = 'El nombre ya está en uso.'
+        return res.status(409).json({ message, field })
       }
       return res.status(400).json({ message: msg })
     }
