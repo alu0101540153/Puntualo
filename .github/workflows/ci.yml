@@ -10,7 +10,7 @@ on:
 jobs:
   server-tests:
     name: Server tests
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, private-runner, linux, x64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,49 +21,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install system libs for mongodb-memory-server
-        # Some ubuntu images don't include the older libssl needed by
-        # mongodb-memory-server prebuilt binaries. Try installing it.
+      - name: Use self-hosted runner's MongoDB
+        # This workflow expects the self-hosted runner to have MongoDB available
+        # and listening on 127.0.0.1:27017. The runner should also have npm/node
+        # installed. If you need help registering a runner, see the README below.
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl1.1 || true
-
-      - name: Install and start MongoDB (supports newer ubuntu)
-        # If the runner's Ubuntu codename is supported by MongoDB's repo (focal/jammy)
-        # we add the official repo. Otherwise fall back to the distribution package
-        # `mongodb`/`mongodb-server`. Then start the service and export TEST_MONGO_URI.
-        run: |
-          set -eux
-          CODENAME=$(lsb_release -sc)
-          echo "ubuntu codename: $CODENAME"
-          if [ "$CODENAME" = "focal" ] || [ "$CODENAME" = "jammy" ]; then
-            echo "Adding MongoDB official repo for $CODENAME"
-            wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add - || true
-            echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu $CODENAME/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
-            sudo apt-get update
-            sudo apt-get install -y mongodb-org || true
-          else
-            echo "Ubuntu $CODENAME not supported by mongodb-org repo, installing distro package"
-            sudo apt-get update
-            sudo apt-get install -y mongodb || sudo apt-get install -y mongodb-server || true
-          fi
-
-          # Start whichever service exists (mongod or mongodb)
-          sudo systemctl enable mongod || true
-          sudo systemctl enable mongodb || true
-          sudo systemctl start mongod || sudo systemctl start mongodb || sudo service mongod start || sudo service mongodb start || true
-
-          # Wait for mongod to accept connections
-          for i in 1 2 3 4 5; do
-            if nc -z 127.0.0.1 27017; then
-              echo "mongod is listening"
-              break
-            fi
-            echo "waiting for mongod... ($i)"
-            sleep 1
-          done
-
-          echo "TEST_MONGO_URI=mongodb://127.0.0.1:27017" >> $GITHUB_ENV
+          echo "Assuming self-hosted runner provides mongod on 127.0.0.1:27017"
+          echo "If your runner uses a different host/port, set TEST_MONGO_URI in repository secrets or runner env."
 
       - name: Install server deps
         run: |
