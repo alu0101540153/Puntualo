@@ -1,10 +1,10 @@
 <template>
   <header class="bg-black bg-opacity-30 backdrop-blur-md py-4 px-4 md:px-12 flex justify-end gap-4 shadow-xl rounded-lg border border-white/10">
-    <RouterLink to="/login" class="btn-login px-6 py-2 border-2 border-white rounded-full text-white font-semibold uppercase tracking-wider transition-all duration-300 hover:bg-white hover:text-gray-700 hover:-translate-y-1">
-      Login
+    <RouterLink to="/login" class="btn-login px-8 py-3 border-2 border-white rounded-full text-white font-extrabold text-lg uppercase tracking-wider transition-transform duration-200 hover:bg-white hover:text-gray-800 hover:-translate-y-1 shadow-md">
+      Iniciar sesión
     </RouterLink>
-    <RouterLink to="/register" class="btn-signin px-6 py-2 bg-white text-gray-700 rounded-full font-semibold uppercase tracking-wider transition-all duration-300 hover:bg-gray-600 hover:text-white hover:-translate-y-1">
-      SignIn
+    <RouterLink to="/register" class="btn-signin px-8 py-3 bg-emerald-400 text-black rounded-full font-extrabold text-lg uppercase tracking-wider transition-transform duration-200 hover:bg-emerald-500 hover:text-white hover:-translate-y-1 shadow-md">
+      Registrarse
     </RouterLink>
   </header>
 </template>

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { BookService, MovieService, SeriesService } from '../services';
+import { UserModel } from '../models';
 
 export const searchController = {
   // GET /?title=...
@@ -76,6 +77,34 @@ export const searchController = {
       res.status(500).json({ message: error.message });
     }
   },
+
+  // GET /search/friends?handle=&page=   --> search by username (handle)
+  searchFriends: async (req: Request, res: Response) => {
+    try {
+      const handle = (req.query.handle as string) || '';
+      const page = parseInt((req.query.page as string) || '1', 10) || 1;
+      const perPage = 10;
+
+      const filter = handle
+        ? { handle: { $regex: handle, $options: 'i' } }
+        : {};
+
+      const total = await UserModel.countDocuments(filter);
+      const pages = Math.ceil(total / perPage) || 1;
+      const skip = (page - 1) * perPage;
+
+      const items = await UserModel.find(filter)
+        .select('name handle')
+        .skip(skip)
+        .limit(perPage)
+        .lean();
+
+      res.json({ items, total, page, pages, perPage });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+  ,
 
   // POST /series/:tmdbId -> consulta TMDB por ID y guarda la serie en la BD
   fetchSeries: async (req: Request, res: Response) => {

@@ -6,6 +6,9 @@ const router = Router();
 // GET /books?title=... -> devuelve libros que coinciden con el título
 router.get('/books', searchController.searchBooks);
 
+// GET /friends?name=... -> busca usuarios (paginado, 10 por página)
+router.get('/friends', searchController.searchFriends);
+
 // GET /movies?title=... -> devuelve películas que coinciden con el título (TMDB)
 router.get('/movies', searchController.searchMovies);
 

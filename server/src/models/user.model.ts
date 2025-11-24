@@ -53,6 +53,31 @@ const userSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   }],
+  items: {
+    type: [{
+      itemId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Item'
+      },
+      externalId: {
+        type: String,
+        trim: true
+      },
+      itemType: {
+        type: String,
+        enum: Object.values(ItemType)
+      },
+      title: {
+        type: String,
+        trim: true
+      },
+      addedAt: {
+        type: Date,
+        default: Date.now
+      }
+    }],
+    default: []
+  },
   ratedItems: {
     type: [{
     itemId: {

@@ -25,6 +25,57 @@ export const userService = {
   delete: async (id: string) => {
     return await UserModel.findByIdAndDelete(id)
   },
+  followUser: async (followerId: string, targetId: string) => {
+    if (followerId === targetId) return await UserModel.findById(followerId)
+    // add targetId to follower's follows if not exists
+    return await UserModel.findByIdAndUpdate(
+      followerId,
+      { $addToSet: { follows: targetId } },
+      { new: true }
+    )
+  },
+
+  unfollowUser: async (followerId: string, targetId: string) => {
+    return await UserModel.findByIdAndUpdate(
+      followerId,
+      { $pull: { follows: targetId } },
+      { new: true }
+    )
+  },
+
+  addItemToUser: async (userId: string, item: any) => {
+    // item: { itemId?, externalId?, itemType?, title? }
+    const doc = {
+      itemId: item.itemId || null,
+      externalId: item.externalId || null,
+      itemType: item.itemType || null,
+      title: item.title || '',
+      addedAt: new Date()
+    }
+    return await UserModel.findByIdAndUpdate(userId, { $push: { items: doc } }, { new: true })
+  },
+
+  removeItemFromUser: async (userId: string, itemSubId: string) => {
+    // itemSubId is the _id of the subdocument in user.items
+    return await UserModel.findByIdAndUpdate(userId, { $pull: { items: { _id: itemSubId } } }, { new: true })
+  },
+  getById: async (id: string) => {
+    // Populate related item documents so public profile views have titles/covers available.
+    // Populate both ratedItems.itemId and items.itemId (if present).
+    return await UserModel.findById(id)
+      .select('-password')
+      .populate('ratedItems.itemId')
+      .populate('items.itemId')
+      .lean()
+  },
+
+  getFollows: async (id: string) => {
+    // return populated follows array
+    const user = await UserModel.findById(id).populate('follows', 'name handle').lean()
+    if (!user) return []
+    return (user.follows || []) as any[]
+  }
+  ,
   
   addRating: async (userId: string, rating: any) => {
     // rating: { itemId, itemType, score, comment?, status? }
