@@ -85,4 +85,4 @@ jobs:
   #     - name: Run Playwright E2E tests
   #       run: |
   #         cd client
-  #         npm run test:e2e -- --headless
+  #         npm run test:e2e -- --hea dless
