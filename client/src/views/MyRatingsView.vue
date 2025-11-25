@@ -35,7 +35,7 @@
           <div class="flex-1 min-w-0 pr-52">
             <div class="flex items-start justify-start">
               <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0">{{ userInitial }}</div>
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" :style="{ backgroundColor: (currentUser && currentUser.avatarBgColor) || '#ec4899' }">{{ userInitial }}</div>
                 <div>
                   <div class="text-white font-semibold">{{ userName }}</div>
                   <div class="text-sm text-gray-300">{{ formatTimeAgo(r.lastModified || r._id) }}</div>
@@ -63,8 +63,8 @@
 
           <!-- Score centered vertically on the right (absolute) -->
           <div class="absolute right-6 top-1/2 transform -translate-y-1/2 flex flex-col items-center z-10">
-            <div :class="['w-24 h-24 rounded-full flex items-center justify-center text-2xl font-extrabold text-white', ratingClass(r.score)]">{{ r.score }}/10</div>
-            <div class="mt-3 text-sm text-gray-300 text-center">{{ scoreLabel(r.score) }}</div>
+              <div :class="['w-24 h-24 rounded-full flex items-center justify-center text-2xl font-extrabold text-white', displayClass(r)]">{{ displayScore(r) }}</div>
+              <div class="mt-3 text-sm text-gray-300 text-center">{{ displayScoreLabel(r) }}</div>
           </div>
         </div>
       </div>
@@ -121,6 +121,23 @@ function ratingClass(score: number) {
   if (score >= 7) return 'bg-emerald-400'
   if (score >= 5) return 'bg-yellow-400'
   return 'bg-rose-500'
+}
+
+function displayClass(r: any) {
+  if (r && typeof r.score !== 'undefined' && r.score !== null && String(r.score) !== '') return ratingClass(Number(r.score))
+  return 'bg-gray-600'
+}
+
+function displayScore(r: any) {
+  if (r && typeof r.score !== 'undefined' && r.score !== null && String(r.score) !== '') return `${r.score}/10`
+  if (r && r.status === 'watching') return '*'
+  return '-/10'
+}
+
+function displayScoreLabel(r: any) {
+  if (r && typeof r.score !== 'undefined' && r.score !== null && String(r.score) !== '') return scoreLabel(Number(r.score))
+  if (r && r.status === 'watching') return 'En progreso'
+  return ''
 }
 
 function getImage(r: any) {

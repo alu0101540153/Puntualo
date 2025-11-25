@@ -8,11 +8,8 @@
             <ProfileSidebar :profileUser="profileUser" class="md:col-span-1" />
 
             <div class="md:col-span-3 space-y-6">
-              <template v-if="!profileUser">
-                <CurrentlyWatching />
-              </template>
-
-              <template v-else>
+              <!-- Si estamos viendo el perfil de otro, mostrar primero el bloque de 'Perfil público' (con botón seguir) -->
+              <template v-if="profileUser">
                 <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
                   <div class="flex items-center justify-between">
                     <h3 class="text-2xl font-semibold text-white mb-4">Perfil público: {{ profileUser.name }}</h3>
@@ -31,9 +28,76 @@
                       </li>
                     </ul>
                   </div>
-                  
                 </div>
               </template>
+
+              <!-- Mostrar resumen de puntuados (propio o del usuario visto) -->
+              <template v-if="!isViewingOther">
+              <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-2xl font-semibold text-white">Mis puntuados</h3>
+                    <!-- Destacar el botón para que sea más visible -->
+                    <Button @click="goToAllRatings" variant="primary" size="md" class="px-6 py-2">Ver mis puntuados</Button>
+                  </div>
+
+                  <div v-if="loadingRatings" class="text-gray-300">Cargando resumen...</div>
+                  <div v-else class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
+                      <div class="text-sm text-gray-300">Total puntuados</div>
+                      <div class="text-2xl font-bold text-white">{{ totalRatings }}</div>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
+                      <div class="text-sm text-gray-300">Puntuación media</div>
+                      <div class="text-2xl font-bold text-white">{{ avgScore }}</div>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
+                      <div class="text-sm text-gray-300">Último puntuado</div>
+                      <div class="text-sm text-white truncate">{{ lastRatedTitle || '—' }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </template>
+
+              <template v-if="isViewingOther">
+              <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
+                <div class="space-y-4">
+                  <div class="flex items-center justify-between">
+                    <h3 class="text-2xl font-semibold text-white">Puntuados de {{ profileUser?.name }}</h3>
+                    <!-- Destacar también el botón 'Ver sus puntuados' cuando se ve el perfil de otro -->
+                    <Button @click="goToUsersRatings" variant="primary" size="md" class="px-6 py-2">Ver sus puntuados</Button>
+                  </div>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
+                      <div class="text-sm text-gray-300">Total puntuados</div>
+                      <div class="text-2xl font-bold text-white">{{ otherTotalRatings }}</div>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
+                      <div class="text-sm text-gray-300">Puntuación media</div>
+                      <div class="text-2xl font-bold text-white">{{ otherAvgScore }}</div>
+                    </div>
+
+                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
+                      <div class="text-sm text-gray-300">Último puntuado</div>
+                      <div class="text-sm text-white truncate">{{ otherLastRatedTitle || '—' }}</div>
+                    </div>
+                  </div>
+
+                  <!-- Detalle: los puntuados del usuario se muestran en la página dedicada (Ver sus puntuados) -->
+                </div>
+              </div>
+              </template>
+
+              <template v-if="!profileUser">
+                <CurrentlyWatching />
+              </template>
+
+              
 
               <!-- Mis vistos: usar contenedor más ligero y que ocupe todo el ancho disponible -->
               <template v-if="!isViewingOther">
@@ -68,64 +132,7 @@
                 </div>
               </template>
 
-              <!-- Mis puntuados: pequeñas cuentas y botón ver más -->
-              <template v-if="!isViewingOther">
-              <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-semibold text-white">Mis puntuados</h3>
-                    <Button @click="goToAllRatings" variant="secondary" size="sm">Ver mis puntuados</Button>
-                  </div>
-
-                  <div v-if="loadingRatings" class="text-gray-300">Cargando resumen...</div>
-                  <div v-else class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Total puntuados</div>
-                      <div class="text-2xl font-bold text-white">{{ totalRatings }}</div>
-                    </div>
-
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Puntuación media</div>
-                      <div class="text-2xl font-bold text-white">{{ avgScore }}</div>
-                    </div>
-
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Último puntuado</div>
-                      <div class="text-sm text-white truncate">{{ lastRatedTitle || '—' }}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              </template>
-              <template v-if="isViewingOther">
-              <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-semibold text-white">Puntuados de {{ profileUser?.name }}</h3>
-                    <Button @click="goToUsersRatings" variant="secondary" size="sm">Ver sus puntuados</Button>
-                  </div>
-
-                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Total puntuados</div>
-                      <div class="text-2xl font-bold text-white">{{ otherTotalRatings }}</div>
-                    </div>
-
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Puntuación media</div>
-                      <div class="text-2xl font-bold text-white">{{ otherAvgScore }}</div>
-                    </div>
-
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Último puntuado</div>
-                      <div class="text-sm text-white truncate">{{ otherLastRatedTitle || '—' }}</div>
-                    </div>
-                  </div>
-
-                  <!-- Detalle: los puntuados del usuario se muestran en la página dedicada (Ver sus puntuados) -->
-                </div>
-              </div>
-              </template>
+              
             </div>
           </div>
     </div>
