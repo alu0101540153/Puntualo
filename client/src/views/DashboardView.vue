@@ -23,11 +23,23 @@
         />
       </section>
 
-      <!-- Only show friends activities when there are no personal recommendations -->
-      <FriendsGrid 
-        v-if="personalRecommendations.length === 0"
-        :activities="friendActivities"
-      />
+      <!-- Friends activities (feed) -->
+      <section class="mb-8">
+        <div v-if="loading" class="text-center text-gray-300 py-8">Cargando actividad de tus amigos...</div>
+        <div v-else>
+          <div v-if="friendActivities.length === 0" class="text-center text-gray-300 py-8">No hay actividad de tus amigos.</div>
+          <FriendsGrid v-else :activities="friendActivities" />
+
+          <!-- Pagination controls -->
+          <div v-if="friendActivities.length > 0" class="flex items-center justify-between mt-6">
+            <div class="text-sm text-gray-300">Mostrando página {{ page }} — {{ total }} resultados</div>
+            <div class="flex gap-2">
+              <button @click="prevPage" :disabled="page <= 1" class="px-3 py-1 rounded bg-gray-600 text-white disabled:opacity-50">Anterior</button>
+              <button @click="nextPage" :disabled="page * limit >= total" class="px-3 py-1 rounded bg-gray-600 text-white disabled:opacity-50">Siguiente</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 </template>
@@ -45,6 +57,7 @@ import type { Recommendation, FriendActivity } from '../components/dashboard/typ
 import { ref, onMounted, watch } from 'vue'
 import { getAllItems, getRecommendationsForUser } from '@/services/item'
 import { getUser } from '@/services/auth'
+import { getFeed } from '@/services/user'
 import localRecommendations from '@/data/recommendations'
 import breakingBad from '@/assets/imagenes/brekingbad.jpeg'
 import fastFurious from '@/assets/imagenes/fastfurios.jpg'
@@ -52,143 +65,94 @@ import stragerThings from '@/assets/imagenes/imagen2.jpg.webp'
 import alasSangre from '@/assets/imagenes/alasSangre.jpg'
 import culpaTuya from '@/assets/imagenes/culpaTuya.jpg'
 
-// Datos de actividades de amigos
-const friendActivities: FriendActivity[] = [
-  {
-    id: 1,
-    friendName: 'Paula',
-    friendInitial: 'P',
-    friendColor: 'bg-pink-500',
-    action: 'ha empezado a ver',
-    content: 'Breaking Bad',
-    contentImage: breakingBad,
-    contentMediaType: '📺',
-    time: 'Hace 2h',
-    comment: 'Por ahora me esta gustando mucho.',
-    genres: ['Drama', 'Crimen', '+18']
-  },
-  {
-    id: 2,
-    friendName: 'Saray',
-    friendInitial: 'S',
-    friendColor: 'bg-purple-500',
-    action: 'ha puntuado',
-    content: 'Culpa Tuya',
-    contentImage: culpaTuya,
-    contentMediaType: '📖',
-    time: 'Hace 1h',
-    rating: '9/10',
-    ratingColor: 'bg-green-500',
-    genres: ['Romance', 'Drama', '+18']
-  },
-  {
-    id: 3,
-    friendName: 'Ayoze',
-    friendInitial: 'A',
-    friendColor: 'bg-amber-500',
-    action: 'esta viendo',
-    content: 'Fast and Furious',
-    contentImage: fastFurious,
-    contentMediaType: '🎬',
-    time: 'Ahora',
-    comment: 'Quiero ser Toretto 🏎️',
-    genres: ['Acción', 'Aventura', '+13']
-  },
-  {
-    id: 4,
-    friendName: 'Alex',
-    friendInitial: 'A',
-    friendColor: 'bg-gray-500',
-    action: 'ha terminado de ver',
-    content: 'Stranger Things',
-    contentImage: stragerThings,
-    contentMediaType: '🎬',
-    time: 'Hace 30m',
-    comment: 'No me esperaba para nada ese final...',
-    genres: ['Drama', 'Fantasía', '+16']
-  },
-  {
-    id: 5,
-    friendName: 'Abian',
-    friendInitial: 'A',
-    friendColor: 'bg-teal-500',
-    action: 'ha puntuado',
-    content: 'Alas de Sangre',
-    contentImage: alasSangre,
-    contentMediaType: '📖',
-    time: 'Hace 3h',
-    rating: '6/10',
-    ratingColor: 'bg-orange-500',
-    genres: ['Fantasy', 'Romance', '+16']
-  },
-    {
-    id: 1,
-    friendName: 'Paula',
-    friendInitial: 'P',
-    friendColor: 'bg-pink-500',
-    action: 'ha empezado a ver',
-    content: 'Breaking Bad',
-    contentImage: breakingBad,
-    contentMediaType: '📺',
-    time: 'Hace 2h',
-    comment: 'Por ahora me esta gustando mucho.',
-    genres: ['Drama', 'Crimen', '+18']
-  },
-  {
-    id: 2,
-    friendName: 'Saray',
-    friendInitial: 'S',
-    friendColor: 'bg-purple-500',
-    action: 'ha puntuado',
-    content: 'Culpa Tuya',
-    contentImage: culpaTuya,
-    contentMediaType: '📖',
-    time: 'Hace 1h',
-    rating: '9/10',
-    ratingColor: 'bg-green-500',
-    genres: ['Romance', 'Drama', '+18']
-  },
-  {
-    id: 3,
-    friendName: 'Ayoze',
-    friendInitial: 'A',
-    friendColor: 'bg-amber-500',
-    action: 'esta viendo',
-    content: 'Fast and Furious',
-    contentImage: fastFurious,
-    contentMediaType: '🎬',
-    time: 'Ahora',
-    comment: 'Quiero ser Toretto 🏎️',
-    genres: ['Acción', 'Aventura', '+13']
-  },
-  {
-    id: 4,
-    friendName: 'Alex',
-    friendInitial: 'A',
-    friendColor: 'bg-gray-500',
-    action: 'ha terminado de ver',
-    content: 'Stranger Things',
-    contentImage: stragerThings,
-    contentMediaType: '🎬',
-    time: 'Hace 30m',
-    comment: 'No me esperaba para nada ese final...',
-    genres: ['Drama', 'Fantasía', '+16']
-  },
-  {
-    id: 5,
-    friendName: 'Abian',
-    friendInitial: 'A',
-    friendColor: 'bg-teal-500',
-    action: 'ha puntuado',
-    content: 'Alas de Sangre',
-    contentImage: alasSangre,
-    contentMediaType: '📖',
-    time: 'Hace 3h',
-    rating: '6/10',
-    ratingColor: 'bg-orange-500',
-    genres: ['Fantasy', 'Romance', '+16']
+// Friend activities fetched from backend
+const friendActivities = ref<FriendActivity[]>([])
+
+const page = ref(1)
+const limit = ref(6)
+const total = ref(0)
+const loading = ref(false)
+
+function timeAgo(iso?: string) {
+  if (!iso) return ''
+  const then = new Date(iso).getTime()
+  const now = Date.now()
+  const diff = Math.floor((now - then) / 1000)
+  if (diff < 60) return 'Ahora'
+  if (diff < 3600) return `Hace ${Math.floor(diff/60)}m`
+  if (diff < 86400) return `Hace ${Math.floor(diff/3600)}h`
+  return `Hace ${Math.floor(diff/86400)}d`
+}
+
+function mapFeedToActivity(it: any, index: number): FriendActivity {
+  console.debug('[feed] mapeando item crudo:', it)
+  const user = it.user || {}
+  const item = it.item || it
+  const score = it.score != null ? Number(it.score) : (it.rating != null ? Number(it.rating) : null)
+  const rating = (score != null && !Number.isNaN(score)) ? `${score}/10` : undefined
+  const ratingColor = score != null ? (score >= 8 ? 'bg-green-500' : score >=5 ? 'bg-orange-500' : 'bg-red-500') : undefined
+  const media = it.itemType || (item.data && item.data.type) || 'book'
+  const mediaType = media === 'movie' ? '🎬' : media === 'series' ? '📺' : '📖'
+
+  return {
+    id: it._id || (Date.now() + index),
+    friendName: user.name || user.handle || 'Usuario',
+    friendInitial: (user.name && String(user.name).charAt(0)) || (user.handle && String(user.handle).charAt(0)) || '?',
+    friendColor: (user.avatarBgColor && String(user.avatarBgColor)) || 'bg-gray-500',
+    friendId: user._id || user.id || user.uid || undefined,
+    action: it.status === 'watching' ? 'está viendo' : (it.status === 'completed' ? 'ha terminado de ver' : 'ha puntuado'),
+    content: item.title || (item.data && item.data.title) || 'Sin título',
+    contentId: item._id || item.id || (item.data && item.data._id) || undefined,
+    contentImage: (item.data && item.data.cover) || item.cover || '/img/placeholder-book.png',
+    contentMediaType: mediaType,
+    time: timeAgo(it.lastModified || it.addedAt || it.createdAt),
+    comment: it.comment || '',
+    rating,
+    ratingColor,
+    genres: (item.data && item.data.genres) || []
   }
-]
+}
+
+async function loadFeed() {
+  loading.value = true
+  try {
+    const user = getUser()
+    if (!user) {
+      console.debug('[feed] no hay usuario en localStorage')
+      return
+    }
+    const userId = user._id || (user.id && String(user.id)) || (user.uid && String(user.uid))
+    if (!userId) {
+      console.debug('[feed] usuario sin _id/id/uid en localStorage:', user)
+      return
+    }
+    console.debug(`[feed] solicitando feed para usuario ${userId} page=${page.value} limit=${limit.value}`)
+    const data: any = await getFeed(userId, page.value, limit.value)
+    console.debug('[feed] respuesta cruda:', data)
+    const items = data && Array.isArray(data.items) ? data.items : []
+    total.value = data && data.total ? data.total : (items.length || 0)
+    const mapped = items.map((it: any, idx: number) => mapFeedToActivity(it, idx))
+    console.debug('[feed] items mapeados:', mapped)
+    friendActivities.value = mapped
+  } catch (err: any) {
+    console.error('[feed] error cargando feed', err)
+    friendActivities.value = []
+  } finally {
+    loading.value = false
+  }
+}
+
+function prevPage() {
+  if (page.value <= 1) return
+  page.value -= 1
+  loadFeed()
+}
+
+function nextPage() {
+  if (page.value * limit.value >= total.value) return
+  page.value += 1
+  loadFeed()
+}
 
 
 // Recomendaciones cargadas desde la API (fallback a datos locales)
@@ -261,14 +225,19 @@ async function loadRecommendations() {
 }
 
 onMounted(() => {
+  console.debug('[dashboard] mounted: cargando recomendaciones y feed')
   loadRecommendations()
+  loadFeed()
 })
 
 // Recarga cuando se añade ?refresh=timestamp (ItemDetail redirige con esta query al puntuar)
 import { useRoute } from 'vue-router'
 const route = useRoute()
 watch(() => route.query.refresh, () => {
-  if (route.name === 'dashboard') loadRecommendations()
+  if (route.name === 'dashboard') {
+    loadRecommendations()
+    loadFeed()
+  }
 })
 // Handlers
 const handleSeeMoreRecommendations = () => {

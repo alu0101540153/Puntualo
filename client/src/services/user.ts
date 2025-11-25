@@ -33,4 +33,10 @@ export async function getUserById(userId: string) {
   return api.apiFetch(`/users/${userId}`)
 }
 
+export async function getFeed(userId: string, page: number = 1, limit: number = 20) {
+  const qs = `?page=${encodeURIComponent(String(page))}&limit=${encodeURIComponent(String(limit))}`
+  // This endpoint returns user-specific data and may require the auth token
+  return api.apiFetch(`/users/${userId}/feed${qs}`, { auth: true })
+}
+
 export default { addRating, getMyRatings, updateUser, deleteRating }

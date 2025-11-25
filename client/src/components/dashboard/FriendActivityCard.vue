@@ -2,28 +2,46 @@
     <div class="bg-gray-900 bg-opacity-40 rounded-2xl p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transition-all duration-300">
     <div class="flex gap-4">
       <!-- Imagen del contenido con icono -->
-      <div class="relative flex-shrink-0">
+      <router-link :to="{ name: 'item-detail', params: { id: activity.contentId } }" class="relative flex-shrink-0">
         <img :src="activity.contentImage" :alt="activity.content" class="w-24 h-40 object-cover rounded-lg shadow-lg">
         <!-- Icono tipo de contenido -->
         <div class="absolute top-1 right-1 w-6 h-6 bg-white bg-opacity-80 rounded-full flex items-center justify-center text-sm shadow-lg">
           {{ activity.contentMediaType }}
         </div>
-      </div>
+      </router-link>
 
       <!-- Información -->
       <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 mb-3">
-          <div 
-            class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
-            :class="activity.friendColor"
-          >
-            {{ activity.friendInitial }}
+        <template v-if="activity.friendId">
+          <router-link :to="{ name: 'profile', query: { userId: activity.friendId } }" class="flex items-center gap-2 mb-3 no-underline">
+            <div 
+              class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+              :class="activity.friendColor"
+              :style="avatarStyle"
+            >
+              {{ activity.friendInitial }}
+            </div>
+            <div>
+              <span class="text-white font-semibold block">{{ activity.friendName }}</span>
+              <span class="text-gray-400 text-xs">{{ activity.time }}</span>
+            </div>
+          </router-link>
+        </template>
+        <template v-else>
+          <div class="flex items-center gap-2 mb-3">
+            <div 
+              class="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm"
+              :class="activity.friendColor"
+              :style="avatarStyle"
+            >
+              {{ activity.friendInitial }}
+            </div>
+            <div>
+              <span class="text-white font-semibold block">{{ activity.friendName }}</span>
+              <span class="text-gray-400 text-xs">{{ activity.time }}</span>
+            </div>
           </div>
-          <div>
-            <span class="text-white font-semibold block">{{ activity.friendName }}</span>
-            <span class="text-gray-400 text-xs">{{ activity.time }}</span>
-          </div>
-        </div>
+        </template>
         
         <p class="text-gray-300 text-sm mb-3">
           {{ activity.action }} <span class="text-white font-semibold">{{ activity.content }}</span>
@@ -62,23 +80,25 @@
           </div>
         </div>
         
-        <!-- Géneros -->
-        <div class="flex items-center gap-2 text-xs text-gray-200 mt-3">
-          <span v-for="(genre, index) in activity.genres" :key="genre">
-            {{ genre }}<span v-if="index < activity.genres.length - 1"> • </span>
-          </span>
-        </div>
+        <!-- géneros ocultos en el feed (no renderizados) -->
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import type { FriendActivity } from './types'
 
 const props = defineProps<{
   activity: FriendActivity
 }>()
+
+const avatarStyle = computed(() => {
+  const c = (props.activity && (props.activity as any).friendColor) || ''
+  if (typeof c === 'string' && c.startsWith('#')) return { backgroundColor: c }
+  return undefined
+})
 
 const moods = [
   { emoji: '😊', color: 'bg-yellow-400' },
@@ -93,9 +113,9 @@ const getRatingText = (rating?: string) => {
   const parts = rating.split('/')
   const numericRating = parseFloat(parts[0] || '')
   if (Number.isNaN(numericRating)) return ''
-  if (numericRating >= 9) return 'Excelente puntuación'
-  if (numericRating >= 7) return 'Buena puntuación'
-  if (numericRating >= 5) return 'Puntuación regular'
-  return 'Puntuación baja'
+  if (numericRating >= 9) return ''
+  if (numericRating >= 7) return ''
+  if (numericRating >= 5) return ''
+  return ''
 }
 </script>
