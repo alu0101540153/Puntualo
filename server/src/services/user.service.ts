@@ -1,5 +1,6 @@
 import { UserModel } from '../models'
 import argon2 from 'argon2'
+import mongoose from 'mongoose'
 
 export const userService = {
   getAll: async () => {
@@ -91,7 +92,70 @@ export const userService = {
     return (user.follows || []) as any[]
   }
   ,
-  
+
+  getFeed: async (userId: string, page: number = 1, limit: number = 20) => {
+    // Obtiene el feed para un usuario: todas las puntuaciones realizadas por los usuarios
+    // que el usuario sigue (follows). Devuelve items ordenados por fecha descendente
+    // y paginados, incluyendo datos básicos del usuario que puntuó y el item poblado.
+    const user = await UserModel.findById(userId).lean()
+    if (!user) return { items: [], total: 0, page, limit }
+
+    // Normalizar los IDs de los seguidos en forma segura (string/ObjectId/populado)
+    const rawFollows = (user.follows || []) as any[]
+    const followsAsStrings = rawFollows
+      .map((f: any) => {
+        if (!f) return null
+        if (typeof f === 'string') return f
+        if (typeof f === 'object' && (f._id || f.id)) return String(f._id || f.id)
+        return String(f)
+      })
+      .filter((v): v is string => Boolean(v))
+
+    // Convertir a ObjectId sólo los que sean válidos; ignorar valores inválidos
+    const followObjectIds = followsAsStrings
+      .map((id: string) => {
+        try {
+          return new mongoose.Types.ObjectId(id)
+        } catch (e) {
+          return null
+        }
+      })
+      .filter((v): v is mongoose.Types.ObjectId => Boolean(v))
+
+    if (followObjectIds.length === 0) return { items: [], total: 0, page, limit }
+
+    const skip = Math.max(0, page - 1) * limit
+
+    // Aggregation: seleccionar usuarios seguidos, unwind ratedItems, añadir datos del usuario,
+    // hacer lookup al Item para poblar información, ordenar por lastModified y paginar.
+    const pipeline: any[] = [
+      { $match: { _id: { $in: followObjectIds } } },
+      { $project: { name: 1, handle: 1, avatarBgColor: 1, ratedItems: 1 } },
+      { $unwind: '$ratedItems' },
+      { $replaceRoot: { newRoot: { $mergeObjects: [ '$ratedItems', { user: { _id: '$_id', name: '$name', handle: '$handle', avatarBgColor: '$avatarBgColor' } } ] } } },
+      { $lookup: {
+          from: 'items',
+          localField: 'itemId',
+          foreignField: '_id',
+          as: 'item'
+      } },
+      { $unwind: { path: '$item', preserveNullAndEmptyArrays: true } },
+      { $sort: { lastModified: -1 } },
+      { $facet: {
+          metadata: [ { $count: 'total' } ],
+          data: [ { $skip: skip }, { $limit: limit } ]
+      } }
+    ]
+
+    // Ejecutar aggregation directamente en la colección
+    const result = await (UserModel as any).aggregate(pipeline)
+
+    const total = (result && result[0] && result[0].metadata && result[0].metadata[0]) ? result[0].metadata[0].total : 0
+    const items = (result && result[0] && result[0].data) ? result[0].data : []
+
+    return { items, total, page, limit }
+  }
+  ,
   addRating: async (userId: string, rating: any) => {
     // rating: { itemId, itemType, score, comment?, status? }
     try {

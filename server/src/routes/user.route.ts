@@ -17,6 +17,9 @@ router.get('/:id', userController.getUserById);
 // Public access to a user's friends (follows) so others can view someone's friends list
 router.get('/:id/friends', userController.getFollows);
 
+// Obtener el feed de un usuario (items puntuados por sus follows), paginado
+router.get('/:id/feed', validateUser, userController.getFeed);
+
 // Validamos el cuerpo antes de crear el usuario
 router.post('/', validateUser, userController.create);
 
