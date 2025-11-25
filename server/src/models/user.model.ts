@@ -49,6 +49,11 @@ const userSchema = new Schema({
     default: '',
     trim: true
   },
+  avatarBgColor: {
+    type: String,
+    default: '#9CA3AF',
+    trim: true
+  },
   follows: [{
     type: Schema.Types.ObjectId,
     ref: 'User'

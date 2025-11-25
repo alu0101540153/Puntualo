@@ -35,17 +35,9 @@
         >
         <span class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-300">🔍</span>
       </div>
-          <div
-            class="w-10 h-10 md:w-11 md:h-11 bg-gradient-to-br from-emerald-400 to-teal-400 rounded-full flex items-center justify-center text-black font-bold cursor-pointer ring-2 ring-black/30"
-        role="button"
-        aria-label="Ir al perfil"
-        title="Ver perfil"
-        @click="router.push('/profile')"
-        tabindex="0"
-        @keyup.enter="router.push('/profile')"
-      >
-        {{ userInitial }}
-      </div>
+          <div role="button" aria-label="Ir al perfil" title="Ver perfil" tabindex="0" @click="router.push('/profile')" @keyup.enter="router.push('/profile')">
+            <Avatar :user="user" size="md" extraClass="cursor-pointer ring-2 ring-black/30" :initials="userInitial" />
+          </div>
       <Button @click="handleLogout" variant="secondary" size="sm">Cerrar sesión</Button>
         </div>
       </div>
@@ -69,6 +61,7 @@ import { getUser } from '@/services/auth'
 import { logout } from '@/services/api'
 
 import Button from '@/components/Button.vue'
+import Avatar from '@/components/Avatar.vue'
 const router = useRouter()
 const route = useRoute()
 

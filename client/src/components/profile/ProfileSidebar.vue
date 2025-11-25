@@ -1,9 +1,7 @@
 <template>
   <aside class="bg-gradient-to-b from-gray-900/60 to-black/50 rounded-2xl p-6 text-white md:sticky md:top-8 mb-6 md:mb-0 shadow-lg border border-white/6">
     <div class="flex items-center gap-4">
-      <div class="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-3xl font-extrabold flex-shrink-0 overflow-hidden ring-4 ring-black/40">
-        <span class="text-black">{{ userInitial }}</span>
-      </div>
+      <Avatar :user="displayedUser" size="xl" extraClass="flex-shrink-0 ring-4 ring-black/40" :initials="userInitial" />
       <div class="min-w-0">
         <h2 class="text-xl md:text-2xl font-bold leading-tight break-words">{{ displayName }}</h2>
         <p v-if="atUsername" class="text-sm text-gray-300 break-words">{{ atUsername }}</p>
@@ -30,6 +28,7 @@
 
 <script setup lang="ts">
 import Button from '@/components/Button.vue'
+import Avatar from '@/components/Avatar.vue'
 import { defineProps, computed } from 'vue'
 import { getUser } from '@/services/auth'
 import { useRouter } from 'vue-router'
