@@ -6,11 +6,18 @@
       <h2 class="text-2xl font-bold mb-4">Editar perfil</h2>
 
       <form @submit.prevent="onSubmit" class="space-y-4">
-              <div class="flex items-center gap-4">
-                <div class="w-24 h-24 rounded-full bg-gray-400 overflow-hidden flex items-center justify-center text-3xl font-bold">
-                  {{ initial }}
-                </div>
-              </div>
+                    <div class="flex items-center gap-4">
+                      <Avatar :user="{ avatarBgColor: form.avatarBgColor }" size="xl" extraClass="flex-shrink-0" :initials="initial" />
+                      <div class="flex flex-col">
+                        <div class="text-sm text-gray-300">Color fondo avatar</div>
+                        <div class="flex items-center gap-2 mt-2">
+                          <template v-for="c in palette" :key="c">
+                            <button type="button" @click="() => selectColor(c)" :style="{ backgroundColor: c }" :class="['w-8 h-8 rounded', (form.avatarBgColor === c) ? 'ring-2 ring-white' : 'ring-1 ring-black/20']" aria-hidden="true"></button>
+                          </template>
+                          <input type="color" v-model="form.avatarBgColor" class="w-10 h-8 p-0 border-none bg-transparent" />
+                        </div>
+                      </div>
+                    </div>
 
         <div>
           <label class="block text-sm text-gray-300">Nombre completo</label>
@@ -47,6 +54,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import { getUser, saveAuth } from '@/services/auth'
 import { updateUser } from '@/services/user'
 import { useRouter } from 'vue-router'
+import Avatar from '@/components/Avatar.vue'
 
 const router = useRouter()
 // cargaremos el usuario en onMounted para asegurar que leemos la última versión desde localStorage
@@ -56,7 +64,8 @@ const form = reactive({
   name: '',
   username: '',
   email: '',
-  bio: ''
+  bio: '',
+  avatarBgColor: ''
 })
 
 // helper para normalizar distintos shapes que pueda tener "user" en localStorage/backend
@@ -83,7 +92,14 @@ onMounted(() => {
   form.username = u.username || u.handle || ''
   form.email = u.email || ''
   form.bio = u.bio || u.description || ''
+  form.avatarBgColor = u.avatarBgColor || u.avatarBg || ''
 })
+
+const palette = ['#EF4444','#F97316','#F59E0B','#FACC15','#10B981','#06B6D4','#3B82F6','#6366F1','#8B5CF6','#EC4899','#9CA3AF']
+
+function selectColor(c: string) {
+  form.avatarBgColor = c
+}
 
 async function onSubmit() {
   try {
@@ -94,7 +110,8 @@ async function onSubmit() {
     const payload = {
       name: form.name,
       handle: form.username,
-      description: form.bio || ''
+      description: form.bio || '',
+      avatarBgColor: form.avatarBgColor || undefined
     }
     const data = await updateUser(id, payload)
 
