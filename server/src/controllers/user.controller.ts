@@ -106,6 +106,18 @@ export const userController = {
     }
   }
   ,
+  getFeed: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const page = Number(req.query.page || 1) || 1
+      const limit = Number(req.query.limit || 20) || 20
+      const data = await userService.getFeed(id, page, limit)
+      return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
+  ,
   follow: async (req: Request, res: Response) => {
     try {
       const { id } = req.params // target to follow
