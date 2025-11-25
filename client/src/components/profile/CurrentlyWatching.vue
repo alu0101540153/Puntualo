@@ -18,19 +18,39 @@
       <div v-if="loading" class="col-span-full text-center text-gray-300">Cargando...</div>
       <div v-if="!loading && items.length === 0" class="col-span-full text-gray-300">No hay elementos en "Actualmente viendo"</div>
 
-      <div v-for="r in items" :key="r._id || r.itemId" class="w-full bg-gray-700 rounded overflow-hidden shadow-sm">
-        <div class="relative">
-          <img :src="getCover(r)" alt="poster" class="w-full h-56 object-cover" />
-          <div class="absolute top-2 left-2 bg-black/50 text-white px-2 py-1 rounded text-sm">{{ getStatusLabel(r.status) }}</div>
+      <div v-for="r in items" :key="r._id || r.itemId" class="w-full rounded-lg overflow-hidden shadow-lg bg-gray-800 relative">
+        <!-- Poster -->
+        <img :src="getCover(r)" alt="poster" class="w-full h-64 object-cover" />
+
+        <!-- Dark gradient overlay to improve text contrast -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+
+        <!-- Top-left status pill -->
+        <div class="absolute top-3 left-3">
+          <span v-if="isWatchingStatus(r.status)" class="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full">{{ getWatchingLabel(r) }}</span>
+          <span v-else class="bg-black/60 text-white text-xs px-3 py-1 rounded-full">{{ getStatusLabel(r.status) }}</span>
         </div>
-        <div class="p-3">
-          <h4 class="text-white font-semibold text-sm truncate">{{ getTitle(r) }}</h4>
-          <div class="mt-2 flex items-center justify-between">
-            <div class="text-yellow-400 font-bold">{{ r.score ?? '-' }}/10</div>
-            <div class="flex gap-2">
-              <button @click="goToDetail(r)" class="text-sm text-white bg-white/6 px-2 py-1 rounded">Ver detalle</button>
-            </div>
+
+        <!-- Top-right media icon -->
+        <div class="absolute top-3 right-3">
+          <div class="bg-white/90 p-2 rounded-full shadow-sm flex items-center justify-center" :title="getMediaLabel(r)">
+            <span class="text-sm">{{ getMediaIcon(r) }}</span>
           </div>
+        </div>
+
+        <!-- Title placed near bottom -->
+        <div class="absolute left-4 right-4 bottom-12">
+          <h4 class="text-white font-semibold text-lg truncate drop-shadow-md">{{ getTitle(r) }}</h4>
+        </div>
+
+        <!-- Bottom-left: ver detalle -->
+        <div class="absolute bottom-3 left-3">
+          <button @click="goToDetail(r)" class="text-sm text-white bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg">Ver detalle</button>
+        </div>
+
+        <!-- Bottom-right: score -->
+        <div class="absolute bottom-3 right-3">
+          <div class="bg-black/80 text-yellow-400 font-extrabold px-3 py-1 rounded-full">{{ r.score ?? '-' }}/10</div>
         </div>
       </div>
     </div>
@@ -68,6 +88,36 @@ function getStatusLabel(s: string) {
   if (s === 'watching') return 'Viéndolo'
   if (s === 'completed') return 'Terminado'
   return s
+}
+
+function isWatchingStatus(s: any) {
+  if (!s) return false
+  const low = String(s).toLowerCase()
+  return low === 'watching' || low === 'viendo' || low === 'in-progress' || low === 'inprogress' || low === 'in_progress'
+}
+
+function getMediaIcon(r: any) {
+  const media = r.itemType || (r.itemId && r.itemId.itemType) || (r.itemId && r.itemId.data && r.itemId.data.type) || 'book'
+  if (media === 'movie') return '🎬'
+  if (media === 'series') return '📺'
+  return '📖'
+}
+
+function getMediaLabel(r: any) {
+  const media = r.itemType || (r.itemId && r.itemId.itemType) || (r.itemId && r.itemId.data && r.itemId.data.type) || 'book'
+  if (media === 'movie') return 'Película'
+  if (media === 'series') return 'Serie'
+  return 'Libro'
+}
+
+// Determine the proper label when the user is currently consuming something.
+// For books we want to show "Leyéndolo" instead of "Viéndolo".
+function getWatchingLabel(r: any) {
+  const media = (r.itemType || (r.itemId && r.itemId.itemType) || (r.itemId && r.itemId.data && r.itemId.data.type) || 'book')
+  const low = String(media).toLowerCase()
+  if (low === 'book' || low === 'libro') return 'Leyéndolo'
+  // default uses the existing wording for visual media
+  return 'Viéndolo'
 }
 
 function goToDetail(r: any) {

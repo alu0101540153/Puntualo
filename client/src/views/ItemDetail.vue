@@ -49,8 +49,8 @@
                 </div>
                 <div class="md:col-span-2">
                   <div class="mb-3">
-                    <label class="block text-sm text-gray-300">Tu puntuación (1-10)</label>
-                    <input v-model="userScoreRaw" type="text" inputmode="decimal" placeholder="0 - 10" class="w-24 mt-2 p-2 rounded bg-white/6 text-gray-900" />
+                    <label class="block text-sm text-gray-300">Tu puntuación (1-10) — opcional</label>
+                    <input v-model="userScoreRaw" type="text" inputmode="decimal" placeholder="0 - 10 (dejar vacío para solo marcar como viéndolo/leyéndolo)" class="w-72 mt-2 p-2 rounded bg-white/6 text-gray-900" />
                     <div v-if="userScoreError" class="text-rose-400 text-sm mt-1">{{ userScoreError }}</div>
                   </div>
 
@@ -288,42 +288,46 @@ async function submitRating() {
     }
   }
 
-  // Parse and validate userScoreRaw (accepts ',' or '.' as decimal separator)
-  const raw = String(userScoreRaw.value || '')
-  const parsed = parseFloat(raw.replace(',', '.'))
-  if (isNaN(parsed)) {
-    userScoreError.value = 'Introduce un número válido entre 0 y 10 (puedes usar coma o punto).'
-    isSubmitting.value = false
-    return
+  // Parse and validate userScoreRaw only if the user provided a value.
+  const raw = String(userScoreRaw.value || '').trim()
+  let payloadScore: number | undefined = undefined
+  if (raw.length > 0) {
+    const parsed = parseFloat(raw.replace(',', '.'))
+    if (isNaN(parsed)) {
+      userScoreError.value = 'Introduce un número válido entre 0 y 10 (puedes usar coma o punto), o deja vacío.'
+      isSubmitting.value = false
+      return
+    }
+
+    // Round to one decimal place
+    let normalized = Math.round(parsed * 10) / 10
+
+    // Validate range explicitly and show error if out of bounds
+    if (normalized < 0) {
+      userScoreError.value = 'La nota no puede ser menor que 0.'
+      isSubmitting.value = false
+      return
+    }
+    if (normalized > 10) {
+      userScoreError.value = 'La nota no puede ser mayor que 10.'
+      isSubmitting.value = false
+      return
+    }
+
+    // update displayed values
+    userScore.value = normalized
+    userScoreRaw.value = String(normalized).replace('.', ',')
+    userScoreError.value = ''
+    payloadScore = Number(userScore.value)
   }
 
-  // Round to one decimal place
-  let normalized = Math.round(parsed * 10) / 10
-
-  // Validate range explicitly and show error if out of bounds
-  if (normalized < 0) {
-    userScoreError.value = 'La nota no puede ser menor que 0.'
-    isSubmitting.value = false
-    return
-  }
-  if (normalized > 10) {
-    userScoreError.value = 'La nota no puede ser mayor que 10.'
-    isSubmitting.value = false
-    return
-  }
-
-  // update displayed values
-  userScore.value = normalized
-  userScoreRaw.value = String(normalized).replace('.', ',')
-  userScoreError.value = ''
-
-  const payload = {
+  const payload: any = {
     itemId: dbItemId,
     itemType: item.value.itemType || 'book',
-    score: Number(userScore.value),
     comment: userComment.value || '',
     status: userStatus.value || 'watching'
   }
+  if (typeof payloadScore !== 'undefined') payload.score = payloadScore
 
   try {
     isSubmitting.value = true

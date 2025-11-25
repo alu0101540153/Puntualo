@@ -92,21 +92,27 @@ export const userService = {
   }
   ,
   
-  addRating: async (userId: string, rating: any) => {
+    addRating: async (userId: string, rating: any) => {
     // rating: { itemId, itemType, score, comment?, status? }
     try {
-      const s = Number(rating.score)
-      if (!isNaN(s)) {
-        let normalized = Math.round(s * 10) / 10
-        if (normalized < 0) normalized = 0
-        if (normalized > 10) normalized = 10
-        rating.score = normalized
+      // Only normalize score when it's provided and non-empty
+      if (typeof rating.score !== 'undefined' && rating.score !== null && String(rating.score).trim() !== '') {
+        const s = Number(rating.score)
+        if (!isNaN(s)) {
+          let normalized = Math.round(s * 10) / 10
+          if (normalized < 0) normalized = 0
+          if (normalized > 10) normalized = 10
+          rating.score = normalized
+        } else {
+          // invalid numeric value: remove the score so it won't be stored as 0
+          delete rating.score
+        }
       } else {
-        // fallback to 0 if invalid
-        rating.score = 0
+        // no score provided: ensure it's not present
+        if (rating.hasOwnProperty('score')) delete rating.score
       }
     } catch (e) {
-      rating.score = 0
+      if (rating.hasOwnProperty('score')) delete rating.score
     }
     // If the user already has a rating for the same itemId, update that subdocument instead of pushing a duplicate.
     try {
