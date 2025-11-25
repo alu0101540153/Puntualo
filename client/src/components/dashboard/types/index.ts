@@ -18,8 +18,10 @@ export interface FriendActivity {
   friendName: string
   friendInitial: string
   friendColor: string
+  friendId?: string
   action: string
   content: string
+  contentId?: string
   contentImage: string
   contentMediaType: '📖' | '🎬' | '📺'
   time: string
