@@ -18,7 +18,8 @@ router.get('/:id', userController.getUserById);
 router.get('/:id/friends', userController.getFollows);
 
 // Obtener el feed de un usuario (items puntuados por sus follows), paginado
-router.get('/:id/feed', validateUser, userController.getFeed);
+// La ruta requiere token (verifyToken). validateUser validaba el body y provocaba 400 en GET.
+router.get('/:id/feed', verifyToken, userController.getFeed);
 
 // Validamos el cuerpo antes de crear el usuario
 router.post('/', validateUser, userController.create);
