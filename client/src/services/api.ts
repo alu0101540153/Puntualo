@@ -49,9 +49,9 @@ export async function apiFetch(path: string, options: FetchOptions = {}) {
   }
 
   if (!res.ok) {
-    // Try to surface sensible error message
-    const msg = data?.message || data?.errors || res.statusText
-    throw new Error(typeof msg === 'string' ? msg : JSON.stringify(msg))
+    // Throw a JSON string containing status and body so callers can parse reliably
+    const errBody = data ?? res.statusText
+    throw new Error(JSON.stringify({ status: res.status, body: errBody }))
   }
 
   return data
