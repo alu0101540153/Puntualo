@@ -112,6 +112,27 @@ export const userController = {
       const me = (req as any).user
       if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
       const data = await userService.followUser(me.id, id)
+      // Send follow notification email in background (do not block response)
+      try {
+        const target = await userService.getById(id)
+        if (target && target.email) {
+          const followerName = me.name || me.handle || (me.email ? me.email.split('@')[0] : 'Alguien')
+          // fire-and-forget
+          import('../services').then(svc => {
+            svc.sendFollowEmail(target.email, target.name || target.handle || 'Usuario', followerName).catch((err: any) => {
+              // eslint-disable-next-line no-console
+              console.warn('[userController.follow] sendFollowEmail failed', err?.message || err)
+            })
+          }).catch((err) => {
+            // eslint-disable-next-line no-console
+            console.warn('[userController.follow] failed to import services for sendFollowEmail', err?.message || err)
+          })
+        }
+      } catch (e) {
+        // ignore notification errors
+        // eslint-disable-next-line no-console
+        console.warn('[userController.follow] notification error', (e as any)?.message || String(e))
+      }
       return res.json(data)
     } catch (error: any) {
       res.status(400).json({ message: error.message })
