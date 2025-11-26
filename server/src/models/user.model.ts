@@ -119,7 +119,8 @@ const userSchema = new Schema({
   }
 })
 
-const User = mongoose.model<IUser>('User', userSchema)
+// Avoid OverwriteModelError in test runs that reload modules
+const User = (mongoose.models && (mongoose.models.User as mongoose.Model<IUser>)) || mongoose.model<IUser>('User', userSchema)
 
 // Export named UserModel for backward compatibility with existing imports
 export const UserModel = User

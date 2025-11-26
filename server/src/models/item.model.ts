@@ -60,6 +60,7 @@ const itemSchema = new Schema({
   }
 })
 
-const Item = mongoose.model<IItem>('Item', itemSchema)
+// Avoid OverwriteModelError when running tests that reload modules
+const Item = (mongoose.models && (mongoose.models.Item as mongoose.Model<IItem>)) || mongoose.model<IItem>('Item', itemSchema)
 
 export default Item
