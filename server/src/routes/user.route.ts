@@ -42,6 +42,10 @@ router.delete('/:id/ratings/:ratingId', verifyToken, checkOwnership, userControl
 // Obtener la lista de follows del usuario (solo propietario)
 router.get('/:id/follows', verifyToken, checkOwnership, userController.getFollows);
 
+// Obtener recomendaciones personalizadas para un usuario
+// Nota: por ahora recalculamos en cada petición. En el futuro cachear y recalcular cada X items añadidos.
+router.get('/:id/recommendations', verifyToken, userController.getRecommendations);
+
 // Follow/unfollow another user (authenticated user acts on themselves following target id)
 router.post('/:id/follow', verifyToken, userController.follow);
 router.delete('/:id/follow', verifyToken, userController.unfollow);

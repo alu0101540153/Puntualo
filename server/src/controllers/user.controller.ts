@@ -1,6 +1,7 @@
 import { Response, Request } from 'express'
 
 import { userService } from '../services'
+import { recommendationService } from '../services'
 
 export const userController = {
   getAllUser: async (req: Request, res: Response) => {
@@ -158,6 +159,19 @@ export const userController = {
       const { id, itemId } = req.params // id=user id, itemId=subdocument id
       const data = await userService.removeItemFromUser(id, itemId)
       return res.json(data)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  }
+  ,
+  getRecommendations: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const page = Number(req.query.page || 1) || 1
+      const limit = Number(req.query.limit || 20) || 20
+      // For now we recalculate on demand (future: cache and recalc every X additions)
+      const result = await recommendationService.getRecommendationsForUser(id, { page, limit })
+      return res.json(result)
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }
