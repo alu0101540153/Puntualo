@@ -11,17 +11,17 @@
       </div>
 
       <!-- Información al lado -->
-      <div class="flex-1">
-        <h3 class="text-white font-bold text-xl mb-3">{{ recommendation.title }}</h3>
-        <p class="text-gray-300 mb-4 leading-relaxed">
+      <div class="flex-1 min-w-0">
+        <h3 class="text-white font-bold text-xl mb-3 truncate">{{ recommendation.title }}</h3>
+        <p class="text-gray-300 mb-4 leading-relaxed line-clamp-3">
           {{ truncatedDescription }}
         </p>
-        <div class="flex items-center gap-4 text-sm text-gray-200 mb-4">
-          <span v-for="(genre, index) in recommendation.genres" :key="genre">
-            {{ genre }}<span v-if="index < recommendation.genres.length - 1"> • </span>
+        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-200 mb-4">
+          <span v-for="(genre, index) in recommendation.genres.slice(0, 3)" :key="genre" class="whitespace-nowrap">
+            {{ genre }}<span v-if="index < Math.min(recommendation.genres.length - 1, 2)"> • </span>
           </span>
-          <span>•</span>
-          <span>{{ recommendation.ageRating }}</span>
+          <span v-if="recommendation.genres.length > 3" class="whitespace-nowrap">• +{{ recommendation.genres.length - 3 }}</span>
+          <span class="whitespace-nowrap">• {{ recommendation.ageRating }}</span>
         </div>
         <button @click="goToDetails" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-6 py-2 rounded-lg font-medium transition-colors">
           Ver detalles

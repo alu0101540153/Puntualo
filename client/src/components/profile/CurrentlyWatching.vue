@@ -1,61 +1,142 @@
 <template>
-  <div class="bg-white/5 rounded-lg p-6 text-white">
-    <div v-if="!hideHeader" class="flex items-start justify-between">
+  <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
+    <div v-if="!hideHeader" class="flex items-center justify-between mb-6">
       <div>
-        <h3 class="text-2xl font-semibold">{{ userName ? `Actualmente viendo de ${userName}` : 'Actualmente viendo' }}</h3>
-        <p class="text-sm text-gray-300">Sigue lo que estás viendo ahora</p>
+        <h3 class="text-3xl font-bold text-white mb-1">{{ userName ? `Actualmente viendo de ${userName}` : 'Actualmente viendo' }}</h3>
+        <p class="text-sm text-gray-400">Sigue lo que estás viendo ahora</p>
       </div>
 
-      <!-- If this is a friend's profile view, show 'Ver más' and navigate to the user's watching page.
-           Otherwise keep the original 'Añadir' link for the current user. -->
       <div>
-        <button v-if="friendView && userId" @click="goToUserWatching" class="bg-white/10 text-white px-3 py-1 rounded-full">Ver más</button>
-        <router-link v-else to="/search" class="bg-white/10 text-white px-3 py-1 rounded-full">Añadir</router-link>
+        <button 
+          v-if="friendView && userId" 
+          @click="goToUserWatching" 
+          class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+        >
+          Ver más
+        </button>
+        <router-link 
+          v-else 
+          to="/search" 
+          class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl inline-block"
+        >
+          + Añadir
+        </router-link>
       </div>
     </div>
 
-    <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      <div v-if="loading" class="col-span-full text-center text-gray-300">Cargando...</div>
-      <div v-if="!loading && items.length === 0" class="col-span-full text-gray-300">No hay elementos en "Actualmente viendo"</div>
+    <div v-if="loading" class="text-center text-gray-300 py-16">
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+      <p class="text-lg">Cargando...</p>
+    </div>
+    
+    <div v-else-if="items.length === 0" class="text-center text-gray-400 py-16">
+      <div class="text-6xl mb-4">📺</div>
+      <p class="text-xl font-semibold mb-2">Nada por aquí todavía</p>
+      <p class="text-sm">Añade algo para empezar a seguir tu progreso</p>
+    </div>
 
-      <div v-for="r in items" :key="r._id || r.itemId" class="w-full rounded-lg overflow-hidden shadow-lg bg-gray-800 relative">
-        <!-- Poster -->
-        <img :src="getCover(r)" alt="poster" class="w-full h-64 object-cover" />
+    <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div 
+        v-for="r in items" 
+        :key="r._id || r.itemId" 
+        class="group relative cursor-pointer transform transition-all duration-500 hover:scale-105"
+        @click="goToDetail(r)"
+      >
+        <!-- Card Container -->
+        <div class="relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl border-2 border-transparent hover:border-emerald-400 transition-all duration-300">
+          <!-- Poster with Parallax Effect -->
+          <div class="relative aspect-[2/3] overflow-hidden">
+            <img 
+              :src="getCover(r)" 
+              :alt="getTitle(r)" 
+              class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+            />
 
-        <!-- Dark gradient overlay to improve text contrast -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+            <!-- Animated gradient overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
 
-        <!-- Top-left status pill -->
-        <div class="absolute top-3 left-3">
-          <span v-if="isWatchingStatus(r.status)" class="bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full">{{ getWatchingLabel(r) }}</span>
-          <span v-else class="bg-black/60 text-white text-xs px-3 py-1 rounded-full">{{ getStatusLabel(r.status) }}</span>
-        </div>
+            <!-- Animated shimmer effect on hover -->
+            <div class="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 animate-shimmer"></div>
+            </div>
 
-        <!-- Top-right media icon -->
-        <div class="absolute top-3 right-3">
-          <div class="bg-white/90 p-2 rounded-full shadow-sm flex items-center justify-center" :title="getMediaLabel(r)">
-            <span class="text-sm">{{ getMediaIcon(r) }}</span>
+            <!-- Status Badge with pulse animation -->
+            <div class="absolute top-3 left-3 z-10">
+              <span 
+                v-if="isWatchingStatus(r.status)" 
+                class="bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-xs font-bold px-4 py-2 rounded-full shadow-lg animate-pulse-slow flex items-center gap-2"
+              >
+                <span class="w-2 h-2 bg-black rounded-full animate-ping"></span>
+                {{ getWatchingLabel(r) }}
+              </span>
+              <span v-else class="bg-black/80 text-white text-xs font-semibold px-4 py-2 rounded-full backdrop-blur-sm">
+                {{ getStatusLabel(r.status) }}
+              </span>
+            </div>
+
+            <!-- Media Type Icon with bounce -->
+            <div class="absolute top-3 right-3 z-10 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+              <div class="bg-white/95 backdrop-blur-sm p-2.5 rounded-full shadow-lg" :title="getMediaLabel(r)">
+                <span class="text-xl">{{ getMediaIcon(r) }}</span>
+              </div>
+            </div>
+
+            <!-- Interactive overlay with centered button -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-4">
+              <button class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-bold py-3 px-8 rounded-xl shadow-2xl hover:brightness-110 transition-all duration-300 transform scale-90 group-hover:scale-100">
+                Ver detalles
+              </button>
+              
+              <!-- Progress bar moved to bottom -->
+              <div class="absolute bottom-6 left-6 right-6">
+                <div class="bg-gray-700/50 rounded-full h-2 overflow-hidden backdrop-blur-sm">
+                  <div class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-500" :style="{ width: getProgress(r) + '%' }"></div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
-        <!-- Title placed near bottom -->
-        <div class="absolute left-4 right-4 bottom-12">
-          <h4 class="text-white font-semibold text-lg truncate drop-shadow-md">{{ getTitle(r) }}</h4>
-        </div>
-
-        <!-- Bottom-left: ver detalle -->
-        <div class="absolute bottom-3 left-3">
-          <button @click="goToDetail(r)" class="text-sm text-white bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg">Ver detalle</button>
-        </div>
-
-        <!-- Bottom-right: score -->
-        <div class="absolute bottom-3 right-3">
-          <div class="bg-black/80 text-yellow-400 font-extrabold px-3 py-1 rounded-full">{{ r.score ?? '-' }}/10</div>
+          <!-- Info card at bottom -->
+          <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/95 to-transparent">
+            <h4 class="text-white font-bold text-base line-clamp-2 mb-2 drop-shadow-lg">{{ getTitle(r) }}</h4>
+            
+            <!-- Score with animated star -->
+            <div class="flex items-center justify-between">
+              <div v-if="r.score" class="flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                <span class="text-yellow-400 text-lg animate-pulse-slow">⭐</span>
+                <span class="text-yellow-400 font-bold text-sm">{{ r.score }}</span>
+                <span class="text-gray-400 text-xs">/10</span>
+              </div>
+              <div v-else class="bg-black/60 backdrop-blur-sm px-3 py-1.5 rounded-full">
+                <span class="text-gray-400 text-xs italic">Sin puntuar</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+</style>
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
@@ -118,6 +199,14 @@ function getWatchingLabel(r: any) {
   if (low === 'book' || low === 'libro') return 'Leyéndolo'
   // default uses the existing wording for visual media
   return 'Viéndolo'
+}
+
+// Simulated progress based on score (just for visual effect)
+function getProgress(r: any) {
+  // If there's a score, use it as a rough progress indicator
+  if (r.score) return (r.score / 10) * 100
+  // Otherwise show a random progress between 20-70%
+  return Math.floor(Math.random() * 50) + 20
 }
 
 function goToDetail(r: any) {

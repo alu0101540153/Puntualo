@@ -1,6 +1,8 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 py-12">
-    <main class="max-w-6xl mx-auto px-6">
+  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+    <DashboardHeader :show-back="true" />
+    
+    <main class="max-w-6xl mx-auto px-6 py-8">
       <div class="bg-gradient-to-b from-gray-700 via-gray-600 to-gray-500 bg-opacity-30 rounded-2xl p-8 shadow-lg">
         <h2 class="text-3xl font-bold text-white mb-6">Información del ítem</h2>
 
@@ -35,10 +37,7 @@
             </div>
 
             <div class="mt-4">
-              <button @click="$router.back()" class="bg-white bg-opacity-10 text-gray-100 px-5 py-2 rounded-md hover:bg-opacity-20 transition mr-3">Volver</button>
-              <div class="inline-flex items-center gap-2">
-                <button @click="showReview = !showReview" class="bg-white bg-opacity-10 text-white px-3 py-2 rounded">Puntuar / Escribir reseña</button>
-              </div>
+              <button @click="showReview = !showReview" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
             </div>
 
             <div v-if="showReview" class="mt-6 bg-white/5 rounded-lg p-6">
@@ -101,6 +100,7 @@ import { getUser } from '@/services/auth'
 import { getMyRatings } from '@/services/user'
 import { addRating } from '@/services/user'
 import { useRouter } from 'vue-router'
+import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 
 const route = useRoute()
 const id = String(route.params.id || '')

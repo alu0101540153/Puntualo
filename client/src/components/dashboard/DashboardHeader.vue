@@ -52,7 +52,7 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
   { name: 'Inicio', to: '/dashboard' },
-  { name: 'Amigos', to: '/dashboard' }
+  { name: 'Recomendados', to: '/recommendations' }
 ]
 
 import { useRouter, useRoute } from 'vue-router'
