@@ -78,13 +78,36 @@
 
       <section class="mt-8 bg-gradient-to-b from-gray-700 to-gray-600 bg-opacity-25 rounded-2xl p-6 shadow-inner">
         <h3 class="text-xl font-bold text-white mb-4">Puntuación de amigos</h3>
-        <div class="flex items-end gap-8 min-h-[120px]">
-          <div v-for="r in friendRatings" :key="r.name" class="flex flex-col items-center">
-            <div :class="['w-20 h-20 rounded-full flex items-center justify-center text-xl font-extrabold text-white', ratingClass(r.score)]">
-              {{ r.score }}/10
+
+        <div v-if="friendRatingsLoading" class="text-gray-300">Cargando puntuaciones de amigos...</div>
+        <div v-else-if="friendRatings.length === 0" class="text-gray-300">Tus amigos no han puntuado este ítem todavía.</div>
+
+        <ul v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <li v-for="r in friendRatings" :key="r.id" class="flex items-start gap-4 p-4 rounded bg-gray-800/40">
+            <!-- Avatar / initial -->
+            <button @click="router.push({ name: 'profile', query: { userId: r.userId } })" class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" :style="{ backgroundColor: r.avatarColor || '#6B7280' }" aria-label="Ver perfil">
+              {{ (r.name && String(r.name).charAt(0)) || '?' }}
+            </button>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3 min-w-0">
+                  <router-link :to="{ name: 'profile', query: { userId: r.userId } }" class="text-white font-semibold truncate no-underline">{{ r.name }}</router-link>
+                  <span class="text-xs text-gray-400">· {{ r.lastModified ? new Date(r.lastModified).toLocaleString() : '' }}</span>
+                </div>
+                <div>
+                  <div :class="['w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm', ratingClass(r.score)]" role="img" :aria-label="r.score != null ? `Puntuación ${r.score} de 10` : 'Sin puntuación'">
+                    {{ (r.score != null && r.score !== '') ? (String(r.score) + '/10') : '—' }}
+                  </div>
+                </div>
+              </div>
+              <div v-if="r.comment" class="mt-2 text-gray-300 text-sm truncate">{{ r.comment }}</div>
             </div>
-            <span class="mt-2 text-gray-300">{{ r.name }}</span>
-          </div>
+          </li>
+        </ul>
+
+        <div class="mt-4 flex justify-center">
+          <button v-if="!friendRatingsLoading && friendRatings.length < friendRatingsTotal" @click="loadMoreFriendRatings" class="px-4 py-2 rounded bg-gray-600 text-white">Ver más</button>
         </div>
       </section>
     </main>
@@ -95,6 +118,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getItemById, createItem } from '@/services/item'
+import { getFriendsRatings } from '@/services/item'
 import localRecommendations from '@/data/recommendations'
 import { getUser } from '@/services/auth'
 import { getMyRatings } from '@/services/user'
@@ -132,18 +156,65 @@ function inferGenresFromTitle(title: string) {
   return Array.from(new Set(genres))
 }
 
-// Puntuaciones de amigos (mock) — se pueden sustituir por datos reales
-const friendRatings = ref([
-  { name: 'Saray', score: 9 },
-  { name: 'Víctor', score: 7 },
-  { name: 'Pablo', score: 10 }
-])
+// Puntuaciones de amigos (fetched)
+  const friendRatings = ref<Array<any>>([])
+const friendRatingsPage = ref(1)
+const friendRatingsLimit = ref(8)
+const friendRatingsTotal = ref(0)
+const friendRatingsLoading = ref(false)
 
 function ratingClass(score: number) {
+  if (score == null || typeof score === 'undefined' || Number.isNaN(Number(score))) return 'bg-gray-500'
   if (score >= 9) return 'bg-emerald-600'
   if (score >= 7) return 'bg-emerald-400'
   if (score >= 5) return 'bg-yellow-400'
   return 'bg-rose-500'
+}
+
+async function loadFriendRatings(reset = false) {
+  try {
+    if (reset) {
+      friendRatingsPage.value = 1
+      friendRatings.value = []
+    }
+    friendRatingsLoading.value = true
+    const page = friendRatingsPage.value
+    const limit = friendRatingsLimit.value
+    const res: any = await getFriendsRatings(id, page, limit)
+    // res expected: { items, total, page, limit }
+    const items = res && res.items ? res.items : []
+    // map server items to UI-friendly objects
+    const mapped = items.map((it: any) => {
+      const user = it.user || it.userId || {}
+      const uid = (user && (user._id || user.id)) || (it.user && it.user._id) || null
+      const rawColor = (user && user.avatarBgColor) || null
+      const avatarColor = rawColor && String(rawColor).startsWith('#') ? rawColor : '#6B7280'
+      return {
+        id: it._id || `${uid || ''}-${it.itemId || ''}`,
+        userId: uid,
+        name: (user && (user.name || user.handle)) || 'Usuario',
+        avatarColor,
+        score: typeof it.score !== 'undefined' && it.score !== null ? Number(it.score) : (it.rating != null ? Number(it.rating) : null),
+        comment: it.comment || '',
+        status: it.status || '',
+        lastModified: it.lastModified || it.addedAt || null
+      }
+    })
+
+    if (reset) friendRatings.value = mapped
+    else friendRatings.value = friendRatings.value.concat(mapped)
+    friendRatingsTotal.value = res && typeof res.total === 'number' ? res.total : (friendRatings.value.length)
+  } catch (err) {
+    // ignore errors silently for now
+    console.error('Error cargando puntuaciones de amigos', err)
+  } finally {
+    friendRatingsLoading.value = false
+  }
+}
+
+function loadMoreFriendRatings() {
+  friendRatingsPage.value += 1
+  loadFriendRatings(false)
 }
 
 function mapServerItem(data: any) {
@@ -205,6 +276,8 @@ onMounted(async () => {
       }
       // prefill user's rating now that item is available
       await tryPrefillForItem()
+      // load first page of friend ratings
+      await loadFriendRatings(true)
       return
     }
   } catch (err) {

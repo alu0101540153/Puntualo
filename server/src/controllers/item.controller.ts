@@ -59,4 +59,18 @@ export const itemController = {
       })
     }
   },
+  getFriendsRatings: async (req: Request, res: Response) => {
+    try {
+      // verifyToken middleware attaches req.user { id }
+      const me = (req as any).user
+      if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
+      const itemId = req.params.id
+      if (!itemId) return res.status(400).json({ message: 'Item id required' })
+
+      const data = await itemService.getFriendsRatingsForItem(me.id, itemId)
+      return res.json({ items: data, total: Array.isArray(data) ? data.length : 0 })
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  },
 }

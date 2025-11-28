@@ -12,6 +12,7 @@
       <!-- Edit button: prominent green primary action to stand out -->
       <Button class="w-full" variant="primary" @click="$router.push('/profile/edit')">Editar Perfil</Button>
       <Button class="w-full" variant="secondary" @click="$router.push('/my-friends')">Mis amigos</Button>
+      <Button class="w-full mt-3" variant="secondary" @click="handleLogout">Cerrar sesión</Button>
     </div>
     <div class="mt-5" v-else>
       <div class="text-sm text-gray-300 mb-3">Perfil público</div>
@@ -32,6 +33,7 @@ import Avatar from '@/components/Avatar.vue'
 import { defineProps, computed } from 'vue'
 import { getUser } from '@/services/auth'
 import { useRouter } from 'vue-router'
+import { logout } from '@/services/api'
 
 const props = defineProps<{ profileUser?: any }>()
 
@@ -89,6 +91,11 @@ function viewUserFriends() {
   const id = user && (user._id || user.id)
   if (!id) return
   router.push({ name: 'user-friends', params: { id: String(id) }, query: { name: firstName.value || (user.name || '') } })
+}
+
+function handleLogout() {
+  logout()
+  router.push('/login')
 }
 </script>
 
