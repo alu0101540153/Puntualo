@@ -1,6 +1,6 @@
 import {Router} from 'express';
 
-import {itemController} from '../controllers'
+import {itemController, userController} from '../controllers'
 import { verifyToken } from '../middlewares/auth.middleware'
 
 const router = Router();
@@ -8,6 +8,9 @@ const router = Router();
 router.get('/', itemController.getAllItem);
 
 router.get('/:id', itemController.getById);
+
+// Backwards-compatible endpoint used by client: obtener recomendaciones para un usuario
+router.get('/recommendations/:id', userController.getRecommendations);
 
 router.post('/', verifyToken, itemController.create);
 

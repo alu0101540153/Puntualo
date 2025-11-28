@@ -110,6 +110,12 @@ const router = createRouter({
       component: () => import('../views/UserFriendsView.vue'),
       props: true
     }
+    ,
+    {
+      path: '/recommendations',
+      name: 'recommendations',
+      component: () => import('../views/RecommendationsView.vue')
+    }
   ],
 })
 

@@ -105,7 +105,9 @@
                 <div class="space-y-4">
                   <div class="flex items-center justify-between">
                     <h3 class="text-2xl font-semibold text-white">Mis vistos</h3>
-                    <Button @click="goToAllSeen" variant="secondary" size="sm" class="px-3 py-1">Ver todos mis vistos</Button>
+                    <button @click="goToAllSeen" class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full transition-all duration-300">
+                      Ver todos mis vistos
+                    </button>
                   </div>
 
                   <SeenCarousel />
@@ -124,7 +126,9 @@
                   <div class="space-y-4">
                     <div class="flex items-center justify-between">
                       <h3 class="text-2xl font-semibold text-white">Vistos de {{ profileUser?.name }}</h3>
-            <Button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" variant="secondary" size="sm">Ver todos sus vistos</Button>
+            <button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full transition-all duration-300">
+              Ver todos sus vistos
+            </button>
                     </div>
 
                     <SeenCarousel :userId="profileUser?._id" :ratings="profileUser?.ratedItems" />

@@ -5,22 +5,31 @@
     <main class="max-w-6xl mx-auto px-4 py-8">
       <WelcomeSection />
       
-      <!-- Personal recommendations shown above friends when available -->
-      <section v-if="personalRecommendations.length > 0" class="mb-8">
-        <h2 class="text-2xl font-bold text-white mb-4">Recomendaciones para ti</h2>
-        <RecommendationsGrid 
-          :recommendations="personalRecommendations"
-          @see-more="handleSeeMoreRecommendations"
-        />
-      </section>
-
       <!-- Generic recommendations (fallback) -->
       <section v-if="recommendations.length > 0" class="mb-8">
         <h2 class="text-2xl font-bold text-white mb-4">Te podría interesar ...</h2>
-        <RecommendationsGrid 
-          :recommendations="recommendations"
-          @see-more="handleSeeMoreRecommendations"
-        />
+        <!-- Contenedor con fondo y padding -->
+        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+          <div class="flex flex-col lg:flex-row gap-6 items-center">
+            <!-- Mostrar solo 1 recomendación con ancho fijo -->
+            <div class="flex-1 w-full max-w-2xl [&>section]:mb-0">
+              <RecommendationsGrid 
+                :recommendations="recommendations.slice(0, 1)"
+                :gridClass="'grid grid-cols-1'"
+                @see-more="handleSeeMoreRecommendations"
+              />
+            </div>
+            <!-- Botón grande para ver más con los colores del tema -->
+            <div class="flex items-center justify-center lg:justify-start flex-1">
+              <button 
+                @click="goToRecommendations" 
+                class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-95 text-black font-extrabold py-6 px-10 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl whitespace-nowrap text-lg w-full"
+              >
+                Ver más recomendados
+              </button>
+            </div>
+          </div>
+        </div>
       </section>
 
       <!-- Friends activities (feed) -->
@@ -31,11 +40,26 @@
           <FriendsGrid v-else :activities="friendActivities" />
 
           <!-- Pagination controls -->
-          <div v-if="friendActivities.length > 0" class="flex items-center justify-between mt-6">
-            <div class="text-sm text-gray-300">Mostrando página {{ page }} — {{ total }} resultados</div>
-            <div class="flex gap-2">
-              <button @click="prevPage" :disabled="page <= 1" class="px-3 py-1 rounded bg-gray-600 text-white disabled:opacity-50">Anterior</button>
-              <button @click="nextPage" :disabled="page * limit >= total" class="px-3 py-1 rounded bg-gray-600 text-white disabled:opacity-50">Siguiente</button>
+          <div v-if="friendActivities.length > 0" class="flex items-center justify-between mt-8 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+            <div class="text-sm text-gray-500 font-medium">
+              Mostrando página <span class="font-semibold">{{ page }}</span> — <span class="font-semibold">{{ total }}</span> resultados
+            </div>
+            <div class="flex items-center gap-3">
+              <button
+                @click="prevPage"
+                :disabled="page <= 1"
+                class="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Anterior
+              </button>
+
+              <button
+                @click="nextPage"
+                :disabled="page * limit >= total"
+                class="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                Siguiente
+              </button>
             </div>
           </div>
         </div>
@@ -231,8 +255,9 @@ onMounted(() => {
 })
 
 // Recarga cuando se añade ?refresh=timestamp (ItemDetail redirige con esta query al puntuar)
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
+const router = useRouter()
 watch(() => route.query.refresh, () => {
   if (route.name === 'dashboard') {
     loadRecommendations()
@@ -243,5 +268,9 @@ watch(() => route.query.refresh, () => {
 const handleSeeMoreRecommendations = () => {
   console.log('Ver más recomendaciones clickeado')
   // Aquí puedes navegar a otra página o cargar más recomendaciones
+}
+
+function goToRecommendations() {
+  router.push('/recommendations')
 }
 </script>
