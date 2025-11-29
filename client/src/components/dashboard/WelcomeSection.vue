@@ -58,17 +58,6 @@ withDefaults(defineProps<Props>(), {
   }
 }
 
-@keyframes pulse-glow {
-  0%, 100% {
-    opacity: 0.6;
-    filter: blur(1px) brightness(1.2);
-  }
-  50% {
-    opacity: 0.9;
-    filter: blur(2px) brightness(1.5);
-  }
-}
-
 @keyframes float {
   0%, 100% {
     transform: translateY(0) scale(1);
@@ -89,74 +78,10 @@ withDefaults(defineProps<Props>(), {
 
 @keyframes shine {
   0% {
-    transform: translateX(-150%) skewX(-25deg);
+    transform: translateX(-100%) skewX(-15deg);
   }
   100% {
-    transform: translateX(250%) skewX(-25deg);
-  }
-}
-
-@keyframes float-particle-1 {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  25% {
-    transform: translate(10px, -20px) rotate(10deg) scale(1.1);
-  }
-  50% {
-    transform: translate(-5px, -35px) rotate(-5deg) scale(1.2);
-  }
-  75% {
-    transform: translate(15px, -25px) rotate(15deg) scale(1.05);
-  }
-}
-
-@keyframes float-particle-2 {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg) scale(1);
-  }
-  25% {
-    transform: translate(-15px, -25px) rotate(-15deg) scale(1.15);
-  }
-  50% {
-    transform: translate(8px, -40px) rotate(8deg) scale(1.25);
-  }
-  75% {
-    transform: translate(-10px, -20px) rotate(-10deg) scale(1.1);
-  }
-}
-
-@keyframes float-particle-3 {
-  0%, 100% {
-    transform: translate(-50%, 0) rotate(0deg) scale(1);
-  }
-  33% {
-    transform: translate(-40%, -30px) rotate(20deg) scale(1.2);
-  }
-  66% {
-    transform: translate(-60%, -25px) rotate(-20deg) scale(1.1);
-  }
-}
-
-@keyframes ray-1 {
-  0%, 100% {
-    opacity: 0.1;
-    transform: rotate(12deg) scaleY(0.8);
-  }
-  50% {
-    opacity: 0.3;
-    transform: rotate(15deg) scaleY(1.2);
-  }
-}
-
-@keyframes ray-2 {
-  0%, 100% {
-    opacity: 0.1;
-    transform: rotate(-12deg) scaleY(0.8);
-  }
-  50% {
-    opacity: 0.3;
-    transform: rotate(-15deg) scaleY(1.2);
+    transform: translateX(200%) skewX(-15deg);
   }
 }
 
@@ -201,11 +126,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .animate-gradient-text {
-  animation: gradient-text 5s linear infinite;
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 2s ease-in-out infinite;
+  animation: gradient-text 4s linear infinite;
 }
 
 .animate-float {
@@ -217,27 +138,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .animate-shine {
-  animation: shine 4s ease-in-out infinite;
-}
-
-.animate-float-particle-1 {
-  animation: float-particle-1 4s ease-in-out infinite;
-}
-
-.animate-float-particle-2 {
-  animation: float-particle-2 5s ease-in-out infinite 0.5s;
-}
-
-.animate-float-particle-3 {
-  animation: float-particle-3 4.5s ease-in-out infinite 1s;
-}
-
-.animate-ray-1 {
-  animation: ray-1 3s ease-in-out infinite;
-}
-
-.animate-ray-2 {
-  animation: ray-2 3s ease-in-out infinite 1.5s;
+  animation: shine 3s ease-in-out infinite;
 }
 
 .animate-bounce-slow {
@@ -258,6 +159,6 @@ withDefaults(defineProps<Props>(), {
 
 /* Efecto hover en el título */
 .group:hover span {
-  filter: brightness(1.3) saturate(1.2);
+  filter: brightness(1.15);
 }
 </style>
