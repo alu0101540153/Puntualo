@@ -16,7 +16,14 @@
     </div>
     <div class="mt-5" v-else>
       <div class="text-sm text-gray-300 mb-3">Perfil público</div>
-      <Button class="w-full" variant="primary" @click="viewUserFriends">Ver amigos de {{ firstName }}</Button>
+      <Button 
+        class="w-full mb-3" 
+        :variant="isFollowing ? 'danger' : 'primary'" 
+        @click="$emit('toggleFollow')"
+        :disabled="followProcessing">
+        {{ isFollowing ? 'Dejar de seguir' : 'Seguir' }}
+      </Button>
+      <Button class="w-full" variant="secondary" @click="viewUserFriends">Ver amigos de {{ firstName }}</Button>
     </div>
 
     <div class="mt-6 bg-white/3 p-3 rounded-lg">
@@ -30,12 +37,18 @@
 <script setup lang="ts">
 import Button from '@/components/Button.vue'
 import Avatar from '@/components/Avatar.vue'
-import { defineProps, computed } from 'vue'
+import { defineProps, defineEmits, computed } from 'vue'
 import { getUser } from '@/services/auth'
 import { useRouter } from 'vue-router'
 import { logout } from '@/services/api'
 
-const props = defineProps<{ profileUser?: any }>()
+const props = defineProps<{ 
+  profileUser?: any
+  isFollowing?: boolean
+  followProcessing?: boolean
+}>()
+
+defineEmits(['toggleFollow'])
 
 const me = getUser() || {}
 const router = useRouter()

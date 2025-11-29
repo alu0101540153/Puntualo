@@ -5,20 +5,19 @@
 
   <div class="max-w-screen-2xl mx-auto py-8">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start mt-6">
-            <ProfileSidebar :profileUser="profileUser" class="md:col-span-1" />
+            <ProfileSidebar 
+              :profileUser="profileUser" 
+              :isFollowing="isFollowing"
+              :followProcessing="followProcessing"
+              @toggleFollow="toggleFollow"
+              class="md:col-span-1" />
 
             <div class="md:col-span-3 space-y-6">
-              <!-- Si estamos viendo el perfil de otro, mostrar primero el bloque de 'Perfil público' (con botón seguir) -->
+              <!-- Si estamos viendo el perfil de otro, mostrar primero el bloque de 'Perfil público' -->
               <template v-if="profileUser">
                 <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-semibold text-white mb-4">Perfil público: {{ profileUser.name }}</h3>
-                  </div>
-                  <div class="mt-3">
-                    <Button v-if="isViewingOther" @click="toggleFollow" :disabled="followProcessing"
-                      :variant="isFollowing ? 'danger' : 'primary'" size="md" class="px-4 py-2 font-semibold">
-                      {{ isFollowing ? 'Dejar de seguir' : 'Seguir' }}
-                    </Button>
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-2xl font-semibold text-white">Perfil público: {{ profileUser.name }}</h3>
                   </div>
                   <div v-if="profileUser.items && profileUser.items.length">
                     <ul class="space-y-3">
