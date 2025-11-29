@@ -7,12 +7,25 @@
       <div v-if="loading" class="text-center text-gray-300 py-12">
         <div class="animate-pulse">Cargando tus vistos...</div>
       </div>
-      <div v-else-if="items.length === 0" class="text-center text-gray-300 py-12">
-        No tienes items marcados como terminados todavía.
-      </div>
+
+      <div v-else>
+        <!-- Filters: Tipo -->
+        <div class="flex items-center gap-2 mb-6">
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+        </div>
+
+        <div v-if="displayedItems.length === 0" class="text-center text-gray-300 py-12">
+          <span v-if="selectedType === 'book'">No tienes libros marcados como terminados todavía.</span>
+          <span v-else-if="selectedType === 'movie'">No tienes películas marcadas como terminadas todavía.</span>
+          <span v-else-if="selectedType === 'series'">No tienes series marcadas como terminadas todavía.</span>
+          <span v-else>No tienes items marcados como terminados todavía.</span>
+        </div>
 
       <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <div v-for="r in items" :key="r._id || r.itemId" 
+        <div v-for="r in displayedItems" :key="r._id || r.itemId" 
              class="group cursor-pointer transform transition-all duration-300 hover:scale-105"
              @click="goToDetail(r)">
           <!-- Card Container -->
@@ -58,12 +71,13 @@
           </div>
         </div>
       </div>
+      </div>
     </main>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import { getMyRatings } from '@/services/user'
 import { getUser } from '@/services/auth'
@@ -72,6 +86,21 @@ import { useRouter } from 'vue-router'
 const items = ref<any[]>([])
 const loading = ref(true)
 const router = useRouter()
+
+// Filter state
+const selectedType = ref<'all' | 'movie' | 'series' | 'book'>('all')
+
+function detectType(r: any): 'movie' | 'series' | 'book' {
+  const type = r.itemId?.itemType || r.itemType || r.itemId?.data?.type
+  if (type === 'movie') return 'movie'
+  if (type === 'series') return 'series'
+  return 'book'
+}
+
+const displayedItems = computed(() => {
+  if (selectedType.value === 'all') return items.value
+  return items.value.filter(r => detectType(r) === selectedType.value)
+})
 
 function getCover(r: any) {
   return (r.itemId && r.itemId.data && r.itemId.data.cover) || r.itemId?.image || r.cover || '/img/placeholder-book.png'

@@ -18,6 +18,14 @@
         </div>
       </div>
 
+      <!-- Filters: Tipo -->
+      <div class="flex items-center gap-2 mb-6">
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === '' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = ''; loadRatings()">Todos</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = 'movie'; loadRatings()">🎬 Película</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = 'series'; loadRatings()">📺 Serie</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = 'book'; loadRatings()">📖 Libro</button>
+      </div>
+
       <div v-if="loading" class="text-gray-300">Cargando tus puntuados...</div>
       <div v-else-if="ratings.length === 0" class="text-gray-300">No tienes puntuaciones todavía.</div>
 
@@ -84,6 +92,7 @@ const ratings = ref<any[]>([])
 const loading = ref(true)
 // sortOption stored as '<sortBy>:<order>' e.g. 'date:desc' or 'score:asc'
 const sortOption = ref<string>('date:desc')
+const filterType = ref<string>('')
 const router = useRouter()
 const currentUser = getUser()
 const userName = (currentUser && (currentUser.name || currentUser.handle)) || 'Tú'
@@ -98,11 +107,27 @@ async function loadRatings() {
     return
   }
 
-  try {
-    // parse sort option
-    const [sortBy, order] = (sortOption.value || 'date:desc').split(':') as [any, any]
-    const data: any = await getMyRatings(user._id, (sortBy === 'score' ? 'score' : 'date') as any, (order === 'asc' ? 'asc' : 'desc'))
-    ratings.value = data || []
+    try {
+      // parse sort option
+      const [sortBy, order] = (sortOption.value || 'date:desc').split(':') as [any, any]
+      const data: any = await getMyRatings(user._id, (sortBy === 'score' ? 'score' : 'date') as any, (order === 'asc' ? 'asc' : 'desc'))
+      let items = data || []
+
+      // Apply client-side filter by item type if requested. The item type may be stored in
+      // the rated item itself or inside the populated itemId. Normalize to lowercase.
+      const tfilter = (filterType.value || '').toString().toLowerCase()
+      if (tfilter) {
+        items = items.filter((r: any) => {
+          const candidate = (r.itemType || (r.itemId && (r.itemId.itemType || r.itemId.data?.type)) || '')
+          const t = String(candidate || '').toLowerCase()
+          // normalize common variants
+          if (t === 'tv' || t === 'tvshow') return tfilter === 'series'
+          if (t === 'show' && tfilter === 'series') return true
+          return t === tfilter
+        })
+      }
+
+      ratings.value = items
   } catch (e) {
     console.error('Error cargando mis puntuados', e)
     ratings.value = []

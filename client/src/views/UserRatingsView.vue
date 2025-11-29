@@ -16,10 +16,18 @@
         </div>
       </div>
 
+      <!-- Filters: Tipo -->
+      <div class="flex items-center gap-2 mb-6">
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+      </div>
+
   <div v-if="loading" class="text-gray-300">Cargando puntuados...</div>
 
       <div class="space-y-6">
-        <div v-for="r in ratings" :key="r._id || r.itemId" class="relative bg-gradient-to-b from-gray-800 to-gray-700 bg-opacity-40 rounded-2xl p-6 flex gap-6 items-start justify-between">
+        <div v-for="r in displayedRatings" :key="r._id || r.itemId" class="relative bg-gradient-to-b from-gray-800 to-gray-700 bg-opacity-40 rounded-2xl p-6 flex gap-6 items-start justify-between">
           <div class="w-36 flex-shrink-0">
             <img :src="getImage(r)" alt="poster" class="w-full h-56 object-cover rounded-lg shadow-lg" />
           </div>
@@ -61,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import { getUserById } from '@/services/user'
 import { useRoute, useRouter } from 'vue-router'
@@ -73,8 +81,23 @@ const ratings = ref<any[]>([])
 const loading = ref(true)
 const sortOption = ref<string>('date:desc')
 
+// Filter state
+const selectedType = ref<'all' | 'movie' | 'series' | 'book'>('all')
+
 const userName = ref('')
 const userInitial = ref('U')
+
+function detectType(r: any): 'movie' | 'series' | 'book' {
+  const type = r.itemId?.itemType || r.itemType || r.itemId?.data?.type
+  if (type === 'movie') return 'movie'
+  if (type === 'series') return 'series'
+  return 'book'
+}
+
+const displayedRatings = computed(() => {
+  if (selectedType.value === 'all') return ratings.value
+  return ratings.value.filter(r => detectType(r) === selectedType.value)
+})
 
 async function loadRatings() {
   loading.value = true

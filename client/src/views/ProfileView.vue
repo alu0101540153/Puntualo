@@ -115,6 +115,33 @@
               </div>
               </template>
 
+              <!-- Mis deseados (wishlist) visible en mi perfil -->
+              <template v-if="!isViewingOther">
+                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
+                  <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                      <h3 class="text-2xl font-semibold text-white">Mis deseados</h3>
+                      <router-link to="/my-wishlist" class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full transition-all duration-300 no-underline">
+                        Ver lista completa
+                      </router-link>
+                    </div>
+
+                    <div v-if="wishlistLoading" class="text-gray-300">Cargando...</div>
+                    <div v-else-if="!wishlistItems || wishlistItems.length === 0" class="text-gray-300">No tienes items en tu lista de deseados.</div>
+
+                    <div v-else class="relative">
+                      <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none w-10 h-10 md:w-12 md:h-12 rounded-full text-xl cursor-pointer transition-all duration-300 hover:bg-gray-600 hover:text-white hover:scale-110 shadow-lg z-10 text-gray-700" @click="scrollWishlistPrev">‹</button>
+
+                      <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="wishlistCarousel">
+                        <MediaCarouselItem v-for="it in wishlistCarouselItems" :key="it.id" :item="it" @select="onWishlistSelect" />
+                      </div>
+
+                      <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none w-10 h-10 md:w-12 md:h-12 rounded-full text-xl cursor-pointer transition-all duration-300 hover:bg-gray-600 hover:text-white hover:scale-110 shadow-lg z-10 text-gray-700" @click="scrollWishlistNext">›</button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
               <template v-if="isViewingOther">
                 <!-- Friend: Currently watching with 'Ver más' button that leads to user's watching page -->
                 <div class="space-y-4">
@@ -134,6 +161,28 @@
                     <SeenCarousel :userId="profileUser?._id" :ratings="profileUser?.ratedItems" />
                   </div>
                 </div>
+                <!-- Vistos en común contigo -->
+                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6 mt-4">
+                  <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                      <h3 class="text-2xl font-semibold text-white">Vistos en común contigo</h3>
+                      <button 
+                        v-if="me && me._id && commons.length > 0"
+                        @click="router.push({ name: 'common-seen', params: { id: profileUser?._id } })"
+                        class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-black font-bold px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-lg"
+                      >
+                        Ver todos
+                      </button>
+                    </div>
+                    <div v-if="!me || !me._id" class="text-gray-300">Inicia sesión para ver qué habéis visto en común.</div>
+                    <div v-else>
+                      <div v-if="commons.length > 0">
+                        <SeenCarousel :ratings="commons" />
+                      </div>
+                      <div v-else class="text-gray-300">No hay vistos en común con este usuario.</div>
+                    </div>
+                  </div>
+                </div>
               </template>
 
               
@@ -151,9 +200,10 @@ import Button from '@/components/Button.vue'
 import ProfileSidebar from '@/components/profile/ProfileSidebar.vue'
 import CurrentlyWatching from '@/components/profile/CurrentlyWatching.vue'
 import SeenCarousel from '@/components/profile/SeenCarousel.vue'
+import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
 // reusing components directly; no low-level carousel refs needed
 import { getUser } from '@/services/auth'
-import { getMyRatings, getUserById, followUser, unfollowUser } from '@/services/user'
+import { getMyRatings, getUserById, followUser, unfollowUser, removeItemFromUser } from '@/services/user'
 
 const loadingRatings = ref(true)
 const totalRatings = ref(0)
@@ -164,6 +214,56 @@ const router = useRouter()
 const route = useRoute()
 
 const profileUser = ref<any | null>(null)
+const commons = ref<any[]>([])
+
+// wishlist state
+const wishlistLoading = ref(false)
+const wishlistItems = ref<any[]>([])
+const wishlistCarousel = ref<HTMLElement | null>(null)
+
+function scrollWishlistNext() {
+  if (!wishlistCarousel.value) return
+  const el = wishlistCarousel.value
+  const amount = Math.max(el.clientWidth * 0.8, 200)
+  el.scrollBy({ left: amount, behavior: 'smooth' })
+}
+
+function scrollWishlistPrev() {
+  if (!wishlistCarousel.value) return
+  const el = wishlistCarousel.value
+  const amount = Math.max(el.clientWidth * 0.8, 200)
+  el.scrollBy({ left: -amount, behavior: 'smooth' })
+}
+
+const wishlistCarouselItems = computed(() => {
+  // Map wishlistItems (user.items) to the shape expected by MediaCarouselItem
+  return (wishlistItems.value || []).map((it: any, idx: number) => {
+    const detailId = (it.itemId && (it.itemId._id || it.itemId.id)) || it.externalId || it._id || idx
+    const image = getItemImage(it)
+    // determine type emoji from itemType or populated itemId
+    const rawType = (it.itemType || (it.itemId && (it.itemId.itemType || it.itemId.data?.type)) || '')
+    const low = String(rawType || '').toLowerCase()
+    let emoji = '🎞️'
+    if (low.includes('book') || low.includes('lib')) emoji = '📚'
+    else if (low.includes('film') || low.includes('movie') || low.includes('pel') || low.includes('cine')) emoji = '🎬'
+    else if (low.includes('serie') || low.includes('tv') || low.includes('show')) emoji = '📺'
+
+    return {
+      id: it._id || idx,
+      detailId,
+      image,
+      rating: '-/10',
+      type: emoji,
+      title: (it.itemId && (it.itemId.title || it.title)) || it.title || ''
+    }
+  })
+})
+
+function onWishlistSelect(selected: any) {
+  const id = selected?.detailId || selected?.id
+  if (!id) return
+  router.push({ name: 'item-detail', params: { id: String(id) } })
+}
 
 const me = getUser() || null
 
@@ -333,12 +433,16 @@ onMounted(() => {
   if (otherId) {
     getUserById(otherId).then((u) => {
       profileUser.value = u
+      // compute commons when loading public profile
+      computeCommons()
       updateFollowingState()
       try { console.debug('ProfileView: loaded public profile', otherId, u && u.ratedItems ? u.ratedItems.length : 0) } catch (e) {}
     }).catch((e) => {
       console.error('Error loading profile user', e)
     })
   }
+  // load wishlist for own profile
+  loadWishlist()
 })
 
 // Also react to query changes so navigating to the same /profile route with a different
@@ -349,6 +453,7 @@ watch(() => route.query.userId, (newVal) => {
   if (otherId) {
     getUserById(otherId).then((u) => {
       profileUser.value = u
+      computeCommons()
       updateFollowingState()
       try { console.debug('ProfileView.watch: reloaded public profile', otherId, u && u.ratedItems ? u.ratedItems.length : 0) } catch (e) {}
     }).catch((e) => {
@@ -359,10 +464,99 @@ watch(() => route.query.userId, (newVal) => {
     // clear so the view falls back to default (own summary)
     profileUser.value = null
     isFollowing.value = false
+    // reload wishlist for own profile
+    loadWishlist()
   }
 })
+
+function formatDate(d: any) {
+  if (!d) return ''
+  try { return new Date(d).toLocaleString() } catch (e) { return '' }
+}
+
+// recompute commons when profileUser or the current user's ratings change
+async function computeCommons() {
+  commons.value = []
+  try {
+    if (!profileUser.value) { commons.value = []; return }
+    const current = getUser()
+    if (!current || !current._id) { commons.value = []; return }
+    const myRatings: any[] = await getMyRatings(current._id) || []
+    const mySet = new Set<string>()
+    for (const e of myRatings) {
+      const rid = e.itemId?._id || e.itemId?.id || String(e.itemId || e._id || '')
+      if (rid) mySet.add(rid)
+    }
+
+    const arr = Array.isArray(profileUser.value.ratedItems) ? profileUser.value.ratedItems : []
+    // normalize latest per item for the profile user's ratedItems
+    const map = new Map<string, any>()
+    for (const entry of arr) {
+      const rawId = entry.itemId?._id || entry.itemId?.id || String(entry.itemId || entry._id || '')
+      if (!rawId) continue
+      const existing = map.get(rawId)
+      if (!existing) map.set(rawId, entry)
+      else {
+        const a = existing.lastModified ? new Date(existing.lastModified).getTime() : 0
+        const b = entry.lastModified ? new Date(entry.lastModified).getTime() : 0
+        if (b >= a) map.set(rawId, entry)
+      }
+    }
+    const latest = Array.from(map.values())
+    commons.value = latest.filter((x: any) => {
+      const s = (x.status || '').toString().toLowerCase()
+      const idRaw = x.itemId?._id || x.itemId?.id || String(x.itemId || x._id || '')
+      return (s === 'completed' || s === 'terminado' || s === 'finished') && idRaw && mySet.has(idRaw)
+    })
+  } catch (e) {
+    console.error('Error computing commons', e)
+    commons.value = []
+  }
+}
+
+window.addEventListener('ratingsChanged', computeCommons)
+
+function getItemImage(it: any) {
+  if (!it) return '/img/placeholder-book.png'
+  if (it.itemId && it.itemId.data && it.itemId.data.cover) return it.itemId.data.cover
+  if (it.itemId && it.itemId.cover) return it.itemId.cover
+  return '/img/placeholder-book.png'
+}
+
+async function loadWishlist() {
+  wishlistLoading.value = true
+  wishlistItems.value = []
+  const user = getUser()
+  if (!user || !user._id) {
+    wishlistLoading.value = false
+    return
+  }
+  try {
+    const res: any = await getUserById(user._id)
+    wishlistItems.value = (res && res.items) ? res.items : []
+  } catch (err) {
+    console.error('Error cargando wishlist en perfil', err)
+    wishlistItems.value = []
+  } finally {
+    wishlistLoading.value = false
+  }
+}
+
+async function removeWishlistItem(itemSubId: string) {
+  const user = getUser()
+  if (!user || !user._id) return
+  try {
+    await removeItemFromUser(user._id, itemSubId)
+    await loadWishlist()
+  } catch (err) {
+    console.error('Error quitando item de wishlist', err)
+    alert('No se pudo eliminar el item. Intenta de nuevo.')
+  }
+}
 </script>
 
 <style scoped>
 /* pequeños ajustes puntuales si son necesarios */
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
 </style>

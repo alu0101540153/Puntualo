@@ -36,8 +36,19 @@
               </div>
             </div>
 
-            <div class="mt-4">
+            <div class="mt-4 flex items-center gap-3">
               <button @click="showReview = !showReview" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
+              <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-black font-semibold" :class="inWishlist ? 'bg-yellow-400' : 'bg-sky-400'">
+                {{ inWishlist ? 'En mi lista' : 'Añadir a mi lista' }}
+              </button>
+            </div>
+
+            <div v-if="showCompletePrompt" class="mt-4 bg-white/6 p-4 rounded-lg flex items-center gap-4">
+              <div class="flex-1 text-gray-200">¿Quieres puntuar y escribir una reseña ahora que lo has terminado?</div>
+              <div class="flex items-center gap-2">
+                <button @click="confirmCompleteWithReview" class="px-4 py-2 bg-emerald-500 text-black rounded font-semibold">Sí, puntuar</button>
+                <button @click="confirmCompleteWithoutReview" class="px-4 py-2 bg-white/6 text-gray-200 rounded">No, sólo marcar</button>
+              </div>
             </div>
 
             <div v-if="showReview" class="mt-6 bg-white/5 rounded-lg p-6">
@@ -121,8 +132,7 @@ import { getItemById, createItem } from '@/services/item'
 import { getFriendsRatings } from '@/services/item'
 import localRecommendations from '@/data/recommendations'
 import { getUser } from '@/services/auth'
-import { getMyRatings } from '@/services/user'
-import { addRating } from '@/services/user'
+import { getMyRatings, addRating, addItemToUser, removeItemFromUser, getUserById } from '@/services/user'
 import { useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 
@@ -140,6 +150,11 @@ const userComment = ref<string>('')
 const isSubmitting = ref(false)
 const successMessage = ref('')
 const router = useRouter()
+const inWishlist = ref(false)
+const wishlistSubId = ref<string | null>(null)
+const wishlistLoading = ref(false)
+const showCompletePrompt = ref(false)
+const completeProcessing = ref(false)
 
 function inferGenresFromTitle(title: string) {
   if (!title) return []
@@ -276,6 +291,8 @@ onMounted(async () => {
       }
       // prefill user's rating now that item is available
       await tryPrefillForItem()
+        // check if item is in my wishlist
+        await checkWishlist()
       // load first page of friend ratings
       await loadFriendRatings(true)
       return
@@ -413,6 +430,25 @@ async function submitRating() {
       // ignore if custom events not supported
     }
 
+    // If the user set the status to "watching" and the item is in their wishlist,
+    // remove it from the wishlist so it no longer appears there.
+    try {
+      if (userStatus.value === 'watching' && inWishlist.value) {
+        // wishlistSubId holds the user's item-subdocument id if present
+        if (wishlistSubId.value) {
+          await removeItemFromUser(user._id, wishlistSubId.value)
+          // refresh local wishlist state
+          await checkWishlist()
+        } else {
+          // fallback: attempt to refresh wishlist state anyway
+          await checkWishlist()
+        }
+      }
+    } catch (err) {
+      // don't block the main flow if wishlist removal fails; just log
+      console.error('Error removing item from wishlist after setting to watching', err)
+    }
+
     // Update local UI: close form and show success
     successMessage.value = 'Puntuación enviada correctamente'
     showReview.value = false
@@ -423,6 +459,181 @@ async function submitRating() {
     successMessage.value = 'Error al enviar la puntuación'
   } finally {
     isSubmitting.value = false
+  }
+}
+
+async function checkWishlist() {
+  try {
+    const user = getUser()
+    if (!user || !user._id) {
+      inWishlist.value = false
+      wishlistSubId.value = null
+      return
+    }
+    const me: any = await getUserById(user._id)
+    const itemsArr = me && me.items ? me.items : []
+    // detect by comparing itemId._id or externalId
+    const rawId = item.value && (item.value._id || item.value.id || id)
+    const found = itemsArr.find((it: any) => {
+      const iid = (it.itemId && (it.itemId._id || it.itemId.id)) || null
+      if (iid && rawId && String(iid) === String(rawId)) return true
+      if (it.externalId && rawId && String(it.externalId) === String(rawId)) return true
+      return false
+    })
+    if (found) {
+      inWishlist.value = true
+      wishlistSubId.value = found._id || null
+    } else {
+      inWishlist.value = false
+      wishlistSubId.value = null
+    }
+  } catch (err) {
+    inWishlist.value = false
+    wishlistSubId.value = null
+  }
+}
+
+async function toggleWishlist() {
+  const user = getUser()
+  if (!user || !user._id) {
+    router.push('/login')
+    return
+  }
+  wishlistLoading.value = true
+  try {
+    if (!inWishlist.value) {
+      // ensure item exists in DB
+      let dbItemId = item.value._id || item.value.id || null
+      if (dbItemId) {
+        try {
+          const existing = await getItemById(String(dbItemId))
+          if (existing && existing._id) dbItemId = existing._id
+          else dbItemId = null
+        } catch (e) {
+          dbItemId = null
+        }
+      }
+
+      if (!dbItemId) {
+        try {
+          const payloadCreate = {
+            title: item.value.title || item.value.title,
+            itemType: item.value.itemType || 'book',
+            data: {
+              title: item.value.title || '',
+              description: item.value.description || item.value.synopsis || '',
+              cover: itemImage.value || '',
+              genres: item.value.genre ? String(item.value.genre).split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+              author: item.value.author || '',
+              pages: item.value.pages || '',
+              language: item.value.language || ''
+            }
+          }
+          const created: any = await createItem(payloadCreate)
+          dbItemId = created && (created._id || created.id)
+        } catch (err) {
+          console.error('Error creando item para wishlist', err)
+        }
+      }
+
+      const payload: any = {
+        itemId: dbItemId,
+        itemType: item.value.itemType || 'book',
+        title: item.value.title || ''
+      }
+      await addItemToUser(user._id, payload)
+      // refresh local state
+      await checkWishlist()
+    } else {
+      // remove
+      if (wishlistSubId.value) {
+        await removeItemFromUser(user._id, wishlistSubId.value)
+        await checkWishlist()
+      }
+    }
+  } catch (err) {
+    console.error('Error toggling wishlist', err)
+  } finally {
+    wishlistLoading.value = false
+  }
+}
+
+async function ensureDbItem() {
+  let dbItemId = item.value._id || item.value.id || null
+
+  if (dbItemId) {
+    try {
+      const existing = await getItemById(String(dbItemId))
+      if (existing && existing._id) dbItemId = existing._id
+      else dbItemId = null
+    } catch (e) {
+      dbItemId = null
+    }
+  }
+
+  if (!dbItemId) {
+    try {
+      const payloadCreate = {
+        title: item.value.title || item.value.title,
+        itemType: item.value.itemType || 'book',
+        data: {
+          title: item.value.title || '',
+          description: item.value.description || item.value.synopsis || '',
+          cover: itemImage.value || '',
+          genres: item.value.genre ? String(item.value.genre).split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+          author: item.value.author || '',
+          pages: item.value.pages || '',
+          language: item.value.language || ''
+        }
+      }
+      const created: any = await createItem(payloadCreate)
+      dbItemId = created && (created._id || created.id)
+    } catch (err) {
+      console.error('Error creando item en servidor', err)
+    }
+  }
+
+  return dbItemId
+}
+
+function markAsCompleted() {
+  const user = getUser()
+  if (!user || !user._id) {
+    router.push('/login')
+    return
+  }
+  // show inline prompt offering to rate or just mark as completed
+  showCompletePrompt.value = true
+}
+
+async function confirmCompleteWithReview() {
+  // open the review form and set status to completed
+  showCompletePrompt.value = false
+  userStatus.value = 'completed'
+  showReview.value = true
+}
+
+async function confirmCompleteWithoutReview() {
+  const user = getUser()
+  if (!user || !user._id) {
+    router.push('/login')
+    return
+  }
+  completeProcessing.value = true
+  try {
+    const dbItemId = await ensureDbItem()
+    const payload: any = {
+      itemId: dbItemId,
+      itemType: item.value.itemType || 'book',
+      status: 'completed'
+    }
+    await addRating(user._id, payload)
+    try { window.dispatchEvent(new CustomEvent('ratingsChanged')) } catch (e) {}
+  } catch (err) {
+    console.error('Error marking completed without review', err)
+  } finally {
+    completeProcessing.value = false
+    showCompletePrompt.value = false
   }
 }
 </script>

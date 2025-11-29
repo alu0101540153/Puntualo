@@ -2,20 +2,16 @@
   <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
     <DashboardHeader :show-back="true" />
     <main class="max-w-6xl mx-auto px-4 py-8">
-      <h2 class="text-3xl font-bold text-white mb-6">Actualmente viendo de {{ user?.username || user?.name || 'usuario' }}</h2>
+      <h2 class="text-3xl font-bold text-white mb-2">Vistos en común con {{ user?.username || user?.name || 'usuario' }}</h2>
+      <p class="text-gray-300 mb-6">Items que ambos habéis completado</p>
 
       <div v-if="loading" class="text-center text-gray-300 py-12">
-        <div class="animate-pulse">Cargando items en progreso...</div>
+        <div class="animate-pulse">Cargando items en común...</div>
       </div>
 
       <div v-else>
-        <!-- Filters: En común + Tipo -->
+        <!-- Filters: Tipo -->
         <div class="flex items-center gap-4 mb-6 flex-wrap">
-          <label class="inline-flex items-center gap-2 text-sm text-gray-300">
-            <input type="checkbox" v-model="onlyCommon" class="form-checkbox w-4 h-4 rounded border-gray-500 bg-gray-700 text-emerald-400 focus:ring-emerald-400" />
-            <span>Solo en común</span>
-          </label>
-
           <div class="flex items-center gap-2">
             <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
             <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
@@ -25,16 +21,10 @@
         </div>
 
         <div v-if="displayedItems.length === 0" class="text-center text-gray-300 py-12">
-          <span v-if="onlyCommon">
-            <span v-if="selectedType === 'book'">No hay libros en común que estéis leyendo actualmente.</span>
-            <span v-else>No hay items en común que estéis viendo actualmente.</span>
-          </span>
-          <span v-else>
-            <span v-if="selectedType === 'book'">Este usuario no está leyendo nada actualmente.</span>
-            <span v-else-if="selectedType === 'movie'">Este usuario no está viendo ninguna película actualmente.</span>
-            <span v-else-if="selectedType === 'series'">Este usuario no está viendo ninguna serie actualmente.</span>
-            <span v-else>Este usuario no está viendo nada actualmente.</span>
-          </span>
+          <span v-if="selectedType === 'book'">No hay libros en común que hayáis completado.</span>
+          <span v-else-if="selectedType === 'movie'">No hay películas en común que hayáis visto.</span>
+          <span v-else-if="selectedType === 'series'">No hay series en común que hayáis visto.</span>
+          <span v-else>No hay items en común completados.</span>
         </div>
 
         <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -49,7 +39,7 @@
               
               <!-- Status Badge -->
               <div class="absolute top-2 left-2 bg-emerald-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-                {{ getWatchingLabel(r) }}
+                ✓ Completado
               </div>
               
               <!-- Media Type Icon -->
@@ -78,7 +68,7 @@
                 </div>
               </div>
               <div v-else class="text-gray-400 text-sm italic">
-                Sin puntuar aún
+                Sin puntuar
               </div>
             </div>
           </div>
@@ -99,13 +89,11 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const user = ref<any | null>(null)
-const items = ref<any[]>([])
+const commons = ref<any[]>([])
 const loading = ref(true)
 
 // Filter state
-const onlyCommon = ref(false)
 const selectedType = ref<'all' | 'movie' | 'series' | 'book'>('all')
-const commons = ref<any[]>([])
 
 function detectType(r: any): 'movie' | 'series' | 'book' {
   const type = r.itemId?.itemType || r.itemType || r.itemId?.data?.type
@@ -115,9 +103,8 @@ function detectType(r: any): 'movie' | 'series' | 'book' {
 }
 
 const displayedItems = computed(() => {
-  const source = onlyCommon.value ? commons.value : items.value
-  if (selectedType.value === 'all') return source
-  return source.filter(r => detectType(r) === selectedType.value)
+  if (selectedType.value === 'all') return commons.value
+  return commons.value.filter(r => detectType(r) === selectedType.value)
 })
 
 function getCover(r: any) {
@@ -135,21 +122,15 @@ function getMediaIcon(r: any) {
   return '📖'
 }
 
-function getWatchingLabel(r: any) {
-  const type = r.itemId?.itemType || r.itemType || r.itemId?.data?.type || 'book'
-  if (type === 'book') return 'Leyéndolo'
-  return 'Viéndolo'
-}
-
 function goToDetail(r: any) {
   const id = r.itemId?._id || r.itemId?.id || r.itemId || r._id
   if (id) router.push({ name: 'item-detail', params: { id: String(id) } })
 }
 
-function isWatchingStatus(s: any) {
+function isCompletedStatus(s: any) {
   if (!s) return false
   const low = String(s).toLowerCase()
-  return low === 'watching' || low === 'viendo' || low === 'in-progress' || low === 'inprogress' || low === 'in_progress'
+  return low === 'completed' || low === 'terminado' || low === 'finished'
 }
 
 onMounted(async () => {
@@ -157,8 +138,11 @@ onMounted(async () => {
   const id = String(route.params.id || '')
   if (!id) { loading.value = false; return }
   try {
+    // Load other user
     user.value = await getUserById(id)
     const arr = Array.isArray(user.value?.ratedItems) ? user.value.ratedItems : []
+    
+    // Get latest version of each item
     const map = new Map<string, any>()
     for (const entry of arr) {
       const rawId = entry.itemId?._id || entry.itemId?.id || String(entry.itemId || entry._id || '')
@@ -172,21 +156,34 @@ onMounted(async () => {
       }
     }
     const latest = Array.from(map.values())
-    items.value = latest.filter((x: any) => isWatchingStatus(x.status))
+    const userCompletedItems = latest.filter((x: any) => isCompletedStatus(x.status))
 
     // Compute commons with current user
     try {
       const current = getUser()
       if (current && current._id) {
         const myRatings: any[] = await getMyRatings(current._id) || []
-        const mySet = new Set<string>()
-        for (const e of myRatings) {
-          const rid = e.itemId?._id || e.itemId?.id || String(e.itemId || e._id || '')
-          if (rid) mySet.add(rid)
+        
+        // Filter my completed items
+        const myCompletedMap = new Map<string, any>()
+        for (const entry of myRatings) {
+          if (!isCompletedStatus(entry.status)) continue
+          const rawId = entry.itemId?._id || entry.itemId?.id || String(entry.itemId || entry._id || '')
+          if (!rawId) continue
+          const existing = myCompletedMap.get(rawId)
+          if (!existing) myCompletedMap.set(rawId, entry)
+          else {
+            const a = existing.lastModified ? new Date(existing.lastModified).getTime() : 0
+            const b = entry.lastModified ? new Date(entry.lastModified).getTime() : 0
+            if (b >= a) myCompletedMap.set(rawId, entry)
+          }
         }
-        commons.value = items.value.filter((x: any) => {
+        
+        const myCompletedIds = new Set(Array.from(myCompletedMap.keys()))
+        
+        commons.value = userCompletedItems.filter((x: any) => {
           const idRaw = x.itemId?._id || x.itemId?.id || String(x.itemId || x._id || '')
-          return idRaw && mySet.has(idRaw)
+          return idRaw && myCompletedIds.has(idRaw)
         })
       } else {
         commons.value = []
@@ -196,8 +193,8 @@ onMounted(async () => {
       commons.value = []
     }
   } catch (e) {
-    console.error('Error loading user watching', e)
-    items.value = []
+    console.error('Error loading common items', e)
+    commons.value = []
   } finally {
     loading.value = false
   }
@@ -206,4 +203,11 @@ onMounted(async () => {
 
 <style scoped>
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 </style>

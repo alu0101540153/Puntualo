@@ -78,6 +78,12 @@ const router = createRouter({
     }
     ,
     {
+      path: '/my-wishlist',
+      name: 'my-wishlist',
+      component: () => import('../views/MyWishlistView.vue')
+    }
+    ,
+    {
       path: '/search',
       name: 'search',
       component: SearchView,
@@ -94,6 +100,13 @@ const router = createRouter({
       path: '/users/:id/seen',
       name: 'user-seen',
       component: () => import('../views/UserSeenView.vue'),
+      props: true
+    }
+    ,
+    {
+      path: '/users/:id/common-seen',
+      name: 'common-seen',
+      component: () => import('../views/CommonSeenView.vue'),
       props: true
     }
     ,
