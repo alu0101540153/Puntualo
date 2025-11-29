@@ -24,7 +24,7 @@
           </div>
         </div>
 
-        <div v-if="displayedItems.length === 0" class="text-center text-gray-300 py-12">
+        <div v-if="displayedItems.length === 0" class="text-left text-gray-300 py-12">
           <span v-if="onlyCommon">
             <span v-if="selectedType === 'book'">No hay libros en común que estéis leyendo actualmente.</span>
             <span v-else>No hay items en común que estéis viendo actualmente.</span>

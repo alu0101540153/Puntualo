@@ -12,20 +12,37 @@
         <div class="animate-pulse">Cargando recomendaciones...</div>
       </div>
 
-      <div v-else-if="recommendations.length === 0" class="text-center text-gray-300 py-12">
-        No hay recomendaciones disponibles en este momento.
-      </div>
-
       <div v-else>
-        <RecommendationsGrid 
-          :recommendations="paginatedRecommendations"
-          @see-more="() => {}"
-        />
+        <!-- Filters: Tipo de contenido (siempre visibles cuando no está cargando) -->
+        <div class="flex items-center gap-2 mb-6">
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+        </div>
+
+        <!-- Contenedor con altura mínima para evitar salto de layout cuando no hay resultados -->
+        <div class="min-h-[320px]">
+          <div v-if="recommendations.length === 0" class="text-left text-gray-300 py-12">
+            No hay recomendaciones disponibles en este momento.
+          </div>
+
+          <div v-else-if="displayedRecommendations.length === 0" class="text-left text-gray-300 py-12">
+            No hay recomendaciones del tipo seleccionado.
+          </div>
+
+          <div v-else>
+            <RecommendationsGrid 
+              :recommendations="paginatedRecommendations"
+              @see-more="() => {}"
+            />
+          </div>
+        </div>
 
         <!-- Pagination controls -->
-        <div v-if="recommendations.length > itemsPerPage" class="flex items-center justify-between mt-8 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
+        <div v-if="displayedRecommendations.length > itemsPerPage" class="flex items-center justify-between mt-8 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
           <div class="text-sm text-gray-500 font-medium">
-            Mostrando <span class="font-semibold">{{ startIndex + 1 }}-{{ endIndex }}</span> de <span class="font-semibold">{{ recommendations.length }}</span> recomendaciones
+            Mostrando <span class="font-semibold">{{ startIndex + 1 }}-{{ endIndex }}</span> de <span class="font-semibold">{{ displayedRecommendations.length }}</span> recomendaciones
           </div>
           <div class="flex items-center gap-3">
             <button
@@ -55,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
 import type { Recommendation } from '../components/dashboard/types'
@@ -67,13 +84,19 @@ const recommendations = ref<Recommendation[]>([])
 const loading = ref(true)
 const currentPage = ref(1)
 const itemsPerPage = ref(6)
+const selectedType = ref<'all' | 'movie' | 'series' | 'book'>('all')
 
-// Computed properties para paginación
-const totalPages = computed(() => Math.ceil(recommendations.value.length / itemsPerPage.value))
+// Computed properties para filtrado y paginación
+const displayedRecommendations = computed(() => {
+  if (selectedType.value === 'all') return recommendations.value
+  return recommendations.value.filter(r => (r as any).type === selectedType.value)
+})
+
+const totalPages = computed(() => Math.max(1, Math.ceil(displayedRecommendations.value.length / itemsPerPage.value)))
 const startIndex = computed(() => (currentPage.value - 1) * itemsPerPage.value)
-const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, recommendations.value.length))
+const endIndex = computed(() => Math.min(startIndex.value + itemsPerPage.value, displayedRecommendations.value.length))
 const paginatedRecommendations = computed(() => 
-  recommendations.value.slice(startIndex.value, endIndex.value)
+  displayedRecommendations.value.slice(startIndex.value, endIndex.value)
 )
 
 function prevPage() {
@@ -99,6 +122,7 @@ function mapServerToRecommendation(it: any, allowFallback = false): Recommendati
     description: (it.data && it.data.description) || it.description || '',
     image: (it.data && it.data.cover) || it.cover || '',
     mediaType,
+    type: media,
     genres: (it.data && it.data.genres) || [],
     ageRating: ''
   }
@@ -157,6 +181,11 @@ async function loadRecommendations() {
 
 onMounted(() => {
   loadRecommendations()
+})
+
+// Reset page cuando cambia el filtro
+watch(selectedType, () => {
+  currentPage.value = 1
 })
 </script>
 

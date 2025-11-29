@@ -17,7 +17,7 @@
           <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
         </div>
 
-        <div v-if="displayedItems.length === 0" class="text-center text-gray-300 py-12">
+        <div v-if="displayedItems.length === 0" class="text-left text-gray-300 py-12">
           <span v-if="selectedType === 'book'">No tienes libros marcados como terminados todavía.</span>
           <span v-else-if="selectedType === 'movie'">No tienes películas marcadas como terminadas todavía.</span>
           <span v-else-if="selectedType === 'series'">No tienes series marcadas como terminadas todavía.</span>

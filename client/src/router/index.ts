@@ -129,6 +129,12 @@ const router = createRouter({
       name: 'recommendations',
       component: () => import('../views/RecommendationsView.vue')
     }
+    ,
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      component: () => import('../views/NotFound.vue')
+    }
   ],
 })
 

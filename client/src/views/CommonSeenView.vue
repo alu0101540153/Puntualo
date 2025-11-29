@@ -20,7 +20,7 @@
           </div>
         </div>
 
-        <div v-if="displayedItems.length === 0" class="text-center text-gray-300 py-12">
+        <div v-if="displayedItems.length === 0" class="text-left text-gray-300 py-12">
           <span v-if="selectedType === 'book'">No hay libros en común que hayáis completado.</span>
           <span v-else-if="selectedType === 'movie'">No hay películas en común que hayáis visto.</span>
           <span v-else-if="selectedType === 'series'">No hay series en común que hayáis visto.</span>

@@ -25,7 +25,7 @@
         </div>
 
         <!-- User's seen items -->
-        <div v-if="displayedItems.length === 0" class="text-center text-gray-300 py-12">
+        <div v-if="displayedItems.length === 0" class="text-left text-gray-300 py-12">
           <span v-if="onlyCommon">No hay vistos en común con este usuario.</span>
           <span v-else>Este usuario no ha marcado nada como terminado todavía.</span>
         </div>

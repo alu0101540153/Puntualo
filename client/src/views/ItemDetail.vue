@@ -3,15 +3,28 @@
     <DashboardHeader :show-back="true" />
     
     <main class="max-w-6xl mx-auto px-6 py-8">
-      <div class="bg-gradient-to-b from-gray-700 via-gray-600 to-gray-500 bg-opacity-30 rounded-2xl p-8 shadow-lg">
-        <h2 class="text-3xl font-bold text-white mb-6">Información del ítem</h2>
+      <div class="relative bg-gradient-to-b from-gray-700 via-gray-600 to-gray-500 bg-opacity-30 rounded-2xl p-8 shadow-lg">
+        <div class="flex items-center gap-4 mb-6">
+          <button @click="router.back()" aria-label="Volver" title="Volver" class="w-10 h-10 rounded-full bg-white text-gray-600 flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h2 class="text-3xl font-bold text-white">Información</h2>
+        </div>
 
         <div class="flex gap-8 items-start">
           <img :src="itemImage || '/img/placeholder-book.png'" alt="cover" class="w-48 h-64 object-cover rounded-md shadow-2xl border border-white/10" />
 
           <div class="flex-1">
             <h3 class="text-3xl font-semibold text-gray-100 mb-3">{{ item.title || 'Sin título' }}</h3>
-            <p class="text-gray-300 text-lg leading-relaxed mb-6">{{ item.description || item.synopsis || 'Sin descripción disponible.' }}</p>
+            <div class="mb-4">
+              <span v-if="itemTypeLabel" class="inline-block text-xs text-gray-800 bg-white/10 px-3 py-1 rounded-full">{{ itemTypeLabel }}</span>
+            </div>
+            <div class="text-gray-300 text-lg leading-relaxed mb-6">
+              <div v-if="isBook" v-html="sanitizedDescription"></div>
+              <p v-else>{{ item.description || item.synopsis || 'Sin descripción disponible.' }}</p>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-200 mb-6">
               <div>
@@ -126,7 +139,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { getItemById, createItem } from '@/services/item'
 import { getFriendsRatings } from '@/services/item'
@@ -245,6 +258,72 @@ function mapServerItem(data: any) {
     image: (data.data && data.data.cover) || data.cover || data.image || ''
   }
 }
+
+function mapTypeToLabel(raw: string) {
+  if (!raw) return ''
+  const low = String(raw).toLowerCase()
+  if (low.includes('book') || low.includes('lib')) return 'Libro'
+  if (low.includes('film') || low.includes('movie') || low.includes('pel') || low.includes('cine')) return 'Película'
+  if (low.includes('serie') || low.includes('tv') || low.includes('show')) return 'Serie'
+  if (low.includes('game') || low.includes('juego') || low.includes('video')) return 'Videojuego'
+  if (low.includes('manga') || low.includes('comic') || low.includes('cómic')) return 'Cómic/Manga'
+  return 'Otro'
+}
+
+const itemTypeLabel = ref<string>('')
+
+// reactively update itemTypeLabel when item changes
+watch(item, (val) => {
+  try {
+    const raw = (val && (val.itemType || (val.data && val.data.type))) || ''
+    itemTypeLabel.value = mapTypeToLabel(raw)
+  } catch (e) {
+    itemTypeLabel.value = ''
+  }
+}, { immediate: true, deep: true })
+
+// Small sanitizer to remove scripts, style tags and event attributes.
+function sanitizeHtml(html: string) {
+  if (!html) return ''
+  try {
+    const div = document.createElement('div')
+    div.innerHTML = html
+    // remove scripts and styles
+    const bad = div.querySelectorAll('script,style')
+    bad.forEach(n => n.remove())
+    // remove on* attributes and javascript: hrefs
+    const walker = document.createTreeWalker(div, NodeFilter.SHOW_ELEMENT, null)
+    const nodes: Element[] = []
+    while (walker.nextNode()) nodes.push(walker.currentNode as Element)
+    nodes.forEach((el) => {
+      for (const a of Array.from(el.attributes)) {
+        const name = String(a.name || '').toLowerCase()
+        const val = String(a.value || '')
+        if (name.startsWith('on')) el.removeAttribute(a.name)
+        if (name === 'href' && val.trim().toLowerCase().startsWith('javascript:')) el.removeAttribute(a.name)
+        if (name === 'style') el.removeAttribute(a.name)
+      }
+    })
+    return div.innerHTML
+  } catch (e) {
+    return ''
+  }
+}
+
+const isBook = computed(() => {
+  try {
+    const raw = (item.value && (item.value.itemType || (item.value.data && item.value.data.type))) || ''
+    const low = String(raw).toLowerCase()
+    return low.includes('book') || low.includes('lib')
+  } catch (e) { return false }
+})
+
+const sanitizedDescription = computed(() => {
+  const raw = (item.value && (item.value.description || item.value.synopsis)) || ''
+  if (!isBook.value) return ''
+  const s = sanitizeHtml(String(raw))
+  return s && s.length ? s : '<i>Sin descripción disponible.</i>'
+})
 
 onMounted(async () => {
   if (!id) return

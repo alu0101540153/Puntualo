@@ -13,22 +13,7 @@
               class="md:col-span-1" />
 
             <div class="md:col-span-3 space-y-6">
-              <!-- Si estamos viendo el perfil de otro, mostrar primero el bloque de 'Perfil público' -->
-              <template v-if="profileUser">
-                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
-                  <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-2xl font-semibold text-white">Perfil público: {{ profileUser.name }}</h3>
-                  </div>
-                  <div v-if="profileUser.items && profileUser.items.length">
-                    <ul class="space-y-3">
-                      <li v-for="it in profileUser.items" :key="it._id" class="p-3 rounded bg-gray-900/40">
-                        <div class="text-white font-semibold">{{ it.title }}</div>
-                        <div class="text-gray-400 text-sm">{{ it.itemType }}</div>
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-              </template>
+              <!-- El bloque 'Perfil público' con lista de items fue eliminado por petición del usuario -->
 
               <!-- Mostrar resumen de puntuados (propio o del usuario visto) -->
               <template v-if="!isViewingOther">

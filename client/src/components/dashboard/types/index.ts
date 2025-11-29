@@ -7,6 +7,7 @@ export interface Recommendation {
   mediaType: '📖' | '🎬' | '📺'
   genres: string[]
   ageRating: string
+  type?: 'book' | 'movie' | 'series'
   // Optional fields for search-origin items
   externalId?: string
   originType?: 'books' | 'movies' | 'series'
