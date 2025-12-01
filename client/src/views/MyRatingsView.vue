@@ -86,6 +86,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import { getUser } from '@/services/auth'
 import { getMyRatings } from '@/services/user'
 import { deleteRating } from '@/services/user'
+import { success as notifySuccess, error as notifyError } from '@/services/notify'
 import { useRouter } from 'vue-router'
 
 const ratings = ref<any[]>([])
@@ -222,8 +223,10 @@ async function onDelete(r: any) {
     await deleteRating(user._id, ratingId)
     // remove locally
     ratings.value = ratings.value.filter(x => (x._id || x.itemId) !== (ratingId || r.itemId))
+    try { notifySuccess('Puntuación eliminada') } catch (e) {}
   } catch (e) {
     console.error('Error eliminando puntuación', e)
+    try { notifyError('No se pudo eliminar la puntuación. Intenta de nuevo.') } catch (e) {}
   }
 }
 

@@ -249,7 +249,7 @@ function onWishlistSelect(selected: any) {
   router.push({ name: 'item-detail', params: { id: String(id) } })
 }
 
-const me = getUser() || null
+let me = getUser() || null
 
 // follow state for the profile being viewed
 const isFollowing = ref(false)
@@ -300,7 +300,7 @@ async function toggleFollow() {
       isFollowing.value = true
     }
     // refresh me reference from localStorage
-    try { (me as any) = getUser() } catch (e) {}
+    try { me = getUser() } catch (e) {}
   } catch (err) {
     console.error('Follow toggle error', err)
     alert('No se pudo completar la acción. Intenta de nuevo.')

@@ -146,6 +146,7 @@ import { getFriendsRatings } from '@/services/item'
 import localRecommendations from '@/data/recommendations'
 import { getUser } from '@/services/auth'
 import { getMyRatings, addRating, addItemToUser, removeItemFromUser, getUserById } from '@/services/user'
+import { success as notifySuccess, error as notifyError } from '@/services/notify'
 import { useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 
@@ -533,9 +534,11 @@ async function submitRating() {
     showReview.value = false
     // clear comment optionally
     // userComment.value = ''
+    try { notifySuccess('Puntuación enviada correctamente') } catch (err) {}
   } catch (e) {
     console.error('Error al enviar puntuación', e)
     successMessage.value = 'Error al enviar la puntuación'
+    try { notifyError('No se ha podido enviar la puntuación. Intenta de nuevo.') } catch (err) {}
   } finally {
     isSubmitting.value = false
   }
@@ -623,15 +626,18 @@ async function toggleWishlist() {
       await addItemToUser(user._id, payload)
       // refresh local state
       await checkWishlist()
+      try { notifySuccess('Añadido a tu lista') } catch (err) {}
     } else {
       // remove
       if (wishlistSubId.value) {
         await removeItemFromUser(user._id, wishlistSubId.value)
         await checkWishlist()
+        try { notifySuccess('Eliminado de tu lista') } catch (err) {}
       }
     }
   } catch (err) {
     console.error('Error toggling wishlist', err)
+    try { notifyError('No se pudo actualizar tu lista. Intenta de nuevo.') } catch (err) {}
   } finally {
     wishlistLoading.value = false
   }
@@ -708,8 +714,10 @@ async function confirmCompleteWithoutReview() {
     }
     await addRating(user._id, payload)
     try { window.dispatchEvent(new CustomEvent('ratingsChanged')) } catch (e) {}
+    try { notifySuccess('Marcado como terminado') } catch (err) {}
   } catch (err) {
     console.error('Error marking completed without review', err)
+    try { notifyError('No se pudo marcar como terminado. Intenta de nuevo.') } catch (err) {}
   } finally {
     completeProcessing.value = false
     showCompletePrompt.value = false

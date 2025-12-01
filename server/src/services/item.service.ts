@@ -69,4 +69,36 @@ export const itemService = {
     const result = await (UserModel as any).aggregate(pipeline)
     return result || []
   }
+  ,
+  // Devuelve top items global (avg score y count) opcionalmente filtrado por tipo
+  getTop: async (type?: string, limit: number = 5) => {
+    // pipeline sobre la colección de usuarios para agregar puntuaciones
+    const pipeline: any[] = [
+      { $unwind: { path: '$ratedItems', preserveNullAndEmptyArrays: false } },
+      { $project: { itemId: '$ratedItems.itemId', score: '$ratedItems.score', itemType: '$ratedItems.itemType', lastModified: '$ratedItems.lastModified' } }
+    ]
+    if (type) {
+      pipeline.push({ $match: { itemType: { $regex: new RegExp(type, 'i') } } })
+    }
+    pipeline.push(
+      { $group: { _id: '$itemId', avgScore: { $avg: '$score' }, count: { $sum: 1 }, latest: { $max: '$lastModified' } } },
+      { $sort: { avgScore: -1, count: -1 } },
+      { $limit: limit },
+      { $lookup: { from: 'items', localField: '_id', foreignField: '_id', as: 'item' } },
+      { $unwind: { path: '$item', preserveNullAndEmptyArrays: true } },
+      { $project: { _id: 0, itemId: '$_id', avgScore: 1, count: 1, latest: 1, item: 1 } }
+    )
+
+    const agg = await (UserModel as any).aggregate(pipeline)
+    // normalize to { items: [{ ...item, avgScore, count }] }
+    const items = (agg || []).map((row: any) => ({
+      _id: row.item && row.item._id,
+      title: row.item && (row.item.title || (row.item.data && row.item.data.title)),
+      data: row.item && row.item.data,
+      itemType: row.item && row.item.itemType,
+      score: Number((row.avgScore || 0).toFixed(1)),
+      votes: row.count || 0
+    }))
+    return { items }
+  }
 }

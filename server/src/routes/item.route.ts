@@ -5,6 +5,7 @@ import { verifyToken } from '../middlewares/auth.middleware'
 
 const router = Router();
 
+router.get('/top', itemController.getTop);
 router.get('/', itemController.getAllItem);
 
 router.get('/:id', itemController.getById);

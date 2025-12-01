@@ -73,4 +73,15 @@ export const itemController = {
       res.status(400).json({ message: error.message })
     }
   },
+  getTop: async (req: Request, res: Response) => {
+    try {
+      const { type, limit } = req.query
+      const t = type ? String(type) : undefined
+      const l = limit ? Number(limit) : 5
+      const data = await itemService.getTop(t, l)
+      return res.json(data)
+    } catch (error: any) {
+      return res.status(400).json({ message: error.message })
+    }
+  },
 }

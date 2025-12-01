@@ -97,6 +97,8 @@ export class Server {
     this.app.use('/api/v1/puntualo/auth', routes.AuthRoute);
     this.app.use('/api/v1/puntualo/search', routes.SearchRoute);
     this.app.use('/api/v1/puntualo/test', routes.TestRoute);
+    this.app.use('/api/v1/puntualo/stats', routes.StatsRoute);
+    this.app.use('/api/v1/puntualo/ai', routes.AiRoute);
     
   }
 

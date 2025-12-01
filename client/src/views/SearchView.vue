@@ -12,15 +12,41 @@
         <div class="grid gap-4">
           <!-- Input on its own row so it has breathing room -->
           <div class="w-full">
-            <Input v-model="query" :placeholder="selectedType === 'friends' ? 'Introduce un username...' : 'Introduce un título...'" class="w-full min-w-0" />
+            <Input v-model="query" @keyup.enter="onSearch" :placeholder="selectedType === 'friends' ? 'Introduce un username...' : 'Introduce un título...'" class="w-full min-w-0" />
           </div>
 
           <!-- Selection buttons grouped on the next row, wrap when needed -->
-          <div class="flex flex-wrap gap-4 items-center">
-            <button @click="selectType('movies')" :class="buttonClass('movies')">🎬 Películas</button>
-            <button @click="selectType('books')" :class="buttonClass('books')">📖 Libros</button>
-            <button @click="selectType('series')" :class="buttonClass('series')">📺 Series</button>
-            <button @click="selectType('friends')" :class="buttonClass('friends')">👥 Amigos</button>
+          <div class="relative">
+            <div class="flex flex-wrap gap-4 items-center">
+              <button @click="selectType('movies')" :class="buttonClass('movies')">🎬 Películas</button>
+              <button @click="selectType('books')" :class="buttonClass('books')">📖 Libros</button>
+              <button @click="selectType('series')" :class="buttonClass('series')">📺 Series</button>
+              <button @click="selectType('friends')" :class="buttonClass('friends')">👥 Amigos</button>
+              <button ref="filtersButton" @click="toggleFilters" class="ml-2 px-3 py-2 rounded-full bg-slate-700 text-white hover:bg-slate-600 transition">Filtros</button>
+            </div>
+
+            <!-- Inline filter panel: appears below the type buttons and above the Buscar area (in-flow, pushes content) -->
+            <div v-if="showFilters" ref="filtersPanel" class="mt-4 z-50 w-full max-w-[760px] p-6 mx-auto rounded-xl shadow-2xl border border-slate-700 bg-slate-900/90 transition-all duration-200">
+              <div class="flex items-center gap-4">
+                <label class="text-gray-200 mr-2">Género:</label>
+                <select v-model="genre" class="rounded px-3 py-2 bg-slate-800 text-white w-56">
+                  <option value="">-- Selecciona --</option>
+                  <option value="action">Acción</option>
+                  <option value="drama">Drama</option>
+                  <option value="comedy">Comedia</option>
+                  <option value="sci-fi">Ciencia ficción</option>
+                  <option value="thriller">Thriller</option>
+                  <option value="romance">Romance</option>
+                  <option value="animation">Animación</option>
+                  <option value="documentary">Documental</option>
+                </select>
+
+                <div class="ml-auto flex gap-2">
+                  <button @click="applyFilters" class="px-4 py-2 rounded bg-green-500 text-black font-semibold">Aplicar</button>
+                  <button @click="resetFilters" class="px-4 py-2 rounded bg-transparent border border-slate-600 text-gray-200">Reset</button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -29,6 +55,8 @@
             <Button @click="onSearch" class="flex-1" size="lg">{{ 'Buscar' }}</Button>
             <Button @click="clear" class="flex-1" size="lg" variant="secondary">Limpiar</Button>
           </div>
+
+          <!-- (filters are shown via the floating panel when 'Filtros' is pressed) -->
 
           <div v-if="loading" class="text-gray-300">Buscando...</div>
 
@@ -97,7 +125,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import Card from '@/components/Card.vue'
@@ -107,11 +135,17 @@ import Button from '@/components/Button.vue'
 import { searchBooks, searchMovies, searchSeries, searchFriends } from '@/services/search'
 import { followUser } from '@/services/user'
 import { getUser } from '@/services/auth'
+import { success as notifySuccess, error as notifyError } from '@/services/notify'
 
 import type { Recommendation } from '@/components/dashboard/types'
 
 const query = ref('')
 const selectedType = ref<'movies' | 'books' | 'series' | 'friends'>('movies')
+const sortBy = ref<'relevance'|'rating'|'year'>('relevance')
+const sortOrder = ref<'desc'|'asc'>('desc')
+const filterYear = ref<number | null>(null)
+const genre = ref<string | null>(null)
+const showFilters = ref(false)
 const loading = ref(false)
 const results = ref<any[]>([])
 const total = ref(0)
@@ -129,6 +163,34 @@ function selectType(t: 'movies' | 'books' | 'series' | 'friends') {
   total.value = 0
 }
 
+function toggleFilters() {
+  showFilters.value = !showFilters.value
+}
+
+function applyFilters() {
+  page.value = 1
+  showFilters.value = false
+  onSearch()
+}
+
+function resetFilters() {
+  sortBy.value = 'relevance'
+  sortOrder.value = 'desc'
+  filterYear.value = null
+}
+
+const filtersPanel = ref<HTMLElement | null>(null)
+const filtersButton = ref<HTMLElement | null>(null)
+function handleDocClick(e: MouseEvent) {
+  if (!showFilters.value) return
+  const target = e.target as Node
+  if (filtersPanel.value && filtersButton.value) {
+    if (!filtersPanel.value.contains(target) && !filtersButton.value.contains(target)) {
+      showFilters.value = false
+    }
+  }
+}
+
 function clear() {
   query.value = ''
   results.value = []
@@ -143,20 +205,22 @@ const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize))
 const gridClass = 'grid grid-cols-1 lg:grid-cols-2 gap-6'
 
 async function onSearch() {
-  // Allow empty query when searching friends (we want to list all users)
-  if (selectedType.value !== 'friends' && !query.value.trim()) return
+  // Allow empty query for all types so an empty search returns everything
+  // (server will ignore empty title param; client buildQuery strips it)
   loading.value = true
   searched.value = true
-  try {
+    try {
     let res: any = null
+    const opts: any = { sortBy: sortBy.value, order: sortOrder.value, year: filterYear.value, genre: genre.value }
     if (selectedType.value === 'books') {
-      res = await searchBooks(query.value, page.value)
+      res = await searchBooks(query.value, page.value, opts)
     } else if (selectedType.value === 'movies') {
-      res = await searchMovies(query.value, page.value)
+      res = await searchMovies(query.value, page.value, opts)
     } else if (selectedType.value === 'series') {
-      res = await searchSeries(query.value, page.value)
+      res = await searchSeries(query.value, page.value, opts)
     } else if (selectedType.value === 'friends') {
-      res = await searchFriends(query.value, page.value)
+      // friends search supports ordering but not year
+      res = await searchFriends(query.value, page.value, { sortBy: opts.sortBy, order: opts.order })
     }
 
     // dedupe results: prefer handle (users), then try several id fields ("_id", "id", "externalId")
@@ -218,12 +282,17 @@ async function onSearch() {
 
 // If navigated with ?type=friends, preselect and auto-search
 onMounted(() => {
+  document.addEventListener('click', handleDocClick)
   const t = (route.query.type as string) || ''
   if (t === 'friends') {
     selectType('friends')
     // perform a search immediately (allow empty query)
     onSearch()
   }
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleDocClick)
 })
 
 function prevPage() {
@@ -290,8 +359,16 @@ async function handleFollow(targetId: string, index: number) {
     } catch (e) {
       // ignore localStorage errors
     }
+    // notify success to give feedback to user
+    try {
+      const name = results.value[index] && (results.value[index].name || results.value[index].handle || 'usuario')
+      notifySuccess(`Has seguido a ${name}`)
+    } catch (e) {
+      // ignore notification errors
+    }
   } catch (err) {
     console.error('Follow error', err)
+    notifyError('No se pudo seguir al usuario. Intenta de nuevo.')
   }
 }
 

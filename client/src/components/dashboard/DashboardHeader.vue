@@ -1,5 +1,8 @@
 <template>
-    <header class="fixed top-0 left-0 right-0 w-full z-50 bg-black bg-opacity-30 backdrop-blur-md border-b border-white/10">
+    <header :class="[
+      'fixed top-0 left-0 right-0 w-full z-50 bg-black bg-opacity-30 backdrop-blur-md border-b border-white/10 transform transition-transform duration-300',
+      hiddenHeader ? '-translate-y-full' : 'translate-y-0'
+    ]">
       <div class="max-w-screen-2xl mx-auto w-full px-6 h-16 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <router-link to="/dashboard" class="flex items-center" aria-label="Ir al inicio">
@@ -56,14 +59,25 @@ interface NavigationItem {
   to: string
 }
 
-const navigation: NavigationItem[] = [
+import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { getToken, getUser } from '@/services/auth'
+
+// Build navigation dynamically so we can show items only when the user is authenticated
+const baseNavigation: NavigationItem[] = [
   { name: 'Inicio', to: '/dashboard' },
   { name: 'Recomendados', to: '/recommendations' }
 ]
 
+const navigation = computed(() => {
+  const items = [...baseNavigation]
+  // show 'Sobre Nosotros' a la derecha de 'Recomendados' solo si hay token (usuario logueado)
+  if (getToken()) {
+    items.push({ name: 'Sobre Nosotros', to: '/about' })
+  }
+  return items
+})
+
 import { useRouter, useRoute } from 'vue-router'
-import { computed } from 'vue'
-import { getUser } from '@/services/auth'
 
 import Avatar from '@/components/Avatar.vue'
 const router = useRouter()
@@ -83,4 +97,41 @@ const isActive = (to: string) => {
 
 const user = getUser()
 const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'J'
+
+// hide header on scroll down, show on scroll up
+const hiddenHeader = ref(false)
+let lastY = 0
+let ticking = false
+
+function onScroll() {
+  if (typeof window === 'undefined') return
+  const y = window.scrollY || window.pageYOffset
+  if (!ticking) {
+    window.requestAnimationFrame(() => {
+      const delta = y - lastY
+      // small threshold to avoid flicker
+      if (Math.abs(delta) > 8) {
+        if (delta > 0 && y > 80) {
+          hiddenHeader.value = true
+        } else if (delta < 0) {
+          hiddenHeader.value = false
+        }
+      }
+      lastY = y
+      ticking = false
+    })
+    ticking = true
+  }
+}
+
+onMounted(() => {
+  if (typeof window === 'undefined') return
+  lastY = window.scrollY || window.pageYOffset
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+
+onUnmounted(() => {
+  if (typeof window === 'undefined') return
+  window.removeEventListener('scroll', onScroll)
+})
 </script>

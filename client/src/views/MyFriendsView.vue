@@ -63,6 +63,7 @@ import { getUser } from '@/services/auth'
 import { getMyFollows } from '@/services/friends'
 import { useRouter } from 'vue-router'
 import { unfollowUser } from '@/services/user'
+import { success as notifySuccess, error as notifyError } from '@/services/notify'
 
 const loading = ref(true)
 const friends = ref<any[]>([])
@@ -124,9 +125,15 @@ async function removeFriend(targetId: string) {
     } catch (e) {
       // ignore localStorage parse errors
     }
+    // notify success
+    try {
+      notifySuccess('Amigo eliminado correctamente')
+    } catch (e) {
+      // ignore
+    }
   } catch (err) {
     console.error('Error unfollowing user', err)
-    alert('No se pudo eliminar al amigo. Intenta de nuevo.')
+    notifyError('No se pudo eliminar al amigo. Intenta de nuevo.')
   } finally {
     removing.value[targetId] = false
   }

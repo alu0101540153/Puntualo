@@ -17,9 +17,7 @@ import { TMDB_API_KEY } from '../config';
 */
 
 export const SeriesService = {
-  searchShowsByTitle: async (title: string, page = 1) => {
-    if (!title) throw new Error('Title is required');
-
+  searchShowsByTitle: async (title: string, page = 1, genre?: string) => {
     const apiKey = TMDB_API_KEY;
     if (!apiKey) throw new Error('TMDB_API_KEY is required');
 
@@ -27,9 +25,56 @@ export const SeriesService = {
     const serverPage = Math.max(1, page);
     const tmdbPage = Math.ceil(serverPage / 2);
 
-    const url = `https://api.themoviedb.org/3/search/tv?api_key=${encodeURIComponent(
-      apiKey
-    )}&query=${encodeURIComponent(title)}&page=${tmdbPage}`;
+    // handle genre mapping (alias -> TMDB genre name) and lookup TV genre id
+    let genreId: number | null = null;
+    const slug = genre ? String(genre).toLowerCase() : '';
+    const GENRE_ALIASES: Record<string, string> = {
+      'sci-fi': 'Science Fiction',
+      'science fiction': 'Science Fiction',
+      'action': 'Action',
+      'drama': 'Drama',
+      'comedy': 'Comedy',
+      'thriller': 'Thriller',
+      'romance': 'Romance',
+      'animation': 'Animation',
+      'documentary': 'Documentary'
+    };
+    const normalizedGenre = GENRE_ALIASES[slug] ? GENRE_ALIASES[slug].toLowerCase() : slug;
+    if (normalizedGenre) {
+      try {
+        if (!globalThis.__tmdbTvGenreMap) {
+          // @ts-ignore
+          globalThis.__tmdbTvGenreMap = {};
+        }
+        // @ts-ignore
+        const map: Record<string, number> = globalThis.__tmdbTvGenreMap;
+        if (!map[normalizedGenre]) {
+          const listUrl = `https://api.themoviedb.org/3/genre/tv/list?api_key=${encodeURIComponent(apiKey)}`;
+          const { data: listData } = await axios.get(listUrl);
+          const genresArr = listData?.genres || [];
+          for (const g of genresArr) {
+            if (g && g.name) {
+              map[String(g.name).toLowerCase()] = g.id;
+            }
+          }
+        }
+        // @ts-ignore
+        genreId = globalThis.__tmdbTvGenreMap[normalizedGenre] || null;
+      } catch (err) {
+        genreId = null;
+      }
+    }
+
+    // If title provided, use search endpoint; otherwise use discover/tv
+    let url: string;
+    if (title && title.trim()) {
+      url = `https://api.themoviedb.org/3/search/tv?api_key=${encodeURIComponent(
+        apiKey
+      )}&query=${encodeURIComponent(title)}&page=${tmdbPage}`;
+    } else {
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${encodeURIComponent(apiKey)}&page=${tmdbPage}`;
+      if (genreId) url += `&with_genres=${encodeURIComponent(String(genreId))}`;
+    }
 
     const { data } = await axios.get(url);
     if (!data) return { total: 0, items: [], raw: data };
@@ -38,7 +83,13 @@ export const SeriesService = {
     const offset = ((serverPage - 1) % 2) * 10;
     const pageSlice = results.slice(offset, offset + 10);
 
-    const items = pageSlice.map((it: any) => ({
+    // If we used search (title present) and a genreId exists, filter the pageSlice
+    let finalSlice = pageSlice;
+    if (title && title.trim() && typeof genreId === 'number') {
+      finalSlice = pageSlice.filter((it: any) => Array.isArray(it.genre_ids) && it.genre_ids.includes(genreId));
+    }
+
+    const items = finalSlice.map((it: any) => ({
       id: it.id,
       title: it.name || it.original_name || '',
       release_date: it.first_air_date || '',
@@ -48,7 +99,12 @@ export const SeriesService = {
       infoLink: `https://www.themoviedb.org/tv/${it.id}`
     }));
 
-    return { total: data.total_results || items.length, items, raw: data };
+    // cap total similar to movies
+    const TMDB_MAX_PAGES = 500;
+    const tmdbPages = Number(data.total_pages || Math.ceil((data.total_results || 0) / 20));
+    const effectiveTmdbPages = Math.min(tmdbPages, TMDB_MAX_PAGES);
+    const effectiveTotal = Math.min(Number(data.total_results || 0), effectiveTmdbPages * 20);
+    return { total: effectiveTotal || items.length, items, raw: data };
   },
 
   fetchShowByTmdbId: async (tmdbId: string) => {

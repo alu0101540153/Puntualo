@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { ItemType } from '../models/enums';
 import { itemService } from './item.service';
+import { ItemModel } from '../models';
 
 /*
   BookService
@@ -18,42 +19,69 @@ import { itemService } from './item.service';
 */
 
 export const BookService = {
-  searchBooksByTitle: async (title: string, page = 1) => {
-    if (!title) throw new Error('Title is required');
-
-    const q = `intitle:${title}`;
-    // Google Books soporta startIndex y maxResults. Usamos paginación de 10 items.
+  searchBooksByTitle: async (title: string, page = 1, genre?: string) => {
+    // If title provided, use Google Books API as before.
     const maxResults = 10;
-    const startIndex = (Math.max(1, page) - 1) * maxResults;
-    const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-      q
-    )}&startIndex=${startIndex}&maxResults=${maxResults}`;
+    if (title && title.trim()) {
+      const q = `intitle:${title}`;
+      const startIndex = (Math.max(1, page) - 1) * maxResults;
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
+        q
+      )}&startIndex=${startIndex}&maxResults=${maxResults}`;
 
-    const { data } = await axios.get(url);
+      const { data } = await axios.get(url);
+      if (!data) return { total: 0, items: [], raw: data };
 
-    // Si no hay items, devolvemos la respuesta completa tal cual
-    if (!data) return { total: 0, items: [], raw: data };
+      const items = (data.items || []).map((it: any) => {
+        const v = it.volumeInfo || {};
+        return {
+          id: it.id,
+          title: v.title || '',
+          authors: v.authors || [],
+          publisher: v.publisher || '',
+          publishedDate: v.publishedDate || '',
+          description: v.description || '',
+          pageCount: v.pageCount || null,
+          categories: v.categories || [],
+          genres: v.categories || [],
+          thumbnail: v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || null,
+          infoLink: v.infoLink || ''
+        };
+      });
 
-    // Mapeo ligero por compatibilidad
-    const items = (data.items || []).map((it: any) => {
-      const v = it.volumeInfo || {};
-      return {
-        id: it.id,
-        title: v.title || '',
-        authors: v.authors || [],
-        publisher: v.publisher || '',
-        publishedDate: v.publishedDate || '',
-        description: v.description || '',
-        pageCount: v.pageCount || null,
-        categories: v.categories || [],
-        genres: v.categories || [],
-        thumbnail: v.imageLinks?.thumbnail || v.imageLinks?.smallThumbnail || null,
-        infoLink: v.infoLink || ''
-      };
-    });
+      return { total: data.totalItems || items.length, items, raw: data };
+    }
 
-    // Devolvemos tanto el mapeo como la respuesta completa de Google en `raw`
-    return { total: data.totalItems || items.length, items, raw: data };
+    // No title provided: return items from our DB filtered by book type, paginated
+    const serverPage = Math.max(1, page);
+    const start = (serverPage - 1) * maxResults;
+    let baseFilter: any = { $or: [ { itemType: 'book' }, { 'data.type': 'book' } ] };
+    // apply genre filter when provided (case-insensitive match inside data.genres array)
+    if (genre && genre.trim()) {
+      // escape regex special chars
+      const esc = String(genre).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`^${esc}$`, 'i');
+      baseFilter = { $and: [ baseFilter, { 'data.genres': { $in: [regex] } } ] };
+    }
+
+    const total = await ItemModel.countDocuments(baseFilter);
+    const docs = await ItemModel.find(baseFilter).skip(start).limit(maxResults).lean();
+
+    const items = (docs || []).map((d: any) => ({
+      id: d._id,
+      title: d.title || '',
+      authors: [],
+      publisher: '',
+      publishedDate: '',
+      description: d.data?.description || '',
+      pageCount: null,
+      categories: d.data?.genres || [],
+      genres: d.data?.genres || [],
+      thumbnail: d.data?.cover || '',
+      infoLink: ''
+    }));
+
+    return { total: total || items.length, items, raw: { source: 'db' } };
   },
 
 

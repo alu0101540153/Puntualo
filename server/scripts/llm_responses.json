@@ -1,0 +1,108 @@
+{
+  "greetings": [
+    "¡Hola! Bienvenido a Puntualo. ¿En qué puedo ayudarte hoy?",
+    "¡Hola! Encantado de verte en Puntualo — puedo recomendar películas, series o libros. ¿Qué te interesa?",
+    "¡Hey! Soy tu asistente de Puntualo. Puedo sugerir entretenimiento o responder sobre la web.",
+    "¡Hola! ¿Quieres recomendaciones o prefieres hablar un rato?",
+    "¡Buenas! ¿Te apetece una recomendación de película, serie o libro?"
+  ],
+  "howareyou": [
+    "¡Estoy bien, gracias! ¿Y tú cómo estás?",
+    "Todo bien por aquí — listo para ayudarte. ¿Qué te apetece hoy?",
+    "¡Perfecto! Listo para buscar recomendaciones o charlar un poco."
+  ],
+  "farewells": [
+    "¡Hasta luego! Si necesitas más recomendaciones, aquí estaré.",
+    "¡Adiós! Que tengas un buen día.",
+    "Cuídate — vuelve cuando quieras más sugerencias."
+  ],
+  "thanks": [
+    "De nada — para eso estoy.",
+    "¡Con gusto! ¿Quieres otra recomendación?",
+    "Me alegra haber ayudado." 
+  ],
+  "capabilities": [
+    "Puedo recomendarte películas, series o libros (hasta 3 sugerencias).",
+    "Puedo saludar, mantener pequeñas conversaciones y buscar recomendaciones por género.",
+    "Puedo buscar en el catálogo de Puntualo y devolverte opciones concretas si existen en la base de datos."
+  ],
+  "recommendation_prompt": [
+    "Dime 3 peliculas de accion",
+    "Dime 3 peliculas romanticas",
+    "Dime 3 series de comedia",
+    "Recomiendame 3 libros de ciencia ficcion"
+  ],
+  "clarify_more": [
+    "¿Te refieres a películas, series o libros?",
+    "¿Qué género prefieres: acción, comedia, romance, drama, terror...?",
+    "¿Quieres algo reciente o un clásico?"
+  ],
+  "fallback_questions": [
+    "No entendí completamente — ¿puedes repetir con otras palabras?",
+    "¿Quieres que te muestre opciones rápidas (p. ej. 'Películas acción', 'Series comedia')?",
+    "Perdona, no lo pillé — ¿te refieres a películas o a series?"
+  ],
+  "smalltalk": [
+    "¿Qué planes tienes para hoy?",
+    "¿Has visto alguna buena película últimamente?",
+    "Si te apetece, puedo sugerir algo ligero o algo más intenso." 
+  ],
+  "acknowledge": [
+    "Perfecto, voy a buscar eso ahora.",
+    "Ok, busco las mejores opciones para ti.",
+    "Enseguida te traigo algunas sugerencias." 
+  ],
+  "jokes": [
+    "¿Sabes por qué las películas de terror son malas contando chistes? Porque siempre dan un susto...",
+    "Un día programé una IA para ver películas; ahora me manda listas en lugar de palomitas."
+  ],
+  "more_variants": [
+    "Claro — te propongo 3 opciones. ¿Quieres que las ordene por popularidad o por crítica?",
+    "Puedo filtrar por año, idioma o género — dime cómo prefieres." ,
+    "Si no te convencen, pídeme otro estilo y te doy alternativas." 
+  ],
+  "positive_responses": [
+    "Genial — aquí tienes algunas opciones:",
+    "Perfecto, estas pueden gustarte:",
+    "Buena elección — mira estas sugerencias:" 
+  ],
+  "thanks_variants": [
+    "Gracias a ti por preguntar.",
+    "Encantado de ayudar." 
+  ],
+  "intent_examples": [
+    "¿Qué puedes hacer?",
+    "Recomiendame algo",
+    "¿Tienes alguna sugerencia?"
+  ],
+  "num_templates": [
+    "Aquí tienes {n} recomendación(es):",
+    "Te dejo {n} opciones:" 
+  ],
+  "extra_small_talk": [
+    "¿Te interesan más las series largas o miniseries?",
+    "¿Prefieres algo en español o en otro idioma?",
+    "¿Te gusta que las recomendaciones sean populares o de culto?"
+  ],
+  "clarify_age_rating": [
+    "¿Buscas contenido para todas las edades o algo más adulto?",
+    "¿Debo evitar contenido con clasificación adulta?"
+  ],
+  "closing_variants": [
+    "Si quieres, puedo enviarte más opciones similars.",
+    "Dime si prefieres algo más concreto y lo adapto." 
+  ],
+  "filler": [
+    "Hmm... déjame pensar un momento.",
+    "Buena pregunta — estoy buscando las mejores opciones." 
+  ],
+  "extra_responses": [
+    "Si te aburres, puedo recomendarte documentales muy interesantes.",
+    "Si te gusta la acción, también te puedo sugerir películas con ritmo acelerado y buenas escenas de pelea.",
+    "Si prefieres romance, hay clásicos que nunca fallan." 
+  ],
+  "closing_help": [
+    "¿Quieres que te muestre recomendaciones ahora? Pruébate con: 'Dime 3 peliculas de accion'",
+    "Puedo enseñarte 3 opciones de cualquier género — prueba por ejemplo: 'Dime 3 series de comedia'"
+  ]
+}

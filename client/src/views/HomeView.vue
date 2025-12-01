@@ -3,7 +3,7 @@
     <AppHeader />
     <HeroSection />
     <CTASection />
-    <MediaCarousel />
+      <FeaturedHome />
   </div>
 </template>
 
@@ -11,5 +11,5 @@
 import AppHeader from '@/components/layout/AppHeader.vue'
 import HeroSection from '@/components/home/HeroSection.vue'
 import CTASection from '@/components/home/CTASection.vue'
-import MediaCarousel from '@/components/ui/MediaCarousel.vue'
+    import FeaturedHome from '@/components/home/FeaturedHome.vue'
 </script>
