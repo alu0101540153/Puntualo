@@ -5,6 +5,8 @@ import SearchRoute from './search.route';
 import TestRoute from './test.route';
 import StatsRoute from './stats.route';
 import AiRoute from './ai.route';
+import FollowRequestRoute from './followRequest.route';
+import NotificationRoute from './notification.route';
 
 export const routes = {
   ItemRoute,
@@ -13,5 +15,7 @@ export const routes = {
   SearchRoute,
   TestRoute,
   StatsRoute,
-  AiRoute
+  AiRoute,
+  FollowRequestRoute,
+  NotificationRoute
 }

@@ -8,7 +8,9 @@ export interface IUser extends Document {
   email: string
   password: string
   description: string
-  follows: string[]
+  isPrivate: boolean
+  followers: string[]
+  following: string[]
   ratedItems?: {
     itemId: string
     itemType: ItemType
@@ -49,12 +51,20 @@ const userSchema = new Schema({
     default: '',
     trim: true
   },
+  isPrivate: {
+    type: Boolean,
+    default: false
+  },
   avatarBgColor: {
     type: String,
     default: '#9CA3AF',
     trim: true
   },
-  follows: [{
+  followers: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  following: [{
     type: Schema.Types.ObjectId,
     ref: 'User'
   }],

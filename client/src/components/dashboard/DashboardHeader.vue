@@ -29,6 +29,7 @@
 
       <!-- Búsqueda y Usuario -->
       <div class="flex items-center gap-4">
+        <!-- Search Button -->
         <div>
           <button
             aria-label="Buscar"
@@ -42,10 +43,29 @@
             </svg>
           </button>
         </div>
-          <div role="button" aria-label="Ir al perfil" title="Ver perfil" tabindex="0" @click="router.push('/profile')" @keyup.enter="router.push('/profile')">
-            <Avatar :user="user" size="md" extraClass="cursor-pointer ring-2 ring-black/30" :initials="userInitial" />
-          </div>
+        
+        <!-- Notifications Button -->
+        <div class="relative">
+          <button
+            aria-label="Notificaciones"
+            title="Notificaciones"
+            @click="router.push('/notifications')"
+            class="w-10 h-10 rounded-full bg-white/3 border border-white/6 flex items-center justify-center text-gray-200 hover:bg-white/5 transition relative"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+            </svg>
+            <span v-if="unreadCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+              {{ unreadCount > 9 ? '9+' : unreadCount }}
+            </span>
+          </button>
         </div>
+        
+        <!-- Profile Avatar -->
+        <div role="button" aria-label="Ir al perfil" title="Ver perfil" tabindex="0" @click="router.push('/profile')" @keyup.enter="router.push('/profile')">
+          <Avatar :user="user" size="md" extraClass="cursor-pointer ring-2 ring-black/30" :initials="userInitial" />
+        </div>
+      </div>
       </div>
     </header>
 
@@ -61,6 +81,7 @@ interface NavigationItem {
 
 import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { getToken, getUser } from '@/services/auth'
+import { countUnreadNotifications } from '@/services/notification'
 
 // Build navigation dynamically so we can show items only when the user is authenticated
 const baseNavigation: NavigationItem[] = [
@@ -95,6 +116,19 @@ const isActive = (to: string) => {
 const user = getUser()
 const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'J'
 
+// Unread notifications count
+const unreadCount = ref(0)
+
+async function loadUnreadCount() {
+  try {
+    const result = await countUnreadNotifications()
+    unreadCount.value = result.count || 0
+  } catch (e) {
+    // Silent fail
+    unreadCount.value = 0
+  }
+}
+
 // hide header on scroll down, show on scroll up
 const hiddenHeader = ref(false)
 let lastY = 0
@@ -125,6 +159,10 @@ onMounted(() => {
   if (typeof window === 'undefined') return
   lastY = window.scrollY || window.pageYOffset
   window.addEventListener('scroll', onScroll, { passive: true })
+  loadUnreadCount()
+  // Refresh unread count every 30 seconds
+  const interval = setInterval(loadUnreadCount, 30000)
+  onUnmounted(() => clearInterval(interval))
 })
 
 onUnmounted(() => {

@@ -8,11 +8,30 @@
             <ProfileSidebar 
               :profileUser="profileUser" 
               :isFollowing="isFollowing"
+              :hasPendingRequest="hasPendingRequest"
               :followProcessing="followProcessing"
               @toggleFollow="toggleFollow"
               class="md:col-span-1" />
 
             <div class="md:col-span-3 space-y-6">
+              <!-- Mensaje de cuenta privada -->
+              <template v-if="isViewingOther && !canViewContent">
+                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-12 text-center">
+                  <div class="flex flex-col items-center gap-4">
+                    <svg class="w-20 h-20 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                    <div>
+                      <h3 class="text-2xl font-bold text-white mb-2">Esta cuenta es privada</h3>
+                      <p class="text-gray-300 mb-4">Sigue a @{{ profileUser?.handle || 'este usuario' }} para ver su contenido</p>
+                      <p v-if="hasPendingRequest" class="text-yellow-400 text-sm">Tu solicitud está pendiente de aprobación</p>
+                    </div>
+                  </div>
+                </div>
+              </template>
+
+              <!-- Contenido del perfil (solo visible si no es privado o si lo seguimos) -->
+              <template v-if="canViewContent">
               <!-- El bloque 'Perfil público' con lista de items fue eliminado por petición del usuario -->
 
               <!-- Mostrar resumen de puntuados (propio o del usuario visto) -->
@@ -168,6 +187,7 @@
                   </div>
                 </div>
               </template>
+              </template>
 
               
             </div>
@@ -177,7 +197,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue'
+import { ref, onMounted, onActivated, watch, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import Button from '@/components/Button.vue'
@@ -187,7 +207,9 @@ import SeenCarousel from '@/components/profile/SeenCarousel.vue'
 import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
 // reusing components directly; no low-level carousel refs needed
 import { getUser } from '@/services/auth'
-import { getMyRatings, getUserById, followUser, unfollowUser, removeItemFromUser } from '@/services/user'
+import { getMyRatings, getUserById, unfollowUser, removeItemFromUser } from '@/services/user'
+import { createFollowRequest, checkPendingRequest, cancelFollowRequest, getSentRequests } from '@/services/followRequest'
+import { success, error as notifyError } from '@/services/notify'
 
 const loadingRatings = ref(true)
 const totalRatings = ref(0)
@@ -249,61 +271,134 @@ function onWishlistSelect(selected: any) {
   router.push({ name: 'item-detail', params: { id: String(id) } })
 }
 
-let me = getUser() || null
+const me = ref<any>(getUser() || null)
+
+// Función para recargar los datos del usuario actual
+function reloadCurrentUser() {
+  me.value = getUser() || null
+  updateFollowingState()
+}
 
 // follow state for the profile being viewed
 const isFollowing = ref(false)
 const followProcessing = ref(false)
+const hasPendingRequest = ref(false)
+const pendingRequestId = ref<string | null>(null)
 
-function updateFollowingState() {
+// Computed: Can we view this profile's content?
+const canViewContent = computed(() => {
+  if (!profileUser.value) return true // Own profile or no profile loaded
+  if (!isViewingOther.value) return true // Viewing own profile
+  
+  // If profile is public, anyone can view
+  if (!profileUser.value.isPrivate) return true
+  
+  // If profile is private, only followers can view
+  return isFollowing.value
+})
+
+async function updateFollowingState() {
   try {
-    if (!me || !me._id || !profileUser.value || !profileUser.value._id) { isFollowing.value = false; return }
-    const follows = Array.isArray(me.follows) ? me.follows.map((s: any) => String(s)) : []
-    isFollowing.value = follows.includes(String(profileUser.value._id))
+    if (!me.value || !me.value._id || !profileUser.value || !profileUser.value._id) { 
+      isFollowing.value = false
+      hasPendingRequest.value = false
+      return 
+    }
+    
+    // Check if we're following them by checking if their ID is in our following list
+    const following = Array.isArray(me.value.following) ? me.value.following.map((s: any) => String(s)) : []
+    isFollowing.value = following.includes(String(profileUser.value._id))
+    
+    // Check if we have a pending request
+    if (!isFollowing.value) {
+      const result = await checkPendingRequest(String(profileUser.value._id))
+      hasPendingRequest.value = result.hasPending
+      
+      // Get the request ID if we have a pending request
+      if (result.hasPending) {
+        const sentRequests = await getSentRequests()
+        const request = sentRequests.find((r: any) => String(r.to._id || r.to) === String(profileUser.value._id))
+        pendingRequestId.value = request?._id || null
+      }
+    }
   } catch (e) {
     isFollowing.value = false
+    hasPendingRequest.value = false
   }
 }
 
 async function toggleFollow() {
-  if (!me || !me._id) { alert('Debes iniciar sesión para seguir a usuarios.'); return }
+  if (!me.value || !me.value._id) { 
+    alert('Debes iniciar sesión para seguir a usuarios.')
+    return 
+  }
   if (!profileUser.value || !profileUser.value._id) return
+  
   followProcessing.value = true
   try {
     const targetId = String(profileUser.value._id)
+    
     if (isFollowing.value) {
+      // Unfollow
       await unfollowUser(targetId)
-      // update localStorage user.follows if present
+      
+      // Update localStorage
       try {
         const raw = localStorage.getItem('user')
         if (raw) {
           const user = JSON.parse(raw)
-          if (Array.isArray(user.follows)) {
-            user.follows = user.follows.filter((id: string) => String(id) !== targetId)
+          if (Array.isArray(user.following)) {
+            user.following = user.following.filter((id: string) => String(id) !== targetId)
             localStorage.setItem('user', JSON.stringify(user))
           }
         }
       } catch (e) {}
+      
       isFollowing.value = false
+      success('Has dejado de seguir a este usuario')
+      
+    } else if (hasPendingRequest.value && pendingRequestId.value) {
+      // Cancel pending request
+      await cancelFollowRequest(pendingRequestId.value)
+      hasPendingRequest.value = false
+      pendingRequestId.value = null
+      success('Solicitud cancelada')
+      
     } else {
-      await followUser(String(profileUser.value._id))
-      try {
-        const raw = localStorage.getItem('user')
-        if (raw) {
-          const user = JSON.parse(raw)
-          if (!Array.isArray(user.follows)) user.follows = []
-          if (!user.follows.includes(String(profileUser.value._id))) user.follows.push(String(profileUser.value._id))
-          user.follows = Array.from(new Set(user.follows.map((id: any) => String(id))))
-          localStorage.setItem('user', JSON.stringify(user))
+      // Create follow request (or follow directly if public)
+      const result = await createFollowRequest(targetId)
+      
+      if (result.status === 'following') {
+        // Public account - followed directly
+        try {
+          const raw = localStorage.getItem('user')
+          if (raw) {
+            const user = JSON.parse(raw)
+            if (!Array.isArray(user.following)) user.following = []
+            if (!user.following.includes(targetId)) user.following.push(targetId)
+            user.following = Array.from(new Set(user.following.map((id: any) => String(id))))
+            localStorage.setItem('user', JSON.stringify(user))
+          }
+        } catch (e) {}
+        isFollowing.value = true
+        success('Ahora sigues a este usuario')
+        
+      } else {
+        // Private account - request sent
+        hasPendingRequest.value = true
+        if (result.request) {
+          pendingRequestId.value = result.request._id
         }
-      } catch (e) {}
-      isFollowing.value = true
+        success('Solicitud de seguimiento enviada')
+      }
     }
+    
     // refresh me reference from localStorage
-    try { me = getUser() } catch (e) {}
-  } catch (err) {
+    try { me.value = getUser() } catch (e) {}
+    
+  } catch (err: any) {
     console.error('Follow toggle error', err)
-    alert('No se pudo completar la acción. Intenta de nuevo.')
+    notifyError(err.message || 'No se pudo completar la acción')
   } finally {
     followProcessing.value = false
   }
@@ -312,7 +407,7 @@ async function toggleFollow() {
 const isViewingOther = computed(() => {
   if (!profileUser.value) return false
   const pid = profileUser.value && (profileUser.value._id || profileUser.value.id)
-  const myid = me && (me._id || me.id)
+  const myid = me.value && (me.value._id || me.value.id)
   if (!pid || !myid) return false
   return String(pid) !== String(myid)
 })
@@ -427,6 +522,11 @@ onMounted(() => {
   }
   // load wishlist for own profile
   loadWishlist()
+})
+
+// Recargar datos del usuario cuando volvemos a activar la vista
+onActivated(() => {
+  reloadCurrentUser()
 })
 
 // Also react to query changes so navigating to the same /profile route with a different

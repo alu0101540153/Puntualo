@@ -4,51 +4,135 @@
     <main class="max-w-6xl mx-auto px-4 py-8">
       <Card>
         <div class="mb-6">
-          <h2 class="text-3xl font-bold text-white mb-2">Mis amigos</h2>
+          <h2 class="text-3xl font-bold text-white mb-4">Conexiones</h2>
+          
+          <!-- Tabs -->
+          <div class="flex gap-4 border-b border-gray-700">
+            <button
+              @click="activeTab = 'following'"
+              :class="[
+                'px-4 py-2 font-medium transition-colors',
+                activeTab === 'following'
+                  ? 'text-emerald-400 border-b-2 border-emerald-400'
+                  : 'text-gray-400 hover:text-white'
+              ]"
+            >
+              Siguiendo ({{ following.length }})
+            </button>
+            <button
+              @click="activeTab = 'followers'"
+              :class="[
+                'px-4 py-2 font-medium transition-colors',
+                activeTab === 'followers'
+                  ? 'text-emerald-400 border-b-2 border-emerald-400'
+                  : 'text-gray-400 hover:text-white'
+              ]"
+            >
+              Seguidores ({{ followers.length }})
+            </button>
+          </div>
         </div>
 
-        <div v-if="loading" class="text-gray-300">Cargando...</div>
+        <div v-if="loading" class="text-gray-300 text-center py-8">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto"></div>
+          <p class="mt-4">Cargando...</p>
+        </div>
+
         <div v-else>
-          <div v-if="friends.length === 0" class="text-gray-300">No tienes amigos aún.</div>
-          <ul class="space-y-3">
-            <li v-for="(u, idx) in friends" :key="u._id">
-              <div class="flex items-center justify-between p-3 rounded-lg bg-gray-900/40">
-                <div class="flex items-center gap-3">
-                  <div class="flex flex-col">
-                    <div class="text-white font-bold text-lg">{{ u.name || u.handle || 'Sin nombre' }}</div>
-                    <div class="text-gray-400 text-sm truncate">{{ subtitleFor(u) }}</div>
+          <!-- Siguiendo Tab -->
+          <div v-if="activeTab === 'following'">
+            <div v-if="following.length === 0" class="text-gray-300 text-center py-8">
+              <p>No sigues a nadie aún.</p>
+            </div>
+            <ul v-else class="space-y-3">
+              <li v-for="u in following" :key="u._id">
+                <div class="flex items-center justify-between p-4 rounded-lg bg-gray-900/40 hover:bg-gray-900/60 transition-colors">
+                  <div class="flex items-center gap-4">
+                    <router-link :to="{ path: '/profile', query: { userId: u._id } }">
+                      <div
+                        class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg"
+                        :style="{ backgroundColor: u.avatarBgColor || '#9CA3AF' }"
+                      >
+                        {{ u.name?.charAt(0).toUpperCase() || '?' }}
+                      </div>
+                    </router-link>
+                    <div class="flex flex-col">
+                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-emerald-400">
+                        {{ u.name || u.handle || 'Sin nombre' }}
+                      </router-link>
+                      <div class="text-gray-400 text-sm">@{{ u.handle || 'usuario' }}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <router-link
+                      :to="{ path: '/profile', query: { userId: u._id } }"
+                      class="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                    >
+                      Ver perfil
+                    </router-link>
+                    <button
+                      @click="unfollowUserAction(u._id)"
+                      :disabled="removing[u._id]"
+                      class="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+                    >
+                      {{ removing[u._id] ? 'Dejando...' : 'Dejar de seguir' }}
+                    </button>
                   </div>
                 </div>
-                <div class="flex items-center">
-                  <!-- View profile button -->
-                  <button @click="goToProfile(u._id)" class="w-10 h-10 mr-2 flex items-center justify-center rounded-full bg-white/10 text-white" title="Ver perfil">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                  </button>
+              </li>
+            </ul>
+          </div>
 
-                  <!-- Already followed (you) -->
-                  <button disabled class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-600 text-white mr-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15 5 11.586a1 1 0 111.414-1.414L8.414 12.172l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                    </svg>
-                  </button>
-
-                  <!-- Remove friend button (trash icon) -->
-                  <button @click="removeFriend(u._id)" :disabled="removing[u._id]" class="w-10 h-10 flex items-center justify-center rounded-full bg-red-600 text-white" title="Eliminar amigo">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <polyline points="3 6 5 6 21 6" />
-                      <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-                      <path d="M10 11v6" />
-                      <path d="M14 11v6" />
-                      <path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
-                    </svg>
-                  </button>
+          <!-- Seguidores Tab -->
+          <div v-if="activeTab === 'followers'">
+            <div v-if="followers.length === 0" class="text-gray-300 text-center py-8">
+              <p>No tienes seguidores aún.</p>
+            </div>
+            <ul v-else class="space-y-3">
+              <li v-for="u in followers" :key="u._id">
+                <div class="flex items-center justify-between p-4 rounded-lg bg-gray-900/40 hover:bg-gray-900/60 transition-colors">
+                  <div class="flex items-center gap-4">
+                    <router-link :to="{ path: '/profile', query: { userId: u._id } }">
+                      <div
+                        class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg"
+                        :style="{ backgroundColor: u.avatarBgColor || '#9CA3AF' }"
+                      >
+                        {{ u.name?.charAt(0).toUpperCase() || '?' }}
+                      </div>
+                    </router-link>
+                    <div class="flex flex-col">
+                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-emerald-400">
+                        {{ u.name || u.handle || 'Sin nombre' }}
+                      </router-link>
+                      <div class="text-gray-400 text-sm">@{{ u.handle || 'usuario' }}</div>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <router-link
+                      :to="{ path: '/profile', query: { userId: u._id } }"
+                      class="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                    >
+                      Ver perfil
+                    </router-link>
+                    <button
+                      v-if="!isFollowing(u._id)"
+                      @click="followUserAction(u._id)"
+                      class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+                    >
+                      Seguir de vuelta
+                    </button>
+                    <button
+                      v-else
+                      disabled
+                      class="px-4 py-2 rounded-lg bg-gray-600 text-white cursor-not-allowed"
+                    >
+                      Siguiendo
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </li>
-          </ul>
+              </li>
+            </ul>
+          </div>
         </div>
       </Card>
     </main>
@@ -60,15 +144,16 @@ import { ref, onMounted } from 'vue'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import Card from '@/components/Card.vue'
 import { getUser } from '@/services/auth'
-import { getMyFollows } from '@/services/friends'
-import { useRouter } from 'vue-router'
+import { getFollowers, getFollowing } from '@/services/user'
 import { unfollowUser } from '@/services/user'
+import { createFollowRequest } from '@/services/followRequest'
 import { success as notifySuccess, error as notifyError } from '@/services/notify'
 
 const loading = ref(true)
-const friends = ref<any[]>([])
+const followers = ref<any[]>([])
+const following = ref<any[]>([])
 const removing = ref<Record<string, boolean>>({})
-const router = useRouter()
+const activeTab = ref<'following' | 'followers'>('following')
 
 async function load() {
   loading.value = true
@@ -78,66 +163,76 @@ async function load() {
     return
   }
   try {
-    const res = await getMyFollows(me._id)
-    friends.value = res || []
-  } catch (e) {
-    console.error('Error loading follows', e)
-    friends.value = []
+    const [followersRes, followingRes] = await Promise.all([
+      getFollowers(me._id),
+      getFollowing(me._id)
+    ])
+    followers.value = followersRes || []
+    following.value = followingRes || []
+  } catch (e: any) {
+    console.error('Error loading connections', e)
+    notifyError(e.message || 'Error al cargar conexiones')
   } finally {
     loading.value = false
   }
 }
 
-function goToProfile(id: string) {
-  // navigate to profile view with query userId
-  router.push({ path: '/profile', query: { userId: id } })
+function isFollowing(userId: string) {
+  return following.value.some(u => u._id === userId)
 }
 
-function subtitleFor(u: any) {
-  if (!u) return ''
-  if (u.handle) return `@${u.handle}`
-  const n = u.name || u.fullName || ''
-  const parts = String(n).trim().split(/\s+/)
-  if (parts.length > 1) return parts.slice(1).join(' ')
-  return ''
-}
-
-async function removeFriend(targetId: string) {
-  const me = getUser()
-  if (!me || !me._id) return
-  const ok = window.confirm('¿Eliminar a este usuario de tus amigos?')
-  if (!ok) return
+async function unfollowUserAction(userId: string) {
+  if (!confirm('¿Estás seguro de que quieres dejar de seguir a este usuario?')) {
+    return
+  }
+  
+  removing.value[userId] = true
   try {
-    removing.value[targetId] = true
-    await unfollowUser(targetId)
-    // remove from local list
-    friends.value = friends.value.filter((f: any) => f._id !== targetId)
-    // update localStorage user follows if present
-    try {
-      const raw = localStorage.getItem('user')
-      if (raw) {
-        const user = JSON.parse(raw)
-        if (Array.isArray(user.follows)) {
-          user.follows = user.follows.filter((id: string) => id !== targetId)
+    console.log('Unfollowing user:', userId)
+    const result = await unfollowUser(userId)
+    console.log('Unfollow result:', result)
+    
+    // Actualizar localStorage inmediatamente
+    const userStr = localStorage.getItem('user')
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr)
+        if (Array.isArray(user.following)) {
+          user.following = user.following.filter((id: string) => String(id) !== String(userId))
           localStorage.setItem('user', JSON.stringify(user))
+          console.log('Updated localStorage, new following count:', user.following.length)
         }
+      } catch (e) {
+        console.error('Error updating localStorage:', e)
       }
-    } catch (e) {
-      // ignore localStorage parse errors
     }
-    // notify success
-    try {
-      notifySuccess('Amigo eliminado correctamente')
-    } catch (e) {
-      // ignore
-    }
-  } catch (err) {
-    console.error('Error unfollowing user', err)
-    notifyError('No se pudo eliminar al amigo. Intenta de nuevo.')
+    
+    notifySuccess('Has dejado de seguir a este usuario')
+    // Recargar para asegurar consistencia
+    await load()
+  } catch (e: any) {
+    console.error('Error unfollowing user:', e)
+    notifyError(e.message || 'Error al dejar de seguir')
   } finally {
-    removing.value[targetId] = false
+    removing.value[userId] = false
   }
 }
 
-onMounted(() => load())
+async function followUserAction(userId: string) {
+  try {
+    const result = await createFollowRequest(userId)
+    if (result.status === 'following') {
+      notifySuccess('Ahora sigues a este usuario')
+    } else {
+      notifySuccess('Solicitud enviada')
+    }
+    await load()
+  } catch (e: any) {
+    notifyError(e.message || 'Error al seguir')
+  }
+}
+
+onMounted(() => {
+  load()
+})
 </script>

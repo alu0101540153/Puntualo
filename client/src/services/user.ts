@@ -49,3 +49,13 @@ export async function getFeed(userId: string, page: number = 1, limit: number = 
 }
 
 export default { addRating, getMyRatings, updateUser, deleteRating, addItemToUser, removeItemFromUser, getUserById }
+
+// Obtener seguidores de un usuario
+export async function getFollowers(userId: string) {
+  return api.apiFetch(`/users/${userId}/followers`)
+}
+
+// Obtener usuarios seguidos por un usuario
+export async function getFollowing(userId: string) {
+  return api.apiFetch(`/users/${userId}/following`)
+}

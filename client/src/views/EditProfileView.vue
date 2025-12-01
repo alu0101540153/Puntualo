@@ -39,6 +39,33 @@
           <textarea v-model="form.bio" rows="3" class="w-full mt-2 p-2 rounded bg-white/6 text-gray-900 placeholder-gray-500"></textarea>
         </div>
 
+        <!-- Privacidad de la cuenta -->
+        <div class="bg-white/10 rounded-lg p-4">
+          <div class="flex items-center justify-between">
+            <div class="flex-1 mr-4">
+              <label class="block text-base font-semibold text-white mb-1">Cuenta privada</label>
+              <p class="text-sm text-gray-100">
+                Cuando tu cuenta es privada, solo las personas que apruebas pueden ver tu contenido
+              </p>
+            </div>
+            <button
+              type="button"
+              @click="form.isPrivate = !form.isPrivate"
+              :class="[
+                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0',
+                form.isPrivate ? 'bg-emerald-500' : 'bg-gray-400'
+              ]"
+            >
+              <span
+                :class="[
+                  'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
+                  form.isPrivate ? 'translate-x-6' : 'translate-x-1'
+                ]"
+              />
+            </button>
+          </div>
+        </div>
+
         <div class="flex gap-3 justify-end">
           <button type="button" @click="onCancel" class="px-4 py-2 bg-white/10 rounded">Cancelar</button>
           <button type="submit" class="px-4 py-2 bg-emerald-500 rounded">Guardar cambios</button>
@@ -65,7 +92,8 @@ const form = reactive({
   username: '',
   email: '',
   bio: '',
-  avatarBgColor: ''
+  avatarBgColor: '',
+  isPrivate: false
 })
 
 // helper para normalizar distintos shapes que pueda tener "user" en localStorage/backend
@@ -93,6 +121,7 @@ onMounted(() => {
   form.email = u.email || ''
   form.bio = u.bio || u.description || ''
   form.avatarBgColor = u.avatarBgColor || u.avatarBg || ''
+  form.isPrivate = u.isPrivate || false
 })
 
 const palette = ['#EF4444','#F97316','#F59E0B','#FACC15','#10B981','#06B6D4','#3B82F6','#6366F1','#8B5CF6','#EC4899','#9CA3AF']
@@ -111,7 +140,8 @@ async function onSubmit() {
       name: form.name,
       handle: form.username,
       description: form.bio || '',
-      avatarBgColor: form.avatarBgColor || undefined
+      avatarBgColor: form.avatarBgColor || undefined,
+      isPrivate: form.isPrivate
     }
     const data = await updateUser(id, payload)
 

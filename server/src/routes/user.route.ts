@@ -17,6 +17,12 @@ router.get('/:id', userController.getUserById);
 // Public access to a user's friends (follows) so others can view someone's friends list
 router.get('/:id/friends', userController.getFollows);
 
+// Obtener seguidores de un usuario (público)
+router.get('/:id/followers', userController.getFollowers);
+
+// Obtener usuarios seguidos por un usuario (público)
+router.get('/:id/following', userController.getFollowing);
+
 // Obtener el feed de un usuario (items puntuados por sus follows), paginado
 // La ruta requiere token (verifyToken). validateUser validaba el body y provocaba 400 en GET.
 router.get('/:id/feed', verifyToken, userController.getFeed);

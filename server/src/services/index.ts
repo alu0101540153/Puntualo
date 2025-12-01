@@ -8,3 +8,5 @@ export { sendEmail } from './mail.service';
 export { sendRegisterEmail } from './email_register.service';
 export { sendFollowEmail } from './email_follow.service';
 export { sendTemplateEmail } from './mail_template.service';
+export { followRequestService } from './followRequest.service';
+export { notificationService } from './notification.service';

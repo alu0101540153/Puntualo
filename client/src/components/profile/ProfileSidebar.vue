@@ -18,10 +18,10 @@
       <div class="text-sm text-gray-300 mb-3">Perfil público</div>
       <Button 
         class="w-full mb-3" 
-        :variant="isFollowing ? 'danger' : 'primary'" 
+        :variant="isFollowing ? 'danger' : hasPendingRequest ? 'secondary' : 'primary'" 
         @click="$emit('toggleFollow')"
         :disabled="followProcessing">
-        {{ isFollowing ? 'Dejar de seguir' : 'Seguir' }}
+        {{ isFollowing ? 'Dejar de seguir' : hasPendingRequest ? 'Solicitado' : 'Seguir' }}
       </Button>
       <Button class="w-full" variant="secondary" @click="viewUserFriends">Ver amigos de {{ firstName }}</Button>
     </div>
@@ -45,6 +45,7 @@ import { logout } from '@/services/api'
 const props = defineProps<{ 
   profileUser?: any
   isFollowing?: boolean
+  hasPendingRequest?: boolean
   followProcessing?: boolean
 }>()
 

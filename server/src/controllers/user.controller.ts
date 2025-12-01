@@ -100,13 +100,32 @@ export const userController = {
   getFollows: async (req: Request, res: Response) => {
     try {
       const { id } = req.params
-      const items = await userService.getFollows(id)
+      const items = await userService.getFollowing(id)
       return res.json(items)
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }
-  }
-  ,
+  },
+
+  getFollowers: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const items = await userService.getFollowers(id)
+      return res.json(items)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  },
+
+  getFollowing: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params
+      const items = await userService.getFollowing(id)
+      return res.json(items)
+    } catch (error: any) {
+      res.status(400).json({ message: error.message })
+    }
+  },
   getFeed: async (req: Request, res: Response) => {
     try {
       const { id } = req.params

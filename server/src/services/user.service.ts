@@ -41,23 +41,65 @@ export const userService = {
   delete: async (id: string) => {
     return await UserModel.findByIdAndDelete(id)
   },
+
+  // Nueva lógica de seguimiento separada
   followUser: async (followerId: string, targetId: string) => {
     if (followerId === targetId) return await UserModel.findById(followerId)
-    // add targetId to follower's follows if not exists
-    return await UserModel.findByIdAndUpdate(
+    
+    // Añadir targetId a following del follower
+    await UserModel.findByIdAndUpdate(
       followerId,
-      { $addToSet: { follows: targetId } },
+      { $addToSet: { following: targetId } },
+      { new: true }
+    )
+    
+    // Añadir followerId a followers del target
+    return await UserModel.findByIdAndUpdate(
+      targetId,
+      { $addToSet: { followers: followerId } },
       { new: true }
     )
   },
 
   unfollowUser: async (followerId: string, targetId: string) => {
-    return await UserModel.findByIdAndUpdate(
+    // Remover targetId de following del follower
+    await UserModel.findByIdAndUpdate(
       followerId,
-      { $pull: { follows: targetId } },
+      { $pull: { following: targetId } },
+      { new: true }
+    )
+    
+    // Remover followerId de followers del target
+    return await UserModel.findByIdAndUpdate(
+      targetId,
+      { $pull: { followers: followerId } },
       { new: true }
     )
   },
+
+  // Obtener seguidores de un usuario
+  getFollowers: async (userId: string) => {
+    const user = await UserModel.findById(userId)
+      .populate('followers', 'name handle avatarBgColor')
+      .lean()
+    if (!user) return []
+    return (user.followers || []) as any[]
+  },
+
+  // Obtener usuarios seguidos por un usuario
+  getFollowing: async (userId: string) => {
+    const user = await UserModel.findById(userId)
+      .populate('following', 'name handle avatarBgColor')
+      .lean()
+    if (!user) return []
+    return (user.following || []) as any[]
+  },
+
+  // Mantener getFollows por compatibilidad (devuelve following)
+  getFollows: async (id: string) => {
+    return await userService.getFollowing(id)
+  },
+
 
   addItemToUser: async (userId: string, item: any) => {
     // item: { itemId?, externalId?, itemType?, title? }
@@ -85,24 +127,16 @@ export const userService = {
       .lean()
   },
 
-  getFollows: async (id: string) => {
-    // return populated follows array
-    const user = await UserModel.findById(id).populate('follows', 'name handle').lean()
-    if (!user) return []
-    return (user.follows || []) as any[]
-  }
-  ,
-
   getFeed: async (userId: string, page: number = 1, limit: number = 20) => {
     // Obtiene el feed para un usuario: todas las puntuaciones realizadas por los usuarios
-    // que el usuario sigue (follows). Devuelve items ordenados por fecha descendente
+    // que el usuario sigue (following). Devuelve items ordenados por fecha descendente
     // y paginados, incluyendo datos básicos del usuario que puntuó y el item poblado.
     const user = await UserModel.findById(userId).lean()
     if (!user) return { items: [], total: 0, page, limit }
 
     // Normalizar los IDs de los seguidos en forma segura (string/ObjectId/populado)
-    const rawFollows = (user.follows || []) as any[]
-    const followsAsStrings = rawFollows
+    const rawFollowing = (user.following || []) as any[]
+    const followingAsStrings = rawFollowing
       .map((f: any) => {
         if (!f) return null
         if (typeof f === 'string') return f
@@ -112,7 +146,7 @@ export const userService = {
       .filter((v): v is string => Boolean(v))
 
     // Convertir a ObjectId sólo los que sean válidos; ignorar valores inválidos
-    const followObjectIds = followsAsStrings
+    const followObjectIds = followingAsStrings
       .map((id: string) => {
         try {
           return new mongoose.Types.ObjectId(id)
