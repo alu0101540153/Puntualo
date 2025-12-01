@@ -84,3 +84,52 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* Hide common scrollbars/tracks/progress elements for our carousels globally */
+.carousel,
+.carousel * {
+  -ms-overflow-style: none; /* IE 10+ */
+  scrollbar-width: none; /* Firefox */
+}
+.carousel::-webkit-scrollbar { display: none; }
+
+/* Common progress/track class names that may appear under carousels */
+.carousel .progress,
+.carousel .progress-bar,
+.carousel .carousel-progress,
+.carousel .carousel-track,
+.carousel .track,
+.carousel .slider-track,
+.carousel .scrollbar-track {
+  display: none !important;
+  opacity: 0 !important;
+  height: 0 !important;
+}
+
+/* Defensive rules for pseudo-elements that sometimes render tracks */
+.carousel::after,
+.carousel::before,
+.carousel::-webkit-slider-runnable-track {
+  display: none !important;
+}
+
+/* Global carousel arrow/button styling to match Home's appearance */
+.carousel-btn {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.08);
+  width: 2.5rem; /* 40px */
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.carousel-btn:hover {
+  background: rgba(255,255,255,0.95);
+  color: #111827; /* dark arrow on hover */
+}
+.carousel-btn:disabled { opacity: 0.45; cursor: not-allowed }

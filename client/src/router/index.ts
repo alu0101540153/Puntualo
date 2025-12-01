@@ -147,14 +147,17 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const token = getToken()
 
-  if (to.path === '/dashboard' && !token) {
-    // usuario no autenticado -> login
-    return next('/login')
+  // Rutas públicas permitidas sin estar autenticado
+  const publicPaths = ['/', '/login', '/register']
+
+  // Si no hay token y la ruta no es pública -> redirigir al home
+  if (!token && !publicPaths.includes(to.path)) {
+    return next({ path: '/' })
   }
 
-  if ((to.path === '/login' || to.path === '/register') && token) {
-    // si ya está autenticado, no permitir ver login/register
-    return next('/dashboard')
+  // Si ya está autenticado, no permitir ver login/register
+  if (token && (to.path === '/login' || to.path === '/register')) {
+    return next({ path: '/dashboard' })
   }
 
   return next()

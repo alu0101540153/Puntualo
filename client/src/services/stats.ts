@@ -53,11 +53,22 @@ export async function getRecentReviews(limit = 6) {
 export async function getCounts() {
   // Return total users, total reviews and counts by type (best-effort)
   const result: any = { users: 0, reviews: 0, movies: 0, series: 0, books: 0 }
-  const tries = ['/stats', '/stats/site', '/admin/stats', '/counts', '/site/stats']
+  // include the new aggregated endpoint if available
+  const tries = ['/stats/all', '/stats', '/stats/site', '/admin/stats', '/counts', '/site/stats']
   for (const t of tries) {
     try {
       const res: any = await api.apiFetch(t)
       if (!res) continue
+      // New endpoint shape may be { source, checkedAt, data: { totalUsers, totalRatings, top: {...} } }
+      if (res.data) {
+        if (typeof res.data.totalUsers === 'number') result.users = res.data.totalUsers
+        if (typeof res.data.totalRatings === 'number') result.reviews = res.data.totalRatings
+        // preserve raw top lists if present so UI can reuse without extra requests
+        if (res.data.top) result.top = res.data.top
+        // also accept legacy names
+        if (typeof res.data.totalReviews === 'number' && !result.reviews) result.reviews = res.data.totalReviews
+        if (typeof res.data.total === 'number' && !result.reviews) result.reviews = res.data.total
+      }
       if (typeof res.users === 'number') result.users = res.users
       if (typeof res.count === 'number') {
         // ambiguous 'count' field
@@ -137,6 +148,8 @@ export async function getUsersCountDirect(): Promise<number> {
     try {
       const res: any = await api.apiFetch(t)
       if (!res) continue
+      if (res.data && typeof res.data.totalUsers === 'number') return res.data.totalUsers
+      if (res.data && typeof res.data.totalRatings === 'number') return res.data.totalRatings
       if (typeof res.count === 'number') return res.count
       if (typeof res.users === 'number') return res.users
       if (typeof res.total === 'number') return res.total
@@ -154,6 +167,7 @@ export async function getReviewsCountDirect(): Promise<number> {
     try {
       const res: any = await api.apiFetch(t)
       if (!res) continue
+      if (res.data && typeof res.data.totalRatings === 'number') return res.data.totalRatings
       if (typeof res.count === 'number') return res.count
       if (typeof res.total === 'number') return res.total
       if (typeof res.reviews === 'number') return res.reviews
@@ -184,4 +198,18 @@ export async function getItemsCountByType(type: string): Promise<number> {
     }
   }
   return 0
+}
+
+export async function getTopRated(): Promise<any> {
+  try {
+    const res: any = await api.apiFetch('/stats/top-rated')
+    // expected shape: { data: { movies: [], series: [], books: [] }, source, checkedAt }
+    if (!res) return { movies: [], series: [], books: [] }
+    if (res.data) return res.data
+    // legacy: accept direct object
+    if (res.movies || res.series || res.books) return { movies: res.movies || [], series: res.series || [], books: res.books || [] }
+    return { movies: [], series: [], books: [] }
+  } catch (e) {
+    return { movies: [], series: [], books: [] }
+  }
 }

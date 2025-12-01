@@ -1,120 +1,123 @@
 <template>
   <section class="max-w-7xl mx-auto px-4 py-12">
-    <div class="pro-hero mb-12 pb-8 border-b border-white/6">
-      <div class="hero-rectangle rounded-xl p-6 mb-4" ref="heroRef">
-        <div class="hero-grid">
-          <div class="hero-header mb-4 flex items-start justify-between">
-            <div>
-              <div class="title text-lg font-semibold text-white">Estadísticas de la comunidad</div>
-              <div class="subtitle text-sm text-white/70">Resumen rápido: usuarios, reseñas y tipos de contenido</div>
-            </div>
-            <div class="ml-4">
-              <template v-if="countsVerified">
-                <span class="verified-badge inline-block text-xs px-3 py-1 rounded-full bg-green-600/20 text-green-300 border border-green-600/25" :title="countsCheckedAt ? `Comprobado: ${countsCheckedAt}` : 'Comprobado desde BD'">Comprobado BD</span>
-              </template>
-            </div>
+    <!-- Estadísticas principales: solo usuarios y reseñas -->
+    <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 gap-4" ref="heroRef" role="region" aria-label="Estadísticas de la comunidad">
+      <div class="stat-card card-users" aria-hidden="false">
+        <div class="card-top">
+          <div class="icon w-12 h-12 flex items-center justify-center card-users">
+            <UsersIcon class="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <div class="number text-3xl users-big">{{ displayUsers }}</div>
+            <div class="label">Usuarios registrados</div>
+          </div>
+        </div>
+        <div class="stat-meta">Somos una comunidad activa. Únete y comparte tus valoraciones.</div>
+      </div>
+
+      <div class="stat-card card-reviews" aria-hidden="false">
+        <div class="card-top">
+          <div class="icon w-12 h-12 flex items-center justify-center card-reviews">
+            <ChatBubbleLeftRightIcon class="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <div class="number text-3xl">{{ displayReviews }}</div>
+            <div class="label">Reseñas publicadas</div>
+          </div>
+        </div>
+        <div class="stat-meta">Opiniones reales de usuarios sobre películas, series y libros.</div>
+      </div>
+    </div>
+    <!-- Top películas (usar datos obtenidos en la misma llamada para evitar peticiones duplicadas) -->
+    <div class="mt-8">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-2xl font-semibold text-white">Top películas</h3>
+        <div class="text-sm text-gray-300">Las películas mejor valoradas por la comunidad</div>
+      </div>
+
+      <div v-if="topMovies && topMovies.length" class="relative">
+        <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopMovies(-1)">‹</button>
+
+        <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topMoviesCarousel">
+          <MediaCarouselItem v-for="it in topMovies" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopMovie" />
+        </div>
+
+        <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopMovies(1)">›</button>
+      </div>
+      <!-- (Top libros y Top series movidos al final de la página) -->
+    </div>
+
+      <!-- Top libros (misma estructura que Top películas) -->
+      <div class="mt-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-2xl font-semibold text-white">Top libros</h3>
+          <div class="text-sm text-gray-300">Los libros mejor valorados por la comunidad</div>
+        </div>
+
+        <div v-if="topBooks && topBooks.length" class="relative">
+          <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopBooks(-1)">‹</button>
+
+          <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topBooksCarousel">
+            <MediaCarouselItem v-for="it in topBooks" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopMovie" />
           </div>
 
-          <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 w-full">
-            <!-- Usuarios -->
-            <div class="stat-card card-users">
-              <div class="card-top">
-                <div class="icon">
-                  <UsersIcon class="w-7 h-7" aria-hidden="true" :style="{ color: '#06b6d4' }" />
-                </div>
-                <div class="number" aria-live="polite">{{ formattedUsers }}</div>
-              </div>
-              <div class="label text-sm text-white/70">Usuarios activos</div>
-            </div>
+          <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopBooks(1)">›</button>
+        </div>
+        <div v-else class="text-gray-400">Cargando recomendaciones...</div>
+      </div>
 
-            <!-- Reseñas -->
-            <div class="stat-card card-reviews">
-              <div class="card-top">
-                <div class="icon">
-                  <ChatBubbleLeftRightIcon class="w-7 h-7" aria-hidden="true" :style="{ color: '#10b981' }" />
-                </div>
-                <div class="number" aria-live="polite">{{ formattedReviews }}</div>
-              </div>
-              <div class="label text-sm text-white/70">Reseñas publicadas</div>
-            </div>
+      <!-- Top series (misma estructura que Top películas) -->
+      <div class="mt-8">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-2xl font-semibold text-white">Top series</h3>
+          <div class="text-sm text-gray-300">Las series mejor valoradas por la comunidad</div>
+        </div>
 
-            <!-- Películas -->
-            <div class="stat-card card-movie">
-              <div class="card-top">
-                <div class="icon">
-                  <!-- clapperboard (claqueta) solid icon, colored via currentColor -->
-                  <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" :style="{ color: '#7c3aed' }">
-                    <!-- body -->
-                    <path d="M3 9h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
-                    <!-- top clapper with stripes -->
-                    <path d="M2.2 6.2L9 3.2l2 3.6-6.8 3-2-3.6z" opacity="0.98" />
-                    <path d="M10.5 4.2l8-3 1 2-8 3-1-2z" opacity="0.98" />
-                    <!-- decorative stripe on clapper -->
-                    <path d="M4 4.3l2.2-1 1.2 2.2L5.2 6.5 4 4.3z" fill-opacity="0.12" />
-                  </svg>
-                </div>
-                <div class="number" aria-live="polite">{{ formattedMovies }}</div>
-              </div>
-              <div class="label text-sm text-white/70">Películas</div>
-            </div>
+        <div v-if="topSeries && topSeries.length" class="relative">
+          <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopSeries(-1)">‹</button>
 
-            <!-- Series -->
-            <div class="stat-card card-series">
-              <div class="card-top">
-                <div class="icon">
-                  <TvIcon class="w-7 h-7" aria-hidden="true" :style="{ color: '#fb923c' }" />
-                </div>
-                <div class="number" aria-live="polite">{{ formattedSeries }}</div>
-              </div>
-              <div class="label text-sm text-white/70">Series</div>
-            </div>
-
-            <!-- Libros -->
-            <div class="stat-card card-book">
-              <div class="card-top">
-                <div class="icon">
-                  <BookOpenIcon class="w-7 h-7" aria-hidden="true" :style="{ color: '#3b82f6' }" />
-                </div>
-                <div class="number" aria-live="polite">{{ formattedBooks }}</div>
-              </div>
-              <div class="label text-sm text-white/70">Libros</div>
-            </div>
+          <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topSeriesCarousel">
+            <MediaCarouselItem v-for="it in topSeries" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopMovie" />
           </div>
 
-          <!-- Verification badge: shown when backend marks stats as computed from DB -->
-          <div class="hero-footer mt-4 w-full flex items-center justify-end">
-            <div v-if="countsVerified || countsCheckedAt" class="verified-badge inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/6 text-white text-sm">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="opacity-95"><path d="M20 6L9 17l-5-5" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span>Comprobado</span>
+          <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopSeries(1)">›</button>
+        </div>
+        <div v-else class="text-gray-400">Cargando recomendaciones...</div>
+      </div>
+
+      <!-- Preview modal para usuarios no autenticados -->
+      <div v-if="previewModalVisible" class="fixed inset-0 z-[99999] flex items-center justify-center">
+        <div class="absolute inset-0 bg-black bg-opacity-60 z-[99998]" @click="closePreview"></div>
+        <div @click.stop class="relative bg-gray-900 rounded-xl shadow-2xl max-w-4xl w-full mx-4 p-6 z-[100000] text-white max-h-[90vh] overflow-auto">
+          <button class="absolute top-4 right-4 text-gray-300 hover:text-white" @click="closePreview">✕</button>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="md:w-1/3">
+                <img :src="(previewItem && (previewItem.item && (previewItem.item.data && previewItem.item.data.cover) || previewItem.item && previewItem.item.cover)) || (previewItem && ((previewItem.data && (previewItem.data.cover || previewItem.data.image)) || previewItem.cover || previewItem.image)) || '/img/placeholder-book.png'" class="w-full rounded-lg object-cover h-48 md:h-auto" alt="Portada" />
+            </div>
+            <div class="md:w-2/3">
+              <h3 class="text-2xl font-bold mb-2">{{ (previewItem && (previewItem.item && (previewItem.item.title || previewItem.item.data?.title)) ) || previewItem?.title || previewItem?.data?.title || 'Detalle' }}</h3>
+              <div class="flex items-center gap-4 mb-3">
+                <div class="text-lg font-semibold">{{ (previewItem && (previewItem.avgScore ?? previewItem.score ?? previewItem.rating)) ? `${previewItem.avgScore ?? previewItem.score ?? previewItem.rating}/10` : '—/10' }}</div>
+                <div class="text-sm text-gray-300">{{ (previewItem && (previewItem.count || previewItem.item && previewItem.item.count)) ? `${previewItem.count || previewItem.item.count} reseñas` : '' }}</div>
+              </div>
+              <p class="text-gray-300 mb-4">{{ (previewItem && (previewItem.item && (previewItem.item.data && previewItem.item.data.description) || previewItem.item.description)) || (previewItem && ((previewItem.data && (previewItem.data.description || previewItem.data.plot)) || previewItem.description)) || 'No hay descripción disponible.' }}</p>
+
+              <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                <button @click="() => router.push({ name: 'login' })" class="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 text-black font-semibold px-4 py-2 rounded-full">Inicia sesión para poder puntuarlo</button>
+                <button @click="closePreview" class="w-full sm:w-auto bg-transparent border border-gray-700 px-4 py-2 rounded-full text-gray-300">Cerrar</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-    </div>
-
-    <!-- Title separated from stats: more space from stats, closer to the cards below -->
-    <div class="mt-6 mb-2">
-      <h1 class="text-3xl md:text-4xl font-extrabold text-white mb-2">Top 10 — Mejores valorados</h1>
-    </div>
-
-    <div class="w-full mb-6">
-      <div class="panel-card rounded-lg p-0 no-outline">
-        <div class="relative">
-          <template v-if="topGlobalLoading">
-            <div class="w-full h-72 flex items-center justify-center text-gray-300">Cargando...</div>
-          </template>
-          <template v-else>
-            <MediaShowcase3D :items="topGlobal.map(mapToCarousel)" />
-          </template>
-        </div>
-      </div>
-    </div>
   </section>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { useRouter } from 'vue-router'
+import { getUser } from '@/services/auth'
 import MediaShowcase3D from '@/components/home/MediaShowcase3D.vue'
 import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
 import MediaShowcase from '@/components/home/MediaShowcase.vue'
@@ -125,6 +128,11 @@ import { UsersIcon, ChatBubbleLeftRightIcon, TvIcon, BookOpenIcon } from '@heroi
 
 const usersCount = ref<number>(0)
 const topGlobal = ref<any[]>([])
+// top movies specifically (mapped for the carousel)
+const topMovies = ref<any[]>([])
+// top books and top series (same carousel UI, stacked below movies)
+const topBooks = ref<any[]>([])
+const topSeries = ref<any[]>([])
 const topGlobalLoading = ref(true)
 const topGlobalContainer = ref<HTMLElement | null>(null)
 const currentTopIndex = ref(0)
@@ -210,6 +218,25 @@ function mapToCarousel(it: any) {
   }
 }
 
+function mapTopMovie(it: any) {
+  // input may be { avgScore, count, itemId, item } or raw item
+  const source = it.item || it
+  const image = (source.data && (source.data.cover || source.data.image)) || source.cover || source.image || '/img/placeholder-book.png'
+  const score = (it.avgScore ?? it.score ?? it.rating ?? (source.score || source.rating))
+  const rating = (typeof score === 'number' || score) ? `${score}/10` : ''
+  const title = (source.title || (source.data && source.data.title) || it.title) || ''
+  return {
+    id: it._id || it.itemId || source._id || source.id || String(Math.random()),
+    image,
+    rating,
+    // use movie emoji badge
+    type: '🎬',
+    title,
+    // keep original raw for potential detail navigation
+    raw: it
+  }
+}
+
 async function loadAll() {
   try {
     // Prefer a single aggregated counts endpoint that tries multiple server routes
@@ -241,6 +268,19 @@ async function loadAll() {
       // display values assigned
     } catch (e) {}
 
+    // If aggregated endpoint returned top lists, map movies/books/series for the carousels and avoid extra top requests
+    if (countsRes && countsRes.top) {
+      if (Array.isArray(countsRes.top.movies) && countsRes.top.movies.length) {
+        topMovies.value = countsRes.top.movies.map((m: any, i: number) => ({ ...mapTopMovie(m), rank: i + 1 }))
+      }
+      if (Array.isArray(countsRes.top.books) && countsRes.top.books.length) {
+        topBooks.value = countsRes.top.books.map((m: any, i: number) => ({ ...mapTopMovie(m), rank: i + 1 }))
+      }
+      if (Array.isArray(countsRes.top.series) && countsRes.top.series.length) {
+        topSeries.value = countsRes.top.series.map((m: any, i: number) => ({ ...mapTopMovie(m), rank: i + 1 }))
+      }
+    }
+
     // Fallback: if aggregated endpoint didn't return useful numbers, perform direct per-endpoint queries
     if (!usersCount.value && !totalReviews.value && !moviesTotal.value && !seriesTotal.value && !booksTotal.value) {
       const [u, r, m, s, b] = await Promise.all([
@@ -266,12 +306,25 @@ async function loadAll() {
     totalReviews.value = 0
   }
 
-  try {
-    const g: any = await getGlobalTop(10)
-    topGlobal.value = (g && g.items) ? g.items : []
-  } catch (e) {
-    topGlobal.value = []
-  }
+    try {
+      // Only fetch global top if we didn't get movies/books/series from the aggregated counts endpoint
+      if ((!topMovies.value || !topMovies.value.length) || (!topBooks.value || !topBooks.value.length) || (!topSeries.value || !topSeries.value.length)) {
+        const g: any = await getGlobalTop(30)
+        topGlobal.value = (g && g.items) ? g.items : []
+
+        // fallbacks: try to derive each section from the global top
+        const movieItems = (topGlobal.value || []).filter((it: any) => String((it.itemType || (it.data && it.data.type) || '')).toLowerCase().includes('movie'))
+        if ((!topMovies.value || !topMovies.value.length) && movieItems && movieItems.length) topMovies.value = movieItems.slice(0, 10).map((m: any, i: number) => ({ ...mapToCarousel(m), type: '🎬', rank: i + 1 }))
+
+        const bookItems = (topGlobal.value || []).filter((it: any) => String((it.itemType || (it.data && it.data.type) || '')).toLowerCase().includes('book'))
+        if ((!topBooks.value || !topBooks.value.length) && bookItems && bookItems.length) topBooks.value = bookItems.slice(0, 10).map((m: any, i: number) => ({ ...mapToCarousel(m), type: '📚', rank: i + 1 }))
+
+        const seriesItems = (topGlobal.value || []).filter((it: any) => String((it.itemType || (it.data && it.data.type) || '')).toLowerCase().includes('series') || String((it.itemType || (it.data && it.data.type) || '')).toLowerCase().includes('tv'))
+        if ((!topSeries.value || !topSeries.value.length) && seriesItems && seriesItems.length) topSeries.value = seriesItems.slice(0, 10).map((m: any, i: number) => ({ ...mapToCarousel(m), type: '📺', rank: i + 1 }))
+      }
+    } catch (e) {
+      topGlobal.value = []
+    }
   topGlobalLoading.value = false
 
   if (topGlobal.value && topGlobal.value.length) currentTopIndex.value = 0
@@ -366,6 +419,61 @@ function timeAgo(r: any) {
 }
 
 onMounted(() => loadAll())
+
+// carousel ref & helpers for top movies
+const topMoviesCarousel = ref<HTMLElement | null>(null)
+function scrollTopMovies(direction: number) {
+  if (!topMoviesCarousel.value) return
+  const el = topMoviesCarousel.value
+  const amount = Math.max(el.clientWidth * 0.8, 200)
+  el.scrollBy({ left: direction * amount, behavior: 'smooth' })
+}
+
+const topBooksCarousel = ref<HTMLElement | null>(null)
+function scrollTopBooks(direction: number) {
+  if (!topBooksCarousel.value) return
+  const el = topBooksCarousel.value
+  const amount = Math.max(el.clientWidth * 0.8, 200)
+  el.scrollBy({ left: direction * amount, behavior: 'smooth' })
+}
+
+const topSeriesCarousel = ref<HTMLElement | null>(null)
+function scrollTopSeries(direction: number) {
+  if (!topSeriesCarousel.value) return
+  const el = topSeriesCarousel.value
+  const amount = Math.max(el.clientWidth * 0.8, 200)
+  el.scrollBy({ left: direction * amount, behavior: 'smooth' })
+}
+
+const router = useRouter()
+
+// modal state for unauthenticated preview
+const previewModalVisible = ref(false)
+const previewItem = ref<any | null>(null)
+
+function openPreviewFor(item: any) {
+  previewItem.value = item && (item.raw || item)
+  previewModalVisible.value = true
+}
+
+function closePreview() {
+  previewModalVisible.value = false
+  previewItem.value = null
+}
+
+function onSelectTopMovie(item: any) {
+  const me = getUser()
+  const id = item && (item.id || item.detailId || (item.raw && (item.raw.itemId || item.raw._id)))
+  if (!id) return
+  if (me && me._id) {
+    // logged -> go to real detail
+    router.push({ name: 'item-detail', params: { id: String(id) } })
+    return
+  }
+
+  // not logged -> open preview modal using already-loaded data
+  openPreviewFor(item)
+}
 
 onMounted(() => {
   // load data and start top global autoplay
@@ -499,12 +607,15 @@ const displayBooks = ref<string>('0')
 <style scoped>
 .carousel { gap: 1rem }
 .carousel-container { position: relative }
-.carousel-btn { background: white; color: #111827; width: 40px; height: 40px; border-radius: 999px; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 20px rgba(2,6,23,0.45); }
-.carousel-btn:hover { transform: translateY(-1px) scale(1.02) }
+.carousel-btn { background: rgba(255,255,255,0.12); color: #ffffff; width: 40px; height: 40px; border-radius: 999px; display:flex; align-items:center; justify-content:center; box-shadow: 0 8px 20px rgba(2,6,23,0.45); border: 1px solid rgba(255,255,255,0.08); }
+.carousel-btn:hover { transform: translateY(-50%) translateY(-4px) scale(1.02); background: rgba(255,255,255,0.95); color: #111827 }
 .carousel ::v-deep .media-card { transition: transform .25s ease, box-shadow .25s ease }
 .carousel ::v-deep .media-card:hover { transform: translateY(-6px); box-shadow: 0 18px 40px rgba(2,6,23,0.6) }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none }
 .scrollbar-hide::-webkit-scrollbar { display: none }
+
+/* hide any decorative carousel progress/track that may be rendered below the items */
+.carousel-container::after, .carousel::after, .carousel::before, .carousel-track, .carousel-progress, .carousel-bar, .carousel .track { display: none !important }
 
 /* subtle section background removed for a cleaner, elegant look */
 section { background: transparent; padding-top: 3rem }

@@ -4,7 +4,7 @@
       Contenido destacado que puedes Puntuar
     </h2>
     <div class="carousel-container relative">
-      <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none w-10 h-10 md:w-12 md:h-12 rounded-full text-xl cursor-pointer transition-all duration-300 hover:bg-gray-600 hover:text-white hover:scale-110 shadow-lg z-10 text-gray-700" @click="scrollCarousel(-1)">
+      <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full text-xl cursor-pointer transition-all duration-300 shadow-lg z-10" @click="scrollCarousel(-1)">
         ‹
       </button>
       <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-5 scrollbar-hide" id="carousel" ref="carousel">
@@ -14,7 +14,7 @@
           :item="item"
         />
       </div>
-      <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none w-10 h-10 md:w-12 md:h-12 rounded-full text-xl cursor-pointer transition-all duration-300 hover:bg-gray-600 hover:text-white hover:scale-110 shadow-lg z-10 text-gray-700" @click="scrollCarousel(1)">
+      <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full text-xl cursor-pointer transition-all duration-300 shadow-lg z-10" @click="scrollCarousel(1)">
         ›
       </button>
     </div>
@@ -97,4 +97,9 @@ onUnmounted(() => {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ensure arrows are visible and remove any bottom track */
+.carousel-btn { background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.08) }
+.carousel-btn:hover { background: rgba(255,255,255,0.95); color: #111827 }
+.carousel-container::after, .carousel::after, .carousel::before, .carousel-track, .carousel-progress, .carousel-bar, .carousel .track { display: none !important }
 </style>

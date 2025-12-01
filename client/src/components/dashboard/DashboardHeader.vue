@@ -70,10 +70,7 @@ const baseNavigation: NavigationItem[] = [
 
 const navigation = computed(() => {
   const items = [...baseNavigation]
-  // show 'Sobre Nosotros' a la derecha de 'Recomendados' solo si hay token (usuario logueado)
-  if (getToken()) {
-    items.push({ name: 'Sobre Nosotros', to: '/about' })
-  }
+  // No incluir 'Sobre Nosotros' en el header
   return items
 })
 

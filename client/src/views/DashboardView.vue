@@ -64,6 +64,63 @@
           </div>
         </div>
       </section>
+
+      <!-- TOP carousels (movies, books, series) - same presentation as Home -->
+      <section class="mb-8">
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-semibold text-white">Top películas</h3>
+            <div class="text-sm text-gray-300">Las películas mejor valoradas por la comunidad</div>
+          </div>
+
+          <div v-if="topMovies && topMovies.length" class="relative">
+            <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopMovies(-1)">‹</button>
+
+            <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topMoviesCarousel">
+              <MediaCarouselItem v-for="it in topMovies" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopItem" />
+            </div>
+
+            <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopMovies(1)">›</button>
+          </div>
+          <div v-else class="text-gray-400">Cargando recomendaciones...</div>
+        </div>
+
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-semibold text-white">Top libros</h3>
+            <div class="text-sm text-gray-300">Los libros mejor valorados por la comunidad</div>
+          </div>
+
+          <div v-if="topBooks && topBooks.length" class="relative">
+            <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopBooks(-1)">‹</button>
+
+            <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topBooksCarousel">
+              <MediaCarouselItem v-for="it in topBooks" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopItem" />
+            </div>
+
+            <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopBooks(1)">›</button>
+          </div>
+          <div v-else class="text-gray-400">Cargando recomendaciones...</div>
+        </div>
+
+        <div class="mt-8">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-2xl font-semibold text-white">Top series</h3>
+            <div class="text-sm text-gray-300">Las series mejor valoradas por la comunidad</div>
+          </div>
+
+          <div v-if="topSeries && topSeries.length" class="relative">
+            <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopSeries(-1)">‹</button>
+
+            <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topSeriesCarousel">
+              <MediaCarouselItem v-for="it in topSeries" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopItem" />
+            </div>
+
+            <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopSeries(1)">›</button>
+          </div>
+          <div v-else class="text-gray-400">Cargando recomendaciones...</div>
+        </div>
+      </section>
     </main>
   </div>
 </template>
@@ -74,11 +131,13 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import WelcomeSection from '@/components/dashboard/WelcomeSection.vue'
 import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
 import FriendsGrid from '@/components/dashboard/FriendsGrid.vue'
+import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
 
 // Types
 import type { Recommendation, FriendActivity } from '../components/dashboard/types'
 
 import { ref, onMounted, watch } from 'vue'
+import { getCounts } from '@/services/stats'
 import { getAllItems, getRecommendationsForUser } from '@/services/item'
 import { getUser } from '@/services/auth'
 import { getFeed } from '@/services/user'
@@ -96,6 +155,55 @@ const page = ref(1)
 const limit = ref(6)
 const total = ref(0)
 const loading = ref(false)
+
+// Top lists for carousels (movies, books, series)
+const topMovies = ref<any[]>([])
+const topBooks = ref<any[]>([])
+const topSeries = ref<any[]>([])
+
+const topMoviesCarousel = ref<HTMLElement | null>(null)
+const topBooksCarousel = ref<HTMLElement | null>(null)
+const topSeriesCarousel = ref<HTMLElement | null>(null)
+
+function mapToCarousel(it: any) {
+  const source = it.item || it
+  const image = (source.data && (source.data.cover || source.data.image)) || source.cover || source.image || '/img/placeholder-book.png'
+  const score = (it.avgScore ?? it.score ?? it.rating ?? (source.score || source.rating))
+  const rating = (typeof score === 'number' || score) ? `${score}/10` : ''
+  const title = (source.title || (source.data && source.data.title) || it.title) || ''
+  return {
+    id: it._id || it.itemId || source._id || source.id || String(Math.random()),
+    image,
+    rating,
+    type: (source.data && source.data.type) || source.type || '',
+    title,
+    raw: it
+  }
+}
+
+function scrollCarousel(refEl: any, direction: number) {
+  if (!refEl.value) return
+  const el = refEl.value
+  const amount = Math.max(el.clientWidth * 0.8, 200)
+  el.scrollBy({ left: direction * amount, behavior: 'smooth' })
+}
+
+function scrollTopMovies(direction: number) { scrollCarousel(topMoviesCarousel, direction) }
+function scrollTopBooks(direction: number) { scrollCarousel(topBooksCarousel, direction) }
+function scrollTopSeries(direction: number) { scrollCarousel(topSeriesCarousel, direction) }
+
+async function loadTops() {
+  try {
+    const countsRes: any = await getCounts()
+    if (countsRes && countsRes.top) {
+      if (Array.isArray(countsRes.top.movies)) topMovies.value = countsRes.top.movies.map((m: any, i:number) => ({ ...mapToCarousel(m), rank: i+1 }))
+      if (Array.isArray(countsRes.top.books)) topBooks.value = countsRes.top.books.map((m: any, i:number) => ({ ...mapToCarousel(m), rank: i+1 }))
+      if (Array.isArray(countsRes.top.series)) topSeries.value = countsRes.top.series.map((m: any, i:number) => ({ ...mapToCarousel(m), rank: i+1 }))
+    }
+  } catch (e) {
+    // ignore
+  }
+}
 
 function timeAgo(iso?: string) {
   if (!iso) return ''
@@ -252,12 +360,24 @@ onMounted(() => {
   console.debug('[dashboard] mounted: cargando recomendaciones y feed')
   loadRecommendations()
   loadFeed()
+  loadTops()
 })
 
 // Recarga cuando se añade ?refresh=timestamp (ItemDetail redirige con esta query al puntuar)
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
+
+function onSelectTopItem(item: any) {
+  try {
+    const source = item || {}
+    const id = source.id || source._id || (source.raw && (source.raw.itemId || source.raw._id)) || source.detailId || (source.data && source.data._id) || ''
+    if (!id) return
+    router.push({ name: 'item-detail', params: { id: String(id) } })
+  } catch (err) {
+    // ignore
+  }
+}
 watch(() => route.query.refresh, () => {
   if (route.name === 'dashboard') {
     loadRecommendations()
