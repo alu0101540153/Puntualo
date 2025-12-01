@@ -68,4 +68,50 @@ describe('User endpoints (follow/items/ratings)', () => {
     const after = await request(app).get(`/api/v1/puntualo/users/${id}/ratings`).set('Authorization', `Bearer ${token}`).expect(200)
     expect(after.body.length).toBe(0)
   })
+
+  it('change password with correct current password', async () => {
+    const u = { handle: 'pwuser', name: 'PW User', email: 'pw@example.com', password: 'oldpass123' }
+    const r = await request(app).post('/api/v1/puntualo/auth/register').send(u).expect(201)
+    const token = r.body.token
+    const id = r.body.user._id
+
+    // Cambiar contraseña con la contraseña actual correcta
+    const update = await request(app)
+      .patch(`/api/v1/puntualo/users/${id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'oldpass123',
+        newPassword: 'newpass456'
+      })
+      .expect(200)
+    
+    expect(update.body).toBeDefined()
+
+    // Intentar login con la nueva contraseña
+    const login = await request(app)
+      .post('/api/v1/puntualo/auth/login')
+      .send({ email: 'pw@example.com', password: 'newpass456' })
+      .expect(200)
+    
+    expect(login.body.token).toBeDefined()
+  })
+
+  it('reject password change with incorrect current password', async () => {
+    const u = { handle: 'pwuser2', name: 'PW User 2', email: 'pw2@example.com', password: 'oldpass123' }
+    const r = await request(app).post('/api/v1/puntualo/auth/register').send(u).expect(201)
+    const token = r.body.token
+    const id = r.body.user._id
+
+    // Intentar cambiar contraseña con contraseña actual incorrecta
+    const update = await request(app)
+      .patch(`/api/v1/puntualo/users/${id}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        currentPassword: 'wrongpassword',
+        newPassword: 'newpass456'
+      })
+      .expect(401)
+    
+    expect(update.body.message).toContain('contraseña')
+  })
 })

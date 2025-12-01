@@ -66,6 +66,85 @@
           </div>
         </div>
 
+        <!-- Cambiar contraseña -->
+        <div class="bg-white/10 rounded-lg overflow-hidden">
+          <button
+            type="button"
+            @click="showPasswordForm = !showPasswordForm"
+            class="w-full px-4 py-4 flex items-center justify-between text-left hover:bg-white/5 transition-colors"
+          >
+            <div>
+              <h3 class="text-base font-semibold text-white">Cambiar contraseña</h3>
+              <p class="text-sm text-gray-300 mt-1">
+                Actualiza tu contraseña de acceso
+              </p>
+            </div>
+            <svg
+              :class="['w-5 h-5 text-gray-400 transition-transform', showPasswordForm ? 'rotate-180' : '']"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <transition
+            enter-active-class="transition-all duration-300 ease-out"
+            leave-active-class="transition-all duration-200 ease-in"
+            enter-from-class="opacity-0 max-h-0"
+            enter-to-class="opacity-100 max-h-[600px]"
+            leave-from-class="opacity-100 max-h-[600px]"
+            leave-to-class="opacity-0 max-h-0"
+          >
+            <div
+              v-show="showPasswordForm"
+              class="px-4 pb-4 space-y-4 border-t border-white/10 overflow-hidden"
+            >
+            <p class="text-sm text-gray-200 mt-4">
+              Introduce tu contraseña actual y la nueva contraseña
+            </p>
+            
+            <div>
+              <label class="block text-sm text-gray-300">Contraseña actual</label>
+              <input 
+                v-model="passwordForm.currentPassword" 
+                type="password" 
+                class="w-full mt-2 p-2 rounded bg-white/6 text-black placeholder-gray-500"
+                placeholder="Introduce tu contraseña actual"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300">Nueva contraseña</label>
+              <input 
+                v-model="passwordForm.newPassword" 
+                type="password" 
+                class="w-full mt-2 p-2 rounded bg-white/6 text-black placeholder-gray-500"
+                placeholder="Introduce tu nueva contraseña"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm text-gray-300">Confirmar nueva contraseña</label>
+              <input 
+                v-model="passwordForm.confirmPassword" 
+                type="password" 
+                class="w-full mt-2 p-2 rounded bg-white/6 text-black placeholder-gray-500"
+                placeholder="Confirma tu nueva contraseña"
+              />
+            </div>
+
+            <div v-if="passwordError" class="text-red-400 text-sm bg-red-900/20 p-3 rounded">
+              {{ passwordError }}
+            </div>
+            <div v-if="passwordSuccess" class="text-emerald-400 text-sm bg-emerald-900/20 p-3 rounded">
+              {{ passwordSuccess }}
+            </div>
+          </div>
+          </transition>
+        </div>
+
         <div class="flex gap-3 justify-end">
           <button type="button" @click="onCancel" class="px-4 py-2 bg-white/10 rounded">Cancelar</button>
           <button type="submit" class="px-4 py-2 bg-emerald-500 rounded">Guardar cambios</button>
@@ -95,6 +174,16 @@ const form = reactive({
   avatarBgColor: '',
   isPrivate: false
 })
+
+const passwordForm = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const passwordError = ref('')
+const passwordSuccess = ref('')
+const showPasswordForm = ref(false)
 
 // helper para normalizar distintos shapes que pueda tener "user" en localStorage/backend
 function resolveUser(raw: any) {
@@ -132,17 +221,47 @@ function selectColor(c: string) {
 
 async function onSubmit() {
   try {
+    passwordError.value = ''
+    passwordSuccess.value = ''
+
+    // Validar cambio de contraseña si se proporcionaron datos
+    if (passwordForm.currentPassword || passwordForm.newPassword || passwordForm.confirmPassword) {
+      if (!passwordForm.currentPassword) {
+        passwordError.value = 'Debes introducir tu contraseña actual'
+        return
+      }
+      if (!passwordForm.newPassword) {
+        passwordError.value = 'Debes introducir una nueva contraseña'
+        return
+      }
+      if (passwordForm.newPassword.length < 6) {
+        passwordError.value = 'La nueva contraseña debe tener al menos 6 caracteres'
+        return
+      }
+      if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+        passwordError.value = 'Las contraseñas no coinciden'
+        return
+      }
+    }
+
     // El backend actual acepta PATCH /users/:id y ahora también soporta avatar en field 'avatar'
     const id = currentUser.value?._id || currentUser.value?.id
     if (!id) throw new Error('Usuario no identificado')
 
-    const payload = {
+    const payload: any = {
       name: form.name,
       handle: form.username,
       description: form.bio || '',
       avatarBgColor: form.avatarBgColor || undefined,
       isPrivate: form.isPrivate
     }
+
+    // Añadir campos de contraseña si se proporcionaron
+    if (passwordForm.currentPassword) {
+      payload.currentPassword = passwordForm.currentPassword
+      payload.newPassword = passwordForm.newPassword
+    }
+
     const data = await updateUser(id, payload)
 
     // actualizar user en localStorage si backend devuelve el usuario actualizado
@@ -153,10 +272,42 @@ async function onSubmit() {
       saveAuth(data, localStorage.getItem('token') || '')
     }
 
-    router.push('/profile')
+    // Limpiar formulario de contraseña
+    if (passwordForm.currentPassword) {
+      passwordForm.currentPassword = ''
+      passwordForm.newPassword = ''
+      passwordForm.confirmPassword = ''
+      passwordSuccess.value = 'Contraseña actualizada correctamente'
+      
+      // Redirigir después de mostrar el mensaje
+      setTimeout(() => {
+        router.push('/profile')
+      }, 1500)
+    } else {
+      router.push('/profile')
+    }
   } catch (e: any) {
     console.error('Error guardando perfil', e)
-    alert(e.message || 'Error guardando perfil')
+    
+    // Intentar parsear el error que viene como JSON string
+    let errorMessage = ''
+    try {
+      const errorData = JSON.parse(e.message)
+      errorMessage = errorData.body?.message || errorData.body || e.message
+    } catch {
+      errorMessage = e.message
+    }
+
+    // Si es un error relacionado con la contraseña, mostrarlo en passwordError
+    if (errorMessage && (
+      errorMessage.toLowerCase().includes('contraseña') || 
+      errorMessage.toLowerCase().includes('password') ||
+      errorMessage.toLowerCase().includes('unauthorized')
+    )) {
+      passwordError.value = errorMessage
+    } else {
+      alert(errorMessage || 'Error guardando perfil')
+    }
   }
 }
 

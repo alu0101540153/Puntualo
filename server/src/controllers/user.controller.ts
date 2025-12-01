@@ -32,6 +32,11 @@ export const userController = {
       const data = await userService.update(id, req.body);
       return res.json(data);
     } catch (error: any) {
+        // Si es error de contraseña incorrecta
+        if (error && error.name === 'UnauthorizedError') {
+          return res.status(401).json({ message: String(error.message || 'Contraseña incorrecta') })
+        }
+
         // If service throws a ConflictError (e.g. handle already used), return 409 with a simple message
         if (error && (error.name === 'ConflictError' || /Handle ya en uso/i.test(String(error.message || '')))) {
           return res.status(409).json({ message: String(error.message || 'Conflict') })

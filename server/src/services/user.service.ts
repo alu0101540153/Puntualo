@@ -16,6 +16,14 @@ export const userService = {
   },
 
   update: async (id: string, body: any) => {
+    // Si quieren cambiar la contraseña con verificación
+    if (body.currentPassword && body.newPassword) {
+      await userService.changePassword(id, body.currentPassword, body.newPassword)
+      // Eliminar estos campos del body para que no se procesen más
+      delete body.currentPassword
+      delete body.newPassword
+    }
+
     // Si nos envían un nuevo handle (username), comprobar unicidad antes de actualizar
     if (body.handle) {
       const normalizedHandle = String(body.handle).toLowerCase().trim()
@@ -30,7 +38,8 @@ export const userService = {
       body.handle = normalizedHandle
     }
 
-    // Si hay contraseña nueva, también la hasheamos
+    // Si hay contraseña nueva sin verificación (esto es para mantener compatibilidad),
+    // también la hasheamos
     if (body.password) {
       body.password = await argon2.hash(body.password)
     }
@@ -100,6 +109,29 @@ export const userService = {
     return await userService.getFollowing(id)
   },
 
+  // Cambiar contraseña verificando la actual
+  changePassword: async (userId: string, currentPassword: string, newPassword: string) => {
+    const user = await UserModel.findById(userId)
+    if (!user) {
+      const err: any = new Error('Usuario no encontrado')
+      err.name = 'NotFoundError'
+      throw err
+    }
+
+    // Verificar contraseña actual
+    const isValid = await argon2.verify(user.password, currentPassword)
+    if (!isValid) {
+      const err: any = new Error('La contraseña actual no es correcta')
+      err.name = 'UnauthorizedError'
+      throw err
+    }
+
+    // Hashear y actualizar nueva contraseña
+    user.password = await argon2.hash(newPassword)
+    await user.save()
+    
+    return user
+  },
 
   addItemToUser: async (userId: string, item: any) => {
     // item: { itemId?, externalId?, itemType?, title? }
