@@ -57,12 +57,21 @@ export async function getCounts() {
   const tries = ['/stats/all', '/stats', '/stats/site', '/admin/stats', '/counts', '/site/stats']
   for (const t of tries) {
     try {
+      console.log(`🔍 Trying endpoint: ${t}`)
       const res: any = await api.apiFetch(t)
+      console.log(`✅ Response from ${t}:`, res)
       if (!res) continue
       // New endpoint shape may be { source, checkedAt, data: { totalUsers, totalRatings, top: {...} } }
       if (res.data) {
-        if (typeof res.data.totalUsers === 'number') result.users = res.data.totalUsers
-        if (typeof res.data.totalRatings === 'number') result.reviews = res.data.totalRatings
+        console.log('📦 res.data found:', res.data)
+        if (typeof res.data.totalUsers === 'number') {
+          result.users = res.data.totalUsers
+          console.log('👥 Set users to:', result.users)
+        }
+        if (typeof res.data.totalRatings === 'number') {
+          result.reviews = res.data.totalRatings
+          console.log('⭐ Set reviews to:', result.reviews)
+        }
         // preserve raw top lists if present so UI can reuse without extra requests
         if (res.data.top) result.top = res.data.top
         // also accept legacy names
@@ -85,12 +94,17 @@ export async function getCounts() {
       if (typeof res.movieCount === 'number') result.movies = res.movieCount
       if (typeof res.seriesCount === 'number') result.series = res.seriesCount
       // if we found both, break early
-      if (result.users && result.reviews) return result
+      if (result.users && result.reviews) {
+        console.log('✅ Found both users and reviews, returning:', result)
+        return result
+      }
     } catch (e) {
+      console.error(`❌ Error fetching ${t}:`, e)
       // ignore
     }
   }
 
+  console.log('🔄 Didn\'t find complete data, trying review endpoints...')
   // Try explicit review-count endpoints
   const rtries = ['/reviews/count', '/ratings/count', '/reviews/stats']
   for (const t of rtries) {

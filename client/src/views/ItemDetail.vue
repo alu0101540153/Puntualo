@@ -50,7 +50,7 @@
             </div>
 
             <div class="mt-4 flex items-center gap-3">
-              <button @click="showReview = !showReview" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
+              <button @click="openRatingModal" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
               <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-black font-semibold" :class="inWishlist ? 'bg-yellow-400' : 'bg-sky-400'">
                 {{ inWishlist ? 'En mi lista' : 'Añadir a mi lista' }}
               </button>
@@ -63,42 +63,17 @@
                 <button @click="confirmCompleteWithoutReview" class="px-4 py-2 bg-white/6 text-gray-200 rounded">No, sólo marcar</button>
               </div>
             </div>
-
-            <div v-if="showReview" class="mt-6 bg-white/5 rounded-lg p-6">
-              <h3 class="text-2xl font-bold mb-4">Puntúa el ítem: {{ item.title }}</h3>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="md:col-span-1">
-                  <img :src="itemImage || '/img/placeholder-book.png'" alt="cover" class="w-full h-auto object-cover rounded-md" />
-                </div>
-                <div class="md:col-span-2">
-                  <div class="mb-3">
-                    <label class="block text-sm text-gray-300">Tu puntuación (1-10) — opcional</label>
-                    <input v-model="userScoreRaw" type="text" inputmode="decimal" placeholder="0 - 10 (dejar vacío para solo marcar como viéndolo/leyéndolo)" class="w-72 mt-2 p-2 rounded bg-white/6 text-gray-900" />
-                    <div v-if="userScoreError" class="text-rose-400 text-sm mt-1">{{ userScoreError }}</div>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="block text-sm text-gray-300">Estado</label>
-                    <select v-model="userStatus" class="w-48 mt-2 p-2 rounded bg-white/6 text-gray-900">
-                      <option value="watching">Leyendo/Viéndolo</option>
-                      <option value="completed">Terminado</option>
-                    </select>
-                  </div>
-
-                  <div class="mb-3">
-                    <label class="block text-sm text-gray-300">Reseña</label>
-                    <textarea v-model="userComment" rows="4" class="w-full mt-2 p-2 rounded bg-white/6 text-gray-900"></textarea>
-                  </div>
-
-                  <div class="flex justify-end">
-                    <button @click="submitRating" class="px-4 py-2 bg-emerald-500 rounded text-black font-semibold">Enviar</button>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
+
+      <!-- Rating Modal -->
+      <RatingModal 
+        :show="showRatingModal" 
+        :item="ratingItemData"
+        @close="showRatingModal = false"
+        @success="handleRatingSuccess"
+      />
 
       <section class="mt-8 bg-gradient-to-b from-gray-700 to-gray-600 bg-opacity-25 rounded-2xl p-6 shadow-inner">
         <h3 class="text-xl font-bold text-white mb-4">Puntuación de amigos</h3>
@@ -149,6 +124,7 @@ import { getMyRatings, addRating, addItemToUser, removeItemFromUser, getUserById
 import { success as notifySuccess, error as notifyError } from '@/services/notify'
 import { useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
+import RatingModal from '@/components/RatingModal.vue'
 
 const route = useRoute()
 const id = String(route.params.id || '')
@@ -159,6 +135,7 @@ const userScore = ref<number>(9)
 const userScoreRaw = ref<string>(String(userScore.value))
 const userScoreError = ref<string>('')
 const showReview = ref(false)
+const showRatingModal = ref(false)
 const userStatus = ref<string>('watching')
 const userComment = ref<string>('')
 const isSubmitting = ref(false)
@@ -169,6 +146,37 @@ const wishlistSubId = ref<string | null>(null)
 const wishlistLoading = ref(false)
 const showCompletePrompt = ref(false)
 const completeProcessing = ref(false)
+
+// Computed property for rating modal data
+const ratingItemData = computed(() => ({
+  id: item.value._id || item.value.id,
+  _id: item.value._id || item.value.id,
+  title: item.value.title || '',
+  image: itemImage.value || '',
+  itemType: item.value.itemType || 'book',
+  description: item.value.description || item.value.synopsis || '',
+  externalId: item.value.externalId || '',
+  originType: item.value.itemType || 'book',
+  genres: item.value.genre ? String(item.value.genre).split(',').map((s: string) => s.trim()).filter(Boolean) : [],
+  author: item.value.author || '',
+  pages: item.value.pages || '',
+  language: item.value.language || ''
+}))
+
+function openRatingModal() {
+  showRatingModal.value = true
+}
+
+function handleRatingSuccess() {
+  // Reload friend ratings after successful rating
+  loadFriendRatings(true)
+  // Dispatch event to update other components
+  try {
+    window.dispatchEvent(new CustomEvent('ratingsChanged'))
+  } catch (err) {
+    // ignore
+  }
+}
 
 function inferGenresFromTitle(title: string) {
   if (!title) return []
@@ -365,9 +373,9 @@ onMounted(async () => {
       const mapped = mapServerItem(data)
       item.value = mapped
       itemImage.value = mapped.image
-      // if route requests to open the review form, enable it
+      // if route requests to open the review form, open the modal instead
       if (route.query && (route.query.openReview === '1' || route.query.openReview === 'true' || route.query.openReview === '')) {
-        showReview.value = true
+        showRatingModal.value = true
       }
       // prefill user's rating now that item is available
       await tryPrefillForItem()
@@ -692,10 +700,9 @@ function markAsCompleted() {
 }
 
 async function confirmCompleteWithReview() {
-  // open the review form and set status to completed
+  // open the rating modal instead of the inline form
   showCompletePrompt.value = false
-  userStatus.value = 'completed'
-  showReview.value = true
+  showRatingModal.value = true
 }
 
 async function confirmCompleteWithoutReview() {

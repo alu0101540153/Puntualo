@@ -241,8 +241,11 @@ async function loadAll() {
   try {
     // Prefer a single aggregated counts endpoint that tries multiple server routes
     const countsRes: any = await getCounts()
+    console.log('📊 countsRes:', countsRes)
     // countsRes is handled below
     if (countsRes && typeof countsRes === 'object') {
+      console.log('✅ countsRes.users:', countsRes.users, 'type:', typeof countsRes.users)
+      console.log('✅ countsRes.reviews:', countsRes.reviews, 'type:', typeof countsRes.reviews)
       if (typeof countsRes.users === 'number') usersCount.value = countsRes.users
       if (typeof countsRes.reviews === 'number') totalReviews.value = countsRes.reviews
       if (typeof countsRes.movies === 'number') moviesTotal.value = countsRes.movies
@@ -260,6 +263,7 @@ async function loadAll() {
     // doesn't stay showing zeros while animations or observers may be delayed.
     try {
       const nf = new Intl.NumberFormat('es-ES', { maximumFractionDigits: 0, notation: 'compact' })
+      console.log('🔢 Setting display values - usersCount:', usersCount.value, 'totalReviews:', totalReviews.value)
       displayUsers.value = nf.format(usersCount.value || 0)
       displayReviews.value = nf.format(totalReviews.value || 0)
       displayMovies.value = nf.format(moviesTotal.value || 0)

@@ -65,9 +65,15 @@
             <div v-else-if="results.length === 0">No se han encontrado resultados.</div>
           </div>
 
-          <!-- Use RecommendationsGrid to display mapped results -->
-          <div class="mt-6">
-            <RecommendationsGrid v-if="recommendationsList.length" :recommendations="recommendationsList" :gridClass="gridClass" />
+          <!-- Search Results Grid with rating modal -->
+          <div v-if="recommendationsList.length" class="mt-6">
+            <div :class="gridClass">
+              <SearchResultCard 
+                v-for="recommendation in recommendationsList"
+                :key="recommendation.id"
+                :recommendation="recommendation"
+              />
+            </div>
           </div>
 
           <!-- Friends list: simple list with add button -->
@@ -130,7 +136,7 @@ import { useRoute, useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
 import Card from '@/components/Card.vue'
 import Input from '@/components/Input.vue'
-import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
+import SearchResultCard from '@/components/dashboard/SearchResultCard.vue'
 import Button from '@/components/Button.vue'
 import { searchBooks, searchMovies, searchSeries, searchFriends } from '@/services/search'
 import { followUser } from '@/services/user'

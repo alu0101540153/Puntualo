@@ -1,5 +1,5 @@
 <template>
-    <div class="group cursor-pointer bg-gray-800 bg-opacity-30 rounded-2xl p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-emerald-500">
+  <div class="group cursor-pointer bg-gray-800 bg-opacity-30 rounded-2xl p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-emerald-500">
     <div class="flex gap-6">
       <!-- Imagen Rectangular - Clickeable -->
       <div class="relative flex-shrink-0 overflow-hidden cursor-pointer" @click="goToDetails">
