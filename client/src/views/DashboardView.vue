@@ -77,7 +77,7 @@
             <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopMovies(-1)">‹</button>
 
             <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topMoviesCarousel">
-              <MediaCarouselItem v-for="it in topMovies" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopItem" />
+              <MediaCarouselItem v-for="it in topMovies" :key="it.id" :item="it" :showBadge="false" :showWishlist="false" @select="onSelectTopItem" />
             </div>
 
             <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopMovies(1)">›</button>
@@ -95,7 +95,7 @@
             <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopBooks(-1)">‹</button>
 
             <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topBooksCarousel">
-              <MediaCarouselItem v-for="it in topBooks" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopItem" />
+              <MediaCarouselItem v-for="it in topBooks" :key="it.id" :item="it" :showBadge="false" :showWishlist="false" @select="onSelectTopItem" />
             </div>
 
             <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopBooks(1)">›</button>
@@ -113,7 +113,7 @@
             <button class="carousel-btn btn-prev absolute -left-4 md:-left-8 top-1/2 transform -translate-y-1/2" @click="scrollTopSeries(-1)">‹</button>
 
             <div class="carousel flex gap-6 overflow-x-auto scroll-smooth py-3 scrollbar-hide" ref="topSeriesCarousel">
-              <MediaCarouselItem v-for="it in topSeries" :key="it.id" :item="it" :showBadge="false" @select="onSelectTopItem" />
+              <MediaCarouselItem v-for="it in topSeries" :key="it.id" :item="it" :showBadge="false" :showWishlist="false" @select="onSelectTopItem" />
             </div>
 
             <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2" @click="scrollTopSeries(1)">›</button>
@@ -169,7 +169,8 @@ function mapToCarousel(it: any) {
   const source = it.item || it
   const image = (source.data && (source.data.cover || source.data.image)) || source.cover || source.image || '/img/placeholder-book.png'
   const score = (it.avgScore ?? it.score ?? it.rating ?? (source.score || source.rating))
-  const rating = (typeof score === 'number' || score) ? `${score}/10` : ''
+  const numericScore = (typeof score === 'number') ? score : (score ? Number(score) : NaN)
+  const rating = (!Number.isNaN(numericScore)) ? `${numericScore.toFixed(1)}/10` : ''
   const title = (source.title || (source.data && source.data.title) || it.title) || ''
   return {
     id: it._id || it.itemId || source._id || source.id || String(Math.random()),

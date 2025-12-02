@@ -49,7 +49,7 @@ export const SeriesService = {
         // @ts-ignore
         const map: Record<string, number> = globalThis.__tmdbTvGenreMap;
         if (!map[normalizedGenre]) {
-          const listUrl = `https://api.themoviedb.org/3/genre/tv/list?api_key=${encodeURIComponent(apiKey)}`;
+          const listUrl = `https://api.themoviedb.org/3/genre/tv/list?api_key=${encodeURIComponent(apiKey)}&language=es-ES`;
           const { data: listData } = await axios.get(listUrl);
           const genresArr = listData?.genres || [];
           for (const g of genresArr) {
@@ -70,9 +70,9 @@ export const SeriesService = {
     if (title && title.trim()) {
       url = `https://api.themoviedb.org/3/search/tv?api_key=${encodeURIComponent(
         apiKey
-      )}&query=${encodeURIComponent(title)}&page=${tmdbPage}`;
+      )}&query=${encodeURIComponent(title)}&page=${tmdbPage}&language=es-ES`;
     } else {
-      url = `https://api.themoviedb.org/3/discover/tv?api_key=${encodeURIComponent(apiKey)}&page=${tmdbPage}`;
+      url = `https://api.themoviedb.org/3/discover/tv?api_key=${encodeURIComponent(apiKey)}&page=${tmdbPage}&language=es-ES`;
       if (genreId) url += `&with_genres=${encodeURIComponent(String(genreId))}`;
     }
 
@@ -122,7 +122,7 @@ export const SeriesService = {
     // Consultar detalles + credits
     const url = `https://api.themoviedb.org/3/tv/${encodeURIComponent(
       tmdbId
-    )}?api_key=${encodeURIComponent(apiKey)}&append_to_response=credits`;
+    )}?api_key=${encodeURIComponent(apiKey)}&append_to_response=credits&language=es-ES`;
 
     const { data } = await axios.get(url);
     if (!data) return { item: null, raw: data };

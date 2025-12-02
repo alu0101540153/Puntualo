@@ -25,7 +25,7 @@
         </div>
 
       <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-        <div v-for="r in displayedItems" :key="r._id || r.itemId" class="group transform transition-all duration-300 hover:scale-105">
+        <div v-for="r in displayedItems" :key="r._id || r.itemId" class="group transform transition-all duration-300 hover:scale-105" @click="goToDetail(r)">
           <div class="relative bg-gray-800 bg-opacity-40 rounded-xl overflow-hidden shadow-lg border border-gray-700 transition-all">
             <div class="relative aspect-[2/3]">
               <img :src="getCover(r)" :alt="getTitle(r)" class="w-full h-full object-cover" />
@@ -35,13 +35,13 @@
                 Deseado
               </div>
 
-              <!-- Remove button (top-right) -->
-              <button @click.stop="removeItem(r._id)" class="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg text-sm text-rose-600">
+              <!-- Remove button (top-right) - always on top and clickable -->
+              <button @click.stop="removeItem(r)" class="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg text-sm text-rose-600 z-40">
                 ✕
               </button>
 
-              <!-- Hover overlay -->
-              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
+              <!-- Hover overlay (disable pointer events when hidden so it doesn't block the remove button) -->
+              <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4 pointer-events-none group-hover:pointer-events-auto z-20">
                 <button @click.stop="goToDetail(r)" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-bold px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                   Ver detalles
                 </button>
@@ -124,15 +124,35 @@ async function load() {
   }
 }
 
-async function removeItem(itemSubId: string) {
+async function removeItem(itemOrId: any) {
   const user = getUser()
   if (!user || !user._id) return
+
+  // determine the wishlist subdocument id
+  let subId: string | null = null
+  if (!itemOrId) return
+  if (typeof itemOrId === 'string') subId = itemOrId
+  else if (itemOrId._id) subId = itemOrId._id
+  else if (itemOrId.itemId && (itemOrId.itemId._id || itemOrId.itemId.id)) subId = itemOrId._id || itemOrId.itemId._id || itemOrId.itemId.id
+  else if (itemOrId.itemId) subId = String(itemOrId.itemId)
+
+  if (!subId) {
+    console.error('No se pudo determinar el id del item para eliminar', itemOrId)
+    return
+  }
+
+  // optimistic UI: remove from list immediately
+  const original = items.value.slice()
+  items.value = items.value.filter(r => String(r._id || r.itemId || r.id) !== String(subId) && String(r._id) !== String(subId))
+
   try {
-    await removeItemFromUser(user._id, itemSubId)
-    // reload list
-    await load()
+    await removeItemFromUser(user._id, subId)
+    // notify other listeners that wishlist changed
+    window.dispatchEvent(new Event('wishlistChanged'))
   } catch (err) {
     console.error('Error quitando item', err)
+    // revert optimistic change
+    items.value = original
   }
 }
 

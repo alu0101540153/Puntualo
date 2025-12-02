@@ -55,7 +55,7 @@ export const MovieService = {
         // @ts-ignore
         const map: Record<string, number> = globalThis.__tmdbGenreMap;
         if (!map[normalizedGenre]) {
-          const listUrl = `https://api.themoviedb.org/3/genre/movie/list?api_key=${encodeURIComponent(apiKey)}`;
+          const listUrl = `https://api.themoviedb.org/3/genre/movie/list?api_key=${encodeURIComponent(apiKey)}&language=es-ES`;
           const { data: listData } = await axios.get(listUrl);
           const genresArr = listData?.genres || [];
           for (const g of genresArr) {
@@ -75,7 +75,7 @@ export const MovieService = {
     if (title && title.trim()) {
       const url = `https://api.themoviedb.org/3/search/movie?api_key=${encodeURIComponent(
         apiKey
-      )}&query=${encodeURIComponent(title)}&page=${tmdbPage}`;
+      )}&query=${encodeURIComponent(title)}&page=${tmdbPage}&language=es-ES`;
 
       const { data } = await axios.get(url);
       if (!data) return { total: 0, items: [], raw: data };
@@ -110,7 +110,7 @@ export const MovieService = {
     }
 
     // No title provided -> use discover endpoint (supports with_genres)
-    let discoverUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${encodeURIComponent(apiKey)}&page=${tmdbPage}`;
+    let discoverUrl = `https://api.themoviedb.org/3/discover/movie?api_key=${encodeURIComponent(apiKey)}&page=${tmdbPage}&language=es-ES`;
     if (genreId) {
       discoverUrl += `&with_genres=${encodeURIComponent(String(genreId))}`;
     }
@@ -154,7 +154,7 @@ export const MovieService = {
     // Consultar detalles + credits
     const url = `https://api.themoviedb.org/3/movie/${encodeURIComponent(
       tmdbId
-    )}?api_key=${encodeURIComponent(apiKey)}&append_to_response=credits`;
+    )}?api_key=${encodeURIComponent(apiKey)}&append_to_response=credits&language=es-ES`;
 
     const { data } = await axios.get(url);
     if (!data) return { item: null, raw: data };

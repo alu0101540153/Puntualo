@@ -16,9 +16,20 @@
       <div v-if="showBadge" class="media-badge absolute top-3 right-3 w-9 h-9 bg-white bg-opacity-90 rounded-full flex items-center justify-center text-lg">
         {{ item.type }}
       </div>
-      <div class="item-rating absolute bottom-3 right-3 bg-black bg-opacity-80 text-yellow-400 px-3 py-2 rounded-full font-bold text-sm">
-        {{ item.rating }}
-      </div>
+          <div class="absolute bottom-3 right-3 flex items-center gap-2">
+            <div class="item-rating bg-black bg-opacity-80 text-yellow-400 px-3 py-2 rounded-full font-bold text-sm">{{ item.rating }}</div>
+            <button
+              v-if="showWishlist"
+              class="wishlist-btn w-10 h-10 rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 flex items-center justify-center text-white"
+              @click.stop="onAddWishlist"
+              :aria-label="`Añadir ${item.title || 'ítem'} a deseados`"
+              title="Añadir a deseados"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+          </div>
     </div>
   </div>
 </template>
@@ -43,7 +54,7 @@ const imageStyle = (imageName: string) => {
   }
 }
 
-defineProps<{
+const props = defineProps<{
   item: {
     id: number | string
     image: string
@@ -52,13 +63,53 @@ defineProps<{
     title?: string
     detailId?: string | number
   },
-  showBadge?: boolean
+  showBadge?: boolean,
+  showWishlist?: boolean
 }>()
+
+// default for showWishlist: true when not provided
+const showWishlist = (props.showWishlist === undefined) ? true : Boolean(props.showWishlist)
+// expose showBadge with default true (keeps previous behavior)
+const showBadge = (props.showBadge === undefined) ? true : Boolean(props.showBadge)
+// expose item for template convenience
+const item = props.item
 
 // declare emits for TypeScript
 defineEmits<{
   (e: 'select', payload: any): void
 }>()
+
+import { getUser } from '@/services/auth'
+import { addItemToUser } from '@/services/user'
+import { success as notifySuccess, error as notifyError } from '@/services/notify'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+async function onAddWishlist(e?: Event) {
+  try {
+    const me = getUser()
+    if (!me || !me._id) {
+      // redirect to login if not authenticated
+      router.push({ name: 'login' })
+      return
+    }
+
+    const userId = me._id || me.id
+    // payload: itemId, itemType, title
+    const payload = {
+      itemId: item.id || item.detailId || item.id,
+      itemType: (item.type && String(item.type)) || 'item',
+      title: item.title || ''
+    }
+
+    await addItemToUser(String(userId), payload)
+    notifySuccess('Añadido a tus deseados')
+  } catch (err: any) {
+    console.error('Error añadiendo a wishlist', err)
+    notifyError(err?.message || 'No se pudo añadir a deseados')
+  }
+}
 </script>
 
 <style scoped>

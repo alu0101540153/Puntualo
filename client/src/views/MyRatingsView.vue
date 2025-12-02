@@ -33,7 +33,9 @@
   <div v-for="r in ratings" :key="r._id || r.itemId" class="relative bg-gradient-to-b from-gray-800 to-gray-700 bg-opacity-40 rounded-2xl p-6 flex gap-6 items-start justify-between">
           <!-- Poster -->
           <div class="w-36 flex-shrink-0">
-            <img :src="getImage(r)" alt="poster" class="w-full h-56 object-cover rounded-lg shadow-lg" />
+            <div class="cursor-pointer" @click.stop.prevent="goToDetail(r)">
+              <img :src="getImage(r)" alt="poster" class="w-full h-56 object-cover rounded-lg shadow-lg" />
+            </div>
           </div>
 
           <!-- (actions/score will be placed in a right column to avoid overlap) -->
