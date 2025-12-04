@@ -54,18 +54,32 @@ const login = async () => {
       router.push('/dashboard')
     }
   } catch (err: any) {
-    // api.apiFetch throws Error with message possibly JSON
+    // api.apiFetch throws Error with message = JSON.stringify({ status, body }) for non-ok responses
     const raw = err?.message || 'Error en el inicio de sesión'
+    let parsed: any = null
     try {
-      const parsed = JSON.parse(raw)
-      // parsed can be { message } or { errors }
-      if (parsed?.message) error.value = parsed.message
-      else if (Array.isArray(parsed)) error.value = parsed.map((e: any) => e.message || e).join(', ')
-      else if (parsed?.errors) error.value = (parsed.errors.map ? parsed.errors.map((e: any) => e.message).join(', ') : String(parsed.errors))
-      else error.value = String(parsed)
+      parsed = JSON.parse(raw)
     } catch (e) {
-      error.value = raw
+      parsed = null
     }
+
+    const extractMessage = (p: any): string => {
+      if (!p) return raw
+      if (typeof p === 'string') return p
+      // common shapes: { message: '...' } or { status: 401, body: { message: '...' } }
+      if (p.message && typeof p.message === 'string') return p.message
+      if (p.body) return extractMessage(p.body)
+      if (Array.isArray(p)) return p.map((e: any) => (e && e.message) ? e.message : String(e)).join(', ')
+      if (p.errors && Array.isArray(p.errors)) return p.errors.map((e: any) => e.message || String(e)).join(', ')
+      // fallback to stringify a simple value, avoid [object Object]
+      try {
+        return JSON.stringify(p)
+      } catch (e) {
+        return String(p)
+      }
+    }
+
+    error.value = extractMessage(parsed)
   } finally {
     loading.value = false
   }

@@ -162,11 +162,32 @@ const errorMsg = ref('')
 const route = useRoute()
 const router = useRouter()
 
+// Helper: sincroniza los parámetros de búsqueda en la URL
+function updateRouteParams(replace = true) {
+  const q: Record<string, string> = {}
+  if (query.value && String(query.value).trim() !== '') q.q = String(query.value)
+  if (selectedType.value) q.type = String(selectedType.value)
+  if (page.value && page.value > 1) q.page = String(page.value)
+  if (genre.value) q.genre = String(genre.value)
+  if (sortBy.value) q.sortBy = String(sortBy.value)
+  if (sortOrder.value) q.order = String(sortOrder.value)
+
+  try {
+    if (replace) router.replace({ query: q })
+    else router.push({ query: q })
+  } catch (e) {
+    // fallback
+    router.replace({ query: q })
+  }
+}
+
 function selectType(t: 'movies' | 'books' | 'series' | 'friends') {
   selectedType.value = t
   page.value = 1
   results.value = []
   total.value = 0
+  // reflejar en la URL
+  updateRouteParams(true)
 }
 
 function toggleFilters() {
@@ -176,6 +197,8 @@ function toggleFilters() {
 function applyFilters() {
   page.value = 1
   showFilters.value = false
+  // apply filters and update url
+  updateRouteParams(true)
   onSearch()
 }
 
@@ -203,6 +226,8 @@ function clear() {
   total.value = 0
   page.value = 1
   searched.value = false
+  // limpiar query en URL pero mantener el tipo seleccionado
+  updateRouteParams(true)
 }
 
 const pageSize = 10
@@ -283,16 +308,34 @@ async function onSearch() {
     total.value = 0
   } finally {
     loading.value = false
+      // actualizar URL con los parámetros actuales después de la búsqueda
+      updateRouteParams(true)
   }
 }
 
 // If navigated with ?type=friends, preselect and auto-search
 onMounted(() => {
   document.addEventListener('click', handleDocClick)
+  // Leer parámetros de la URL para inicializar la búsqueda
   const t = (route.query.type as string) || ''
-  if (t === 'friends') {
-    selectType('friends')
-    // perform a search immediately (allow empty query)
+  const qParam = (route.query.q as string) || (route.query.query as string) || ''
+  const pageParam = parseInt((route.query.page as string) || '1', 10) || 1
+  const genreParam = (route.query.genre as string) || ''
+  const sortByParam = (route.query.sortBy as string) || ''
+  const orderParam = (route.query.order as string) || ''
+
+  if (t && ['movies', 'books', 'series', 'friends'].includes(t)) {
+    selectedType.value = t as any
+  }
+  if (qParam) query.value = qParam
+  if (pageParam && pageParam > 1) page.value = pageParam
+  if (genreParam) genre.value = genreParam
+  if (sortByParam) sortBy.value = sortByParam as any
+  if (orderParam) sortOrder.value = orderParam as any
+
+  // perform a search automatically if any param exists or if type is friends
+  const shouldAuto = Boolean(t || qParam || route.query.page || route.query.genre || route.query.sortBy || route.query.order)
+  if (shouldAuto) {
     onSearch()
   }
 })
@@ -304,6 +347,8 @@ onUnmounted(() => {
 function prevPage() {
   if (page.value > 1) {
     page.value--
+    // actualizar url y volver a buscar
+    updateRouteParams(true)
     onSearch()
   }
 }
@@ -311,6 +356,7 @@ function prevPage() {
 function nextPage() {
   if (page.value < totalPages.value) {
     page.value++
+    updateRouteParams(true)
     onSearch()
   }
 }

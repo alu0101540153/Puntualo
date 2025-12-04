@@ -7,11 +7,15 @@
     "dev": "nodemon --exec ts-node --transpile-only ./src/index.ts",
     "start": "node ./dist/index.js",
     "build": "tsc",
+    "postinstall": "npm run build",
     "test": "cross-env NODE_ENV=test vitest run --threads=false"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": ">=18"
+  },
   "dependencies": {
     "argon2": "^0.44.0",
     "axios": "^1.4.0",

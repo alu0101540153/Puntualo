@@ -121,6 +121,15 @@
           <div v-else class="text-gray-400">Cargando recomendaciones...</div>
         </div>
       </section>
+
+      <!-- Encuentra amigos (simplificado) -->
+      <section class="mb-12">
+        <div class="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
+          <h3 class="text-3xl font-bold text-white mb-2">Encuentra amigos que conoces</h3>
+          <p class="text-gray-300 text-lg mb-4">Conecta con personas que comparten tus gustos. Busca por usuario, revisa sus perfiles y síguelos para ver su actividad.</p>
+          <button @click="goToFindFriends" class="px-8 py-4 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-extrabold hover:brightness-95 shadow-lg">Buscar amigos</button>
+        </div>
+      </section>
     </main>
   </div>
 </template>
@@ -132,6 +141,7 @@ import WelcomeSection from '@/components/dashboard/WelcomeSection.vue'
 import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
 import FriendsGrid from '@/components/dashboard/FriendsGrid.vue'
 import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
+import Avatar from '@/components/Avatar.vue'
 
 // Types
 import type { Recommendation, FriendActivity } from '../components/dashboard/types'
@@ -394,4 +404,28 @@ const handleSeeMoreRecommendations = () => {
 function goToRecommendations() {
   router.push('/recommendations')
 }
+
+function goToFindFriends() {
+  try {
+    router.push({ path: '/search', query: { type: 'friends', sortBy: 'relevance', order: 'desc' } })
+  } catch (e) {
+    // fallback to direct location change
+    window.location.href = '/search?type=friends&sortBy=relevance&order=desc'
+  }
+}
+
+// sample avatars shown in the Dashboard 'Encuentra amigos' section
+const sampleAvatars = ref(
+  // if friendActivities available, map first ones, else fallback placeholders
+  (friendActivities.value && friendActivities.value.length > 0)
+    ? friendActivities.value.slice(0, 6).map((f) => ({ initials: f.friendInitial || String((f.friendName||'U').charAt(0)).toUpperCase(), color: f.friendColor || '#9CA3AF' }))
+    : [
+      { initials: 'A', color: '#F59E0B' },
+      { initials: 'B', color: '#EF4444' },
+      { initials: 'C', color: '#10B981' },
+      { initials: 'D', color: '#3B82F6' },
+      { initials: 'E', color: '#8B5CF6' },
+      { initials: 'F', color: '#06B6D4' }
+    ]
+)
 </script>
