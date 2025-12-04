@@ -6,7 +6,7 @@
     "install:all": "cd server ; npm ci --include=dev && cd ../client ; npm ci --include=dev",
     "build:client": "cd client ; npm run build",
     "build:server": "cd server ; npm run build",
-    "build": "npm run build:client && npm run build:server",
+    "build": "npm run install:all && npm run build:client && npm run build:server",
     "start": "node ./scripts/start-all.js"
   },
   "engines": {
