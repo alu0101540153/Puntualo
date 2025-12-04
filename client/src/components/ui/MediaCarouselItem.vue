@@ -60,6 +60,7 @@ const props = defineProps<{
     image: string
     rating: string
     type: string
+    rank?: number
     title?: string
     detailId?: string | number
   },

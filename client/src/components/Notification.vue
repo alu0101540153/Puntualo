@@ -32,7 +32,8 @@
 </template>
 
 <script setup lang="ts">
-import { useNotifications, remove, ToastItem } from '@/services/notify'
+import { useNotifications, remove } from '@/services/notify'
+import type { ToastItem } from '@/services/notify'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
 const notifications = useNotifications()
@@ -80,7 +81,7 @@ function ensureTimers() {
         if (t.timeout <= 0) continue
         if (paused.value[t.id]) continue
         remaining.value[t.id] = Math.max(0, (remaining.value[t.id] || t.timeout) - 100)
-        if (remaining.value[t.id] <= 0) {
+          if ((remaining.value[t.id] ?? 0) <= 0) {
           close(t.id)
         }
       }

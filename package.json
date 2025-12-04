@@ -1,5 +1,15 @@
 {
-  "dependencies": {
-    "run": "^1.5.0"
+  "name": "proyecto-e20",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "install:all": "cd server ; npm ci --include=dev && cd ../client ; npm ci --include=dev",
+    "build:client": "cd client ; npm run build",
+    "build:server": "cd server ; npm run build",
+    "build": "npm run build:client && npm run build:server",
+    "start": "node ./scripts/start-all.js"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
