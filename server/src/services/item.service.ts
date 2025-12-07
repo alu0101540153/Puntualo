@@ -38,7 +38,7 @@ export const itemService = {
     const user = await UserModel.findById(userId).lean()
     if (!user) return []
 
-    const rawFollows = (user.follows || []) as any[]
+    const rawFollows = (user.following || []) as any[]
     const followsAsStrings = rawFollows
       .map((f: any) => {
         if (!f) return null

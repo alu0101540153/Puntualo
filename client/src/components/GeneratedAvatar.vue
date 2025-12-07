@@ -39,9 +39,12 @@ const colors = (props.colors && props.colors.length >= 3) ? props.colors : ['#92
 
 function initialsFromName(n: string) {
   if (!n) return 'U'
-  const parts = String(n).trim().split(/\s+/)
-  if (parts.length === 1) return parts[0].charAt(0).toUpperCase()
-  return (parts[0].charAt(0) + parts[parts.length-1].charAt(0)).toUpperCase()
+  const parts = String(n).trim().split(/\s+/).filter(p => p.length > 0)
+  if (!parts || parts.length === 0) return 'U'
+  if (parts.length === 1) return (parts[0] ?? '').charAt(0).toUpperCase()
+  const first = (parts[0] ?? '').charAt(0)
+  const last = (parts[parts.length - 1] ?? '').charAt(0)
+  return (first + last).toUpperCase()
 }
 
 const initials = computed(() => initialsFromName(props.name || 'User'))
@@ -57,16 +60,18 @@ function hexToRgb(hex: string) {
 }
 
 function luminance(r:number,g:number,b:number){
-  const a = [r,g,b].map(v=>{
+  const a: number[] = [r,g,b].map((v) => {
     const vv = v/255
     return vv <= 0.03928 ? vv/12.92 : Math.pow((vv+0.055)/1.055,2.4)
   })
-  return 0.2126*a[0] + 0.7152*a[1] + 0.0722*a[2]
+  const [ar = 0, ag = 0, ab = 0] = a
+  return 0.2126 * ar + 0.7152 * ag + 0.0722 * ab
 }
 
 const textColor = computed(() => {
-  const rgb = hexToRgb(colors[2] || colors[0])
-  return luminance(rgb.r,rgb.g,rgb.b) > 0.6 ? '#000' : '#fff'
+  const hex = (colors[2] ?? colors[0]) || '#000'
+  const rgb = hexToRgb(hex)
+  return luminance(rgb.r, rgb.g, rgb.b) > 0.6 ? '#000' : '#fff'
 })
 </script>
 

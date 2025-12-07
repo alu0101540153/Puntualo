@@ -31,11 +31,11 @@ const wrap = ref<HTMLElement | null>(null)
 const webglSupported = typeof window !== 'undefined' && !!(window as any).WebGLRenderingContext
 const loadMessages = ref<string[]>([])
 
-let renderer: THREE.WebGLRenderer | null = null
-let scene: THREE.Scene | null = null
-let camera: THREE.PerspectiveCamera | null = null
+let renderer: any = null
+let scene: any = null
+let camera: any = null
 let rafId: number | null = null
-let clock = new THREE.Clock()
+let clock: any = new (THREE as any).Clock()
 let gsapLib: any = null
 
 // core init that sets up scene, cards and animations (no robot)
@@ -74,9 +74,9 @@ async function init() {
   scene.add(dir)
 
     // create cards for Top-10 (first 5 floating row, next 5 below)
-    const texLoader = new THREE.TextureLoader()
-    const cardMeshes: THREE.Mesh[] = []
-    const targets: THREE.Vector3[] = []
+    const texLoader: any = new (THREE as any).TextureLoader()
+    const cardMeshes: any[] = []
+    const targets: any[] = []
 
     const count = Math.min(10, props.items?.length || 0)
     const spacing = 1.2
@@ -135,11 +135,11 @@ async function init() {
   }
 
   let ro: ResizeObserver | null = null
-  if (typeof window !== 'undefined' && 'ResizeObserver' in window) {
+  if (typeof window !== 'undefined' && 'ResizeObserver' in (window as any)) {
     ro = new ResizeObserver(resize)
     if (wrap.value) ro.observe(wrap.value)
   } else {
-    window.addEventListener('resize', resize)
+    ;(window as any).addEventListener('resize', resize)
   }
 
   function render() {
@@ -166,7 +166,7 @@ async function init() {
   onUnmounted(() => {
     if (rafId) cancelAnimationFrame(rafId)
     try { ro && ro.disconnect() } catch (e) {}
-    try { window.removeEventListener('resize', resize) } catch (e) {}
+    try { (window as any).removeEventListener('resize', resize) } catch (e) {}
     if (renderer) {
       try { renderer.forceContextLoss(); renderer.domElement && renderer.domElement.remove(); renderer.dispose() } catch (e) {}
     }

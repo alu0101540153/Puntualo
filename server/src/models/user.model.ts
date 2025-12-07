@@ -11,6 +11,13 @@ export interface IUser extends Document {
   isPrivate: boolean
   followers: string[]
   following: string[]
+  items?: {
+    itemId: string
+    externalId?: string
+    itemType?: ItemType | string
+    title?: string
+    addedAt?: Date
+  }[]
   ratedItems?: {
     itemId: string
     itemType: ItemType

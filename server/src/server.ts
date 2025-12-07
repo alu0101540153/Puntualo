@@ -56,6 +56,8 @@
 import express, { Express } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
 
 import { connectDB } from './database';
 import { PORT } from './config';
@@ -83,13 +85,21 @@ export class Server {
   }
 
   routes() {
-    // Ruta base de prueba
-    this.app.get('/', (req, res) => {
-      res.status(200).json({
-        name: 'API REST ITEM',
-        status: 'Running ✅'
-      });
-    });
+    // Si existe un frontend construido, servir archivos estáticos y ruta raíz al index
+    let clientDist: string | null = null
+    try {
+      clientDist = path.resolve(__dirname, '../../client/dist')
+      if (fs.existsSync(clientDist)) {
+        this.app.use(express.static(clientDist))
+        // La ruta raíz debe devolver el index.html para la SPA
+        this.app.get('/', (req, res) => {
+          res.sendFile(path.join(clientDist as string, 'index.html'))
+        })
+        console.log('✅ Serviendo frontend construido desde', clientDist)
+      }
+    } catch (err) {
+      clientDist = null
+    }
 
     // Rutas principales
     this.app.use('/api/v1/puntualo/item', routes.ItemRoute);
@@ -102,6 +112,13 @@ export class Server {
     this.app.use('/api/v1/puntualo/follow-requests', routes.FollowRequestRoute);
     this.app.use('/api/v1/puntualo/notifications', routes.NotificationRoute);
     
+    // Si tenemos frontend, añadir fallback SPA para rutas no-API
+    if (clientDist) {
+      // poner fallback a index.html *después* de las rutas API para no interceptarlas
+      this.app.get('*', (req, res) => {
+        res.sendFile(path.join(clientDist as string, 'index.html'))
+      })
+    }
   }
 
   // Exponer la instancia de Express para tests (sin arrancar el listener)
