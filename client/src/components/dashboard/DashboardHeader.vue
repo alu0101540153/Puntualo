@@ -4,13 +4,33 @@
       hiddenHeader ? '-translate-y-full' : 'translate-y-0'
     ]">
       <div class="max-w-screen-2xl mx-auto w-full px-6 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+        <!-- Logo desktop -->
+        <div class="hidden md:flex items-center gap-3">
           <router-link to="/dashboard" class="flex items-center" aria-label="Ir al inicio">
             <img src="/Logo_white.svg" alt="Puntúalo" class="h-8 cursor-pointer" />
           </router-link>
         </div>
 
-    <!-- Navegación -->
+        <!-- Logo y menú hamburguesa móvil -->
+        <div class="flex md:hidden items-center gap-3 flex-1">
+          <button 
+            @click="toggleMobileMenu" 
+            class="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+            aria-label="Abrir menú de navegación"
+          >
+            <svg v-if="!isMobileMenuOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          <router-link to="/dashboard" class="flex items-center" aria-label="Ir al inicio">
+            <img src="/Logo_white.svg" alt="Puntúalo" class="h-7 cursor-pointer" />
+          </router-link>
+        </div>
+
+    <!-- Navegación desktop -->
     <nav class="hidden md:flex gap-8">
       <button 
         v-for="item in navigation" 
@@ -67,6 +87,56 @@
         </div>
       </div>
       </div>
+
+      <!-- Menú móvil desplegable -->
+      <Transition name="slide-fade">
+        <div v-if="isMobileMenuOpen" class="md:hidden bg-black bg-opacity-95 backdrop-blur-md border-t border-white/10">
+          <nav class="flex flex-col py-4 px-6 gap-3">
+            <button
+              v-for="item in navigation"
+              :key="item.name"
+              @click="navigateToAndClose(item.to)"
+              :class="[
+                'text-left font-medium py-2 transition-colors border-b border-white/10',
+                isActive(item.to) 
+                  ? 'text-emerald-400 font-semibold' 
+                  : 'text-white hover:text-emerald-400'
+              ]"
+            >
+              {{ item.name }}
+            </button>
+            <button
+              @click="navigateToAndClose('/search')"
+              class="text-left text-white hover:text-emerald-400 font-medium py-2 transition-colors border-b border-white/10 flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 18a7.5 7.5 0 100-15 7.5 7.5 0 000 15z" />
+              </svg>
+              Buscar
+            </button>
+            <button
+              @click="navigateToAndClose('/notifications')"
+              class="text-left text-white hover:text-emerald-400 font-medium py-2 transition-colors border-b border-white/10 flex items-center gap-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+              Notificaciones
+              <span v-if="unreadCount > 0" class="ml-auto bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                {{ unreadCount > 9 ? '9+' : unreadCount }}
+              </span>
+            </button>
+            <button
+              @click="navigateToAndClose('/profile')"
+              class="text-left text-white hover:text-emerald-400 font-medium py-2 transition-colors flex items-center gap-2"
+            >
+              <Avatar :user="user" size="sm" :initials="userInitial" />
+              Mi Perfil
+            </button>
+          </nav>
+        </div>
+      </Transition>
     </header>
 
     <!-- Spacer to avoid content being hidden under fixed header -->
@@ -116,6 +186,22 @@ const isActive = (to: string) => {
 const user = getUser()
 const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'J'
 
+// Estado del menú móvil
+const isMobileMenuOpen = ref(false)
+
+function toggleMobileMenu() {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
+}
+
+function closeMobileMenu() {
+  isMobileMenuOpen.value = false
+}
+
+function navigateToAndClose(path: string) {
+  closeMobileMenu()
+  router.push(path)
+}
+
 // Unread notifications count
 const unreadCount = ref(0)
 
@@ -144,6 +230,10 @@ function onScroll() {
       if (Math.abs(delta) > 8) {
         if (delta > 0 && y > 80) {
           hiddenHeader.value = true
+          // Cerrar menú móvil al hacer scroll hacia abajo
+          if (isMobileMenuOpen.value) {
+            isMobileMenuOpen.value = false
+          }
         } else if (delta < 0) {
           hiddenHeader.value = false
         }
@@ -170,3 +260,24 @@ onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
 })
 </script>
+
+<style scoped>
+/* Animación para el menú desplegable */
+.slide-fade-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.slide-fade-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.slide-fade-enter-from {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
+}
+</style>

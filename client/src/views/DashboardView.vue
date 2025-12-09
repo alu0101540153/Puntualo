@@ -3,7 +3,14 @@
     <DashboardHeader />
     
     <main class="max-w-6xl mx-auto px-4 py-8">
-      <WelcomeSection />
+      <!-- Welcome Image Section -->
+      <section class="mb-12 flex justify-center items-center py-12">
+        <img 
+          src="/inicioCloud.svg" 
+          alt="Bienvenido" 
+          class="max-w-md w-full h-auto animate-float drop-shadow-2xl" 
+        />
+      </section>
       
       <!-- Generic recommendations (fallback) -->
       <section v-if="recommendations.length > 0" class="mb-8">
@@ -137,7 +144,6 @@
 <script setup lang="ts">
 // Components
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
-import WelcomeSection from '@/components/dashboard/WelcomeSection.vue'
 import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
 import FriendsGrid from '@/components/dashboard/FriendsGrid.vue'
 import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
