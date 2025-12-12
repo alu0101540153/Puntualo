@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+  <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader :show-back="true" />
     <main class="max-w-6xl mx-auto px-4 py-8">
       <h2 class="text-3xl font-bold text-white mb-6">Mis vistos</h2>
@@ -11,10 +11,10 @@
       <div v-else>
         <!-- Filters: Tipo -->
         <div class="flex items-center gap-2 mb-6">
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
         </div>
 
         <div v-if="displayedItems.length === 0" class="text-left text-gray-300 py-12">
@@ -29,13 +29,13 @@
              class="group cursor-pointer transform transition-all duration-300 hover:scale-105"
              @click="goToDetail(r)">
           <!-- Card Container -->
-          <div class="relative bg-gray-800 bg-opacity-40 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl border border-gray-700 hover:border-teal-500 transition-all">
+          <div class="relative bg-dark-800/40 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl border border-gray-700 hover:border-primary-500 transition-all">
             <!-- Image -->
             <div class="relative aspect-[2/3]">
               <img :src="getCover(r)" :alt="getTitle(r)" class="w-full h-full object-cover" />
               
               <!-- Status Badge -->
-              <div class="absolute top-2 left-2 bg-teal-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+              <div class="absolute top-2 left-2 bg-primary-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
                 Terminado
               </div>
               
@@ -46,7 +46,7 @@
               
               <!-- Hover Overlay -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-                <button class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-bold px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                <button class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                   Ver detalles
                 </button>
               </div>

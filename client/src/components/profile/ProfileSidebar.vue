@@ -1,7 +1,7 @@
 <template>
   <aside class="bg-gradient-to-b from-gray-900/60 to-black/50 rounded-2xl p-6 text-white md:sticky md:top-8 mb-6 md:mb-0 shadow-lg border border-white/6">
     <div class="flex items-center gap-4">
-      <Avatar :user="displayedUser" size="xl" extraClass="flex-shrink-0 ring-4 ring-black/40" :initials="userInitial" />
+      <Avatar :user="displayedUser" size="xl" extraClass="flex-shrink-0 ring-4 ring-primary-500/30 shadow-glow" :initials="userInitial" />
       <div class="min-w-0">
         <h2 class="text-xl md:text-2xl font-bold leading-tight break-words">{{ displayName }}</h2>
         <p v-if="atUsername" class="text-sm text-gray-300 break-words">{{ atUsername }}</p>
@@ -19,7 +19,7 @@
       <Button 
         class="w-full mb-3" 
         :variant="isFollowing ? 'danger' : hasPendingRequest ? 'secondary' : 'primary'" 
-        @click="$emit('toggleFollow')"
+        @click="emit('toggleFollow')"
         :disabled="followProcessing">
         {{ isFollowing ? 'Dejar de seguir' : hasPendingRequest ? 'Solicitado' : 'Seguir' }}
       </Button>
@@ -37,7 +37,7 @@
 <script setup lang="ts">
 import Button from '@/components/Button.vue'
 import Avatar from '@/components/Avatar.vue'
-import { defineProps, defineEmits, computed } from 'vue'
+import { computed } from 'vue'
 import { getUser } from '@/services/auth'
 import { useRouter } from 'vue-router'
 import { logout } from '@/services/api'
@@ -49,7 +49,7 @@ const props = defineProps<{
   followProcessing?: boolean
 }>()
 
-defineEmits(['toggleFollow'])
+const emit = defineEmits(['toggleFollow'])
 
 const me = getUser() || {}
 const router = useRouter()

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+  <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader :show-back="true" />
     
     <main class="max-w-6xl mx-auto px-6 py-8">
@@ -50,7 +50,7 @@
             </div>
 
             <div class="mt-4 flex items-center gap-3">
-              <button @click="openRatingModal" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
+              <button @click="openRatingModal" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
               <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-black font-semibold" :class="inWishlist ? 'bg-yellow-400' : 'bg-sky-400'">
                 {{ inWishlist ? 'En mi lista' : 'Añadir a mi lista' }}
               </button>
@@ -59,7 +59,7 @@
             <div v-if="showCompletePrompt" class="mt-4 bg-white/6 p-4 rounded-lg flex items-center gap-4">
               <div class="flex-1 text-gray-200">¿Quieres puntuar y escribir una reseña ahora que lo has terminado?</div>
               <div class="flex items-center gap-2">
-                <button @click="confirmCompleteWithReview" class="px-4 py-2 bg-emerald-500 text-black rounded font-semibold">Sí, puntuar</button>
+                <button @click="confirmCompleteWithReview" class="px-4 py-2 bg-primary-500 text-black rounded font-semibold">Sí, puntuar</button>
                 <button @click="confirmCompleteWithoutReview" class="px-4 py-2 bg-white/6 text-gray-200 rounded">No, sólo marcar</button>
               </div>
             </div>
@@ -202,7 +202,7 @@ const friendRatingsLoading = ref(false)
 
 function ratingClass(score: number) {
   if (score == null || typeof score === 'undefined' || Number.isNaN(Number(score))) return 'bg-gray-500'
-  if (score >= 9) return 'bg-emerald-600'
+  if (score >= 9) return 'bg-emerald-500'
   if (score >= 7) return 'bg-emerald-400'
   if (score >= 5) return 'bg-yellow-400'
   return 'bg-rose-500'

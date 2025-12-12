@@ -5,7 +5,7 @@
       <div class="page-wrap mx-auto rounded-2xl p-8">
     <!-- Hero -->
     <section class="max-w-6xl mx-auto text-center mb-12">
-      <p class="text-sm text-emerald-300 font-medium tracking-widest">ABOUT US</p>
+      <p class="text-sm text-primary-300 font-medium tracking-widest">ABOUT US</p>
       <h1 class="mt-4 text-4xl md:text-6xl font-extrabold text-white leading-tight">Somos el equipo que hace posible Puntúalo</h1>
       <p class="mt-4 text-gray-300 max-w-3xl mx-auto">Diseñamos y desarrollamos experiencias para descubrir, puntuar y compartir tus contenidos favoritos</p>
       <p class="mt-2 text-gray-300 max-w-3xl mx-auto italic">"Pequeño equipo — grandes ideas."</p>
@@ -86,7 +86,7 @@
             <h3 class="text-white font-semibold mb-2">¿Quieres colaborar?</h3>
             <p class="text-gray-300 text-sm mb-4">Si te interesa colaborar o tienes feedback, contáctanos y estaremos encantados de hablar.</p>
             <div class="flex gap-2">
-              <a class="inline-block px-4 py-2 rounded-full bg-emerald-400 text-black font-semibold" href="#">Contactar</a>
+              <a class="inline-block px-4 py-2 rounded-full bg-primary-400 text-black font-semibold" href="#">Contactar</a>
               <a class="inline-block px-4 py-2 rounded-full text-white/90" href="#">Soporte</a>
             </div>
           </aside>

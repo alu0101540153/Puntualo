@@ -13,7 +13,7 @@
               :class="[
                 'px-4 py-2 font-medium transition-colors',
                 activeTab === 'following'
-                  ? 'text-emerald-400 border-b-2 border-emerald-400'
+                  ? 'text-primary-400 border-b-2 border-primary-400'
                   : 'text-gray-400 hover:text-white'
               ]"
             >
@@ -24,7 +24,7 @@
               :class="[
                 'px-4 py-2 font-medium transition-colors',
                 activeTab === 'followers'
-                  ? 'text-emerald-400 border-b-2 border-emerald-400'
+                  ? 'text-primary-400 border-b-2 border-primary-400'
                   : 'text-gray-400 hover:text-white'
               ]"
             >
@@ -34,7 +34,7 @@
         </div>
 
         <div v-if="loading" class="text-gray-300 text-center py-8">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-400 mx-auto"></div>
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-400 mx-auto"></div>
           <p class="mt-4">Cargando...</p>
         </div>
 
@@ -57,7 +57,7 @@
                       </div>
                     </router-link>
                     <div class="flex flex-col">
-                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-emerald-400">
+                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-primary-400">
                         {{ u.name || u.handle || 'Sin nombre' }}
                       </router-link>
                       <div class="text-gray-400 text-sm">@{{ u.handle || 'usuario' }}</div>
@@ -101,7 +101,7 @@
                       </div>
                     </router-link>
                     <div class="flex flex-col">
-                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-emerald-400">
+                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-primary-400">
                         {{ u.name || u.handle || 'Sin nombre' }}
                       </router-link>
                       <div class="text-gray-400 text-sm">@{{ u.handle || 'usuario' }}</div>
@@ -117,7 +117,7 @@
                     <button
                       v-if="!isFollowing(u._id)"
                       @click="followUserAction(u._id)"
-                      class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors"
+                      class="px-4 py-2 rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors"
                     >
                       Seguir de vuelta
                     </button>

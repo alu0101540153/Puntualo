@@ -9,7 +9,7 @@
         <div class="space-y-6">
           <article class="bg-transparent p-4 rounded-lg border border-white/6">
             <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-full bg-emerald-400/20 flex items-center justify-center text-emerald-300 font-semibold">A.M.</div>
+              <div class="w-10 h-10 rounded-full bg-primary-400/20 flex items-center justify-center text-primary-300 font-semibold">A.M.</div>
               <div>
                 <div class="text-white font-semibold">¿Cómo puedo recuperar mi contraseña?</div>
                 <div class="text-gray-300 mt-2">Pulsa en 'Login' y selecciona "Olvidé mi contraseña". Te enviaremos un enlace para restablecerla al correo asociado a tu cuenta.</div>

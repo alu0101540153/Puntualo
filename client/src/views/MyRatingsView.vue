@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+  <div class="min-h-screen bg-gradient-dark">
     <!-- Colocar la cabecera en el tope para que su posición sea consistente -->
     <DashboardHeader />
     <main class="max-w-5xl mx-auto px-4 py-8 mt-6">
@@ -9,7 +9,7 @@
         <!-- Ordenación: fecha / puntuación -->
         <div class="flex items-center gap-3">
           <label class="text-sm text-gray-300">Ordenar:</label>
-          <select v-model="sortOption" @change="onSortChange" class="bg-gray-800 text-white text-sm px-3 py-1 rounded">
+          <select v-model="sortOption" @change="onSortChange" class="bg-dark-800 border border-primary-500/20 text-white text-sm px-3 py-1 rounded focus:border-primary-500 transition-colors">
             <option value="date:desc">Más reciente</option>
             <option value="date:asc">Más antiguo</option>
             <option value="score:asc">Puntuación: más baja</option>
@@ -20,10 +20,10 @@
 
       <!-- Filters: Tipo -->
       <div class="flex items-center gap-2 mb-6">
-        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === '' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = ''; loadRatings()">Todos</button>
-        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = 'movie'; loadRatings()">🎬 Película</button>
-        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = 'series'; loadRatings()">📺 Serie</button>
-        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', filterType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="filterType = 'book'; loadRatings()">📖 Libro</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all shadow-sm', filterType === '' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-glow' : 'bg-dark-800 border border-primary-500/20 text-gray-300 hover:bg-dark-700 hover:border-primary-500/40']" @click="filterType = ''; loadRatings()">Todos</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all shadow-sm', filterType === 'movie' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-glow' : 'bg-dark-800 border border-primary-500/20 text-gray-300 hover:bg-dark-700 hover:border-primary-500/40']" @click="filterType = 'movie'; loadRatings()">🎬 Película</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all shadow-sm', filterType === 'series' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-glow' : 'bg-dark-800 border border-primary-500/20 text-gray-300 hover:bg-dark-700 hover:border-primary-500/40']" @click="filterType = 'series'; loadRatings()">📺 Serie</button>
+        <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all shadow-sm', filterType === 'book' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-glow' : 'bg-dark-800 border border-primary-500/20 text-gray-300 hover:bg-dark-700 hover:border-primary-500/40']" @click="filterType = 'book'; loadRatings()">📖 Libro</button>
       </div>
 
       <div v-if="loading" class="text-gray-300">Cargando tus puntuados...</div>
@@ -145,7 +145,7 @@ function onSortChange() {
 }
 
 function ratingClass(score: number) {
-  if (score >= 9) return 'bg-emerald-600'
+  if (score >= 9) return 'bg-emerald-500'
   if (score >= 7) return 'bg-emerald-400'
   if (score >= 5) return 'bg-yellow-400'
   return 'bg-rose-500'

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+  <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader />
     
     <main class="max-w-6xl mx-auto px-4 py-8">
@@ -15,10 +15,10 @@
       <div v-else>
         <!-- Filters: Tipo de contenido (siempre visibles cuando no está cargando) -->
         <div class="flex items-center gap-2 mb-6">
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
         </div>
 
         <!-- Contenedor con altura mínima para evitar salto de layout cuando no hay resultados -->
@@ -48,7 +48,7 @@
             <button
               @click="prevPage"
               :disabled="currentPage <= 1"
-              class="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              class="px-4 py-2 rounded-full bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Anterior
             </button>
@@ -60,7 +60,7 @@
             <button
               @click="nextPage"
               :disabled="currentPage >= totalPages"
-              class="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              class="px-4 py-2 rounded-full bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
               Siguiente
             </button>

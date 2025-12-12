@@ -8,8 +8,8 @@
       <h1 class="text-8xl md:text-9xl font-bold mb-4">404</h1>
       <p class="text-2xl md:text-3xl mb-8 text-white">Página no encontrada. Parece que te has perdido.</p>
 
-      <router-link to="/" class="inline-block px-6 py-3 rounded-md font-medium bg-green-500 text-black hover:brightness-90 transition text-lg">
-        Volver al inicio
+      <router-link to="/" class="inline-block px-6 py-3 rounded-full font-bold bg-gradient-to-r from-primary-500 to-accent-500 text-white hover:brightness-110 shadow-glow hover:shadow-glow-lg transition-all duration-300 text-lg">
+        Volver al Inicio
       </router-link>
     </div>
   </div>

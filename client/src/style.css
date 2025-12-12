@@ -8,8 +8,8 @@ html, body, #app {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* Made the bottom end slightly darker to improve legibility for content at page top */
-  background-image: linear-gradient(180deg,#2b2b2b 0%,#343434 55%,#414141 100%) !important;
+  /* Professional black gradient background */
+  background-image: linear-gradient(180deg, #000000 0%, #0a0e1a 40%, #111827 100%) !important;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -43,4 +43,67 @@ body {
   margin: 0 auto !important;
   padding: 0 1rem !important;
   box-sizing: border-box !important;
+}
+
+/* Smooth scrolling para toda la página */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Estilos para botones de carrusel mejorados */
+.carousel-btn {
+  background: linear-gradient(135deg, #06b6d4, #00c2ff);
+  color: white;
+  border-radius: 9999px;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+  transition: all 0.3s ease;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.carousel-btn:hover {
+  background: linear-gradient(135deg, #0891b2, #06b6d4);
+  transform: scale(1.1);
+  box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+}
+
+@media (min-width: 768px) {
+  .carousel-btn {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.875rem;
+  }
+}
+
+/* Ocultar scrollbar pero mantener funcionalidad */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animación sutil para cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
 }

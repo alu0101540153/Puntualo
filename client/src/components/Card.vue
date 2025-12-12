@@ -1,5 +1,5 @@
 <template>
-  <div v-bind="$attrs" class="w-full max-w-3xl mx-auto bg-gradient-to-br from-gray-900/70 to-black/60 text-white rounded-2xl p-6 md:p-8 shadow-2xl backdrop-blur-sm border border-white/10 box-border">
+  <div v-bind="$attrs" class="w-full max-w-3xl mx-auto bg-gradient-to-br from-dark-900/80 to-black/80 text-white rounded-2xl p-6 md:p-8 shadow-cinema backdrop-blur-md border border-primary-500/20 hover:border-primary-500/30 transition-all box-border">
     <slot />
   </div>
 </template>

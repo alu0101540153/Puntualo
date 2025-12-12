@@ -53,7 +53,7 @@
               @click="form.isPrivate = !form.isPrivate"
               :class="[
                 'relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0',
-                form.isPrivate ? 'bg-emerald-500' : 'bg-gray-400'
+                form.isPrivate ? 'bg-primary-500' : 'bg-gray-400'
               ]"
             >
               <span
@@ -138,7 +138,7 @@
             <div v-if="passwordError" class="text-red-400 text-sm bg-red-900/20 p-3 rounded">
               {{ passwordError }}
             </div>
-            <div v-if="passwordSuccess" class="text-emerald-400 text-sm bg-emerald-900/20 p-3 rounded">
+            <div v-if="passwordSuccess" class="text-primary-400 text-sm bg-primary-900/20 p-3 rounded">
               {{ passwordSuccess }}
             </div>
           </div>
@@ -147,7 +147,7 @@
 
         <div class="flex gap-3 justify-end">
           <button type="button" @click="onCancel" class="px-4 py-2 bg-white/10 rounded">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-emerald-500 rounded">Guardar cambios</button>
+          <button type="submit" class="px-4 py-2 bg-primary-500 rounded">Guardar cambios</button>
         </div>
       </form>
     </main>
@@ -213,7 +213,7 @@ onMounted(() => {
   form.isPrivate = u.isPrivate || false
 })
 
-const palette = ['#EF4444','#F97316','#F59E0B','#FACC15','#10B981','#06B6D4','#3B82F6','#6366F1','#8B5CF6','#EC4899','#9CA3AF']
+const palette = ['#EF4444','#F97316','#F59E0B','#FACC15','#06B6D4','#00C2FF','#3B82F6','#6366F1','#8B5CF6','#EC4899','#9CA3AF']
 
 function selectColor(c: string) {
   form.avatarBgColor = c
