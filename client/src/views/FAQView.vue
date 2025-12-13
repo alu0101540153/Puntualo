@@ -29,7 +29,7 @@
 
           <article class="bg-transparent p-4 rounded-lg border border-white/6">
             <div class="flex items-start gap-4">
-              <div class="w-10 h-10 rounded-full bg-blue-400/20 flex items-center justify-center text-blue-300 font-semibold">C.L.</div>
+              <div class="w-10 h-10 rounded-full bg-primary-400/20 flex items-center justify-center text-primary-300 font-semibold">C.L.</div>
               <div>
                 <div class="text-white font-semibold">¿Cómo puedo sugerir una mejora o reportar un bug?</div>
                 <div class="text-gray-300 mt-2">Usa el enlace 'Soporte' en el footer para enviarnos un mensaje o escribe directamente a soporte@puntualo.example (ejemplo de correo).</div>

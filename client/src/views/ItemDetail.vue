@@ -51,7 +51,7 @@
 
             <div class="mt-4 flex items-center gap-3">
               <button @click="openRatingModal" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
-              <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-black font-semibold" :class="inWishlist ? 'bg-yellow-400' : 'bg-sky-400'">
+              <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-white font-semibold" :class="inWishlist ? 'bg-yellow-500' : 'bg-primary-600 hover:bg-primary-700'">
                 {{ inWishlist ? 'En mi lista' : 'Añadir a mi lista' }}
               </button>
             </div>

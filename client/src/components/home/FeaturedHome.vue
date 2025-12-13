@@ -103,8 +103,8 @@
               <p class="text-gray-300 mb-4">{{ (previewItem && (previewItem.item && (previewItem.item.data && previewItem.item.data.description) || previewItem.item.description)) || (previewItem && ((previewItem.data && (previewItem.data.description || previewItem.data.plot)) || previewItem.description)) || 'No hay descripción disponible.' }}</p>
 
               <div class="flex flex-col sm:flex-row sm:items-center gap-3">
-                <button @click="() => router.push({ name: 'login' })" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-white font-semibold px-4 py-2 rounded-full shadow-glow">Inicia sesión para poder puntuarlo</button>
-                <button @click="closePreview" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-white font-semibold px-4 py-2 rounded-full shadow-glow">Cerrar</button>
+                <button @click="() => router.push({ name: 'login' })" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 rounded-full shadow-glow">Inicia sesión para poder puntuarlo</button>
+                <button @click="closePreview" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 rounded-full shadow-glow">Cerrar</button>
               </div>
             </div>
           </div>
@@ -717,9 +717,9 @@ section { background: transparent; padding-top: 3rem }
 .stat-card:hover { transform: translateY(-6px); box-shadow: 0 22px 48px rgba(2,6,23,0.32) }
 
 /* color accents per card */
-.card-users .icon { background: linear-gradient(135deg,#0ea5a4,#06b6d4/60) }
-.card-reviews .icon { background: linear-gradient(135deg,#06b6d4,#00c2ff/40) }
-.card-movie .icon { background: linear-gradient(135deg,#7c3aed,#06b6d4/30) }
+.card-users .icon { background: linear-gradient(135deg,#0ea5a4,#10b981/60) }
+.card-reviews .icon { background: linear-gradient(135deg,#10b981,#22c55e/40) }
+.card-movie .icon { background: linear-gradient(135deg,#7c3aed,#10b981/30) }
 .card-series .icon { background: linear-gradient(135deg,#fb923c,#f97316/30) }
 .card-book .icon { background: linear-gradient(135deg,#60a5fa,#3b82f6/30) }
 
@@ -735,7 +735,7 @@ section { background: transparent; padding-top: 3rem }
 .stats-tile { background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01)); padding: 1rem; border-radius: 0.75rem; box-shadow: 0 10px 30px rgba(2,6,23,0.35) }
 .stat-number { font-size: 1.6rem; font-weight: 800 }
 .stat-label { color: rgba(255,255,255,0.75); font-size: 0.85rem }
-.spark { height: 6px; border-radius: 999px; background: linear-gradient(90deg,#06b6d4,#00c2ff); margin-top:0.6rem }
+.spark { height: 6px; border-radius: 999px; background: linear-gradient(90deg,#10b981,#22c55e); margin-top:0.6rem }
 .stats-card .text-3xl { letter-spacing: -0.01em }
 .stats-card .w-14 { box-shadow: 0 10px 30px rgba(2,6,23,0.45); }
 </style>

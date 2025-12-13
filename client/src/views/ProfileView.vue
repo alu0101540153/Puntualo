@@ -108,7 +108,7 @@
                 <div class="space-y-4">
                   <div class="flex items-center justify-between">
                     <h3 class="text-2xl font-semibold text-white">Mis vistos</h3>
-                    <button @click="goToAllSeen" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-white font-semibold px-5 py-2.5 rounded-full transition-all duration-300 shadow-glow hover:shadow-glow-lg">
+                    <button @click="goToAllSeen" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full transition-all duration-300 shadow-glow hover:shadow-glow-lg">
                       Ver todos mis vistos
                     </button>
                   </div>
@@ -124,7 +124,7 @@
                   <div class="space-y-4">
                     <div class="flex items-center justify-between">
                       <h3 class="text-2xl font-semibold text-white">Mis deseados</h3>
-                      <router-link to="/my-wishlist" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-white font-semibold px-5 py-2.5 rounded-full transition-all duration-300 no-underline shadow-glow hover:shadow-glow-lg">
+                      <router-link to="/my-wishlist" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full transition-all duration-300 no-underline shadow-glow hover:shadow-glow-lg">
                         Ver lista completa
                       </router-link>
                     </div>
@@ -156,7 +156,7 @@
                   <div class="space-y-4">
                     <div class="flex items-center justify-between">
                       <h3 class="text-2xl font-semibold text-white">Vistos de {{ profileUser?.name }}</h3>
-            <button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-white font-semibold px-5 py-2.5 rounded-full transition-all duration-300 shadow-glow hover:shadow-glow-lg">
+            <button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full transition-all duration-300 shadow-glow hover:shadow-glow-lg">
               Ver todos sus vistos
             </button>
                     </div>
@@ -172,7 +172,7 @@
                       <button 
                         v-if="me && me._id && commons.length > 0"
                         @click="router.push({ name: 'common-seen', params: { id: profileUser?._id } })"
-                        class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-white font-bold px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-glow hover:shadow-glow-lg"
+                        class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-bold px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-glow hover:shadow-glow-lg"
                       >
                         Ver todos
                       </button>

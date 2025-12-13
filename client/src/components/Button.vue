@@ -33,7 +33,7 @@ const variantClass = computed(() => {
     case 'ghost':
       return 'bg-transparent text-white hover:bg-dark-800/40'
     default:
-      return 'bg-gradient-to-r from-primary-500 to-accent-500 text-white shadow-glow hover:shadow-glow-lg hover:brightness-110 hover:scale-105'
+      return 'bg-gradient-to-r from-primary-500 to-accent-500 text-black shadow-glow hover:shadow-glow-lg hover:brightness-110 hover:scale-105'
   }
 })
 

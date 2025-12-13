@@ -109,17 +109,17 @@ const isHovered = ref(false);
 </script>
 
 <style scoped>
-/* Outline text effect - responsive stroke width with cyan glow */
+/* Outline text effect - responsive stroke width with green glow */
 .outline-text {
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.9);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 900;
   letter-spacing: 0.15em;
-  filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.4));
+  filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.4));
 }
 
 .outline-text:hover {
-  filter: drop-shadow(0 0 40px rgba(6, 182, 212, 0.6)) drop-shadow(0 0 60px rgba(0, 194, 255, 0.4));
+  filter: drop-shadow(0 0 40px rgba(16, 185, 129, 0.6)) drop-shadow(0 0 60px rgba(34, 197, 94, 0.4));
 }
 
 @media (min-width: 640px) {

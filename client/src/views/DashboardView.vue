@@ -27,7 +27,7 @@
             <div class="flex items-center justify-center lg:justify-start flex-1">
               <button 
                 @click="goToRecommendations" 
-                class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-white font-extrabold py-6 px-10 rounded-full shadow-glow transition-all duration-300 hover:shadow-glow-lg hover:scale-105 whitespace-nowrap text-lg w-full"
+                class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-extrabold py-6 px-10 rounded-full shadow-glow transition-all duration-300 hover:shadow-glow-lg hover:scale-105 whitespace-nowrap text-lg w-full"
               >
                 Ver más recomendados
               </button>
@@ -52,7 +52,7 @@
               <button
                 @click="prevPage"
                 :disabled="page <= 1"
-                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-white font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
+                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
               >
                 Anterior
               </button>
@@ -60,7 +60,7 @@
               <button
                 @click="nextPage"
                 :disabled="page * limit >= total"
-                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-white font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
+                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
               >
                 Siguiente
               </button>
@@ -139,7 +139,7 @@
             <span class="text-primary-400">👥</span> Encuentra amigos que conoces
           </h3>
           <p class="text-gray-300 text-lg mb-6">Conecta con personas que comparten tus gustos. Busca por usuario, revisa sus perfiles y síguelos para ver su actividad.</p>
-          <button @click="goToFindFriends" class="px-8 py-4 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-white font-extrabold hover:brightness-110 shadow-glow hover:shadow-glow-lg hover:scale-105 transition-all duration-300">Buscar amigos</button>
+          <button @click="goToFindFriends" class="px-8 py-4 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-extrabold hover:brightness-110 shadow-glow hover:shadow-glow-lg hover:scale-105 transition-all duration-300">Buscar amigos</button>
         </div>
       </section>
     </main>
@@ -434,10 +434,10 @@ const sampleAvatars = ref(
     : [
       { initials: 'A', color: '#F59E0B' },
       { initials: 'B', color: '#EF4444' },
-      { initials: 'C', color: '#06B6D4' },
+      { initials: 'C', color: '#10B981' },
       { initials: 'D', color: '#3B82F6' },
       { initials: 'E', color: '#8B5CF6' },
-      { initials: 'F', color: '#00C2FF' }
+      { initials: 'F', color: '#22C55E' }
     ]
 )
 </script>

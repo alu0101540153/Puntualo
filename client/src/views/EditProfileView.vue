@@ -213,7 +213,7 @@ onMounted(() => {
   form.isPrivate = u.isPrivate || false
 })
 
-const palette = ['#EF4444','#F97316','#F59E0B','#FACC15','#06B6D4','#00C2FF','#3B82F6','#6366F1','#8B5CF6','#EC4899','#9CA3AF']
+const palette = ['#EF4444','#F97316','#F59E0B','#FACC15','#10B981','#22C55E','#3B82F6','#6366F1','#8B5CF6','#EC4899','#9CA3AF']
 
 function selectColor(c: string) {
   form.avatarBgColor = c

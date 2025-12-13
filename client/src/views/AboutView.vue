@@ -24,7 +24,7 @@
           <!-- Adrian -->
           <article class="p-6 rounded-xl about-card reveal-item">
             <div class="flex items-start gap-4">
-              <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold" style="background:linear-gradient(135deg,#06b6d4,#14b8a6)">A</div>
+              <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold" style="background:linear-gradient(135deg,#10b981,#14b8a6)">A</div>
               <div class="flex-1">
                 <h3 class="text-lg font-bold text-white">Adrian Leon Diaz</h3>
                 <p class="text-sm text-gray-300">Desarrollador Fullstack — Coordinador técnico</p>
@@ -36,7 +36,7 @@
           <!-- Víctor -->
           <article class="p-6 rounded-xl about-card reveal-item">
             <div class="flex items-start gap-4">
-              <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold" style="background:linear-gradient(135deg,#7c3aed,#06b6d4)">V</div>
+              <div class="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold" style="background:linear-gradient(135deg,#7c3aed,#10b981)">V</div>
               <div class="flex-1">
                 <h3 class="text-lg font-bold text-white">Víctor Rodríguez Dortay</h3>
                 <p class="text-sm text-gray-300">Ingeniero Backend — Arquitectura y APIs</p>

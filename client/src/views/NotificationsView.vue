@@ -123,7 +123,7 @@
                 >
                   <button
                     @click="acceptRequest(notification)"
-                    class="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-accent-500 text-white rounded-xl hover:brightness-110 transition-all duration-300 font-semibold shadow-glow hover:shadow-glow-lg transform hover:scale-105"
+                    class="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-accent-500 text-black rounded-xl hover:brightness-110 transition-all duration-300 font-semibold shadow-glow hover:shadow-glow-lg transform hover:scale-105"
                   >
                     ✓ Aceptar
                   </button>
