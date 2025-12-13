@@ -30,8 +30,8 @@
     </div>
     <!-- Top películas (usar datos obtenidos en la misma llamada para evitar peticiones duplicadas) -->
     <div class="mt-8">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-2xl font-semibold text-white">Top películas</h3>
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+        <h3 class="text-2xl font-semibold text-white"><span class="text-primary-400">🎬</span> Top películas</h3>
         <div class="text-sm text-gray-300">Las películas mejor valoradas por la comunidad</div>
       </div>
 
@@ -49,8 +49,8 @@
 
       <!-- Top libros (misma estructura que Top películas) -->
       <div class="mt-8">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-2xl font-semibold text-white">Top libros</h3>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+          <h3 class="text-2xl font-semibold text-white"><span class="text-primary-400">📚</span> Top libros</h3>
           <div class="text-sm text-gray-300">Los libros mejor valorados por la comunidad</div>
         </div>
 
@@ -68,8 +68,8 @@
 
       <!-- Top series (misma estructura que Top películas) -->
       <div class="mt-8">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-2xl font-semibold text-white">Top series</h3>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
+          <h3 class="text-2xl font-semibold text-white"><span class="text-primary-400">📺</span> Top series</h3>
           <div class="text-sm text-gray-300">Las series mejor valoradas por la comunidad</div>
         </div>
 
@@ -97,7 +97,7 @@
             <div class="md:w-2/3">
               <h3 class="text-2xl font-bold mb-2">{{ (previewItem && (previewItem.item && (previewItem.item.title || previewItem.item.data?.title)) ) || previewItem?.title || previewItem?.data?.title || 'Detalle' }}</h3>
               <div class="flex items-center gap-4 mb-3">
-                <div class="text-lg font-semibold">{{ (previewItem && (previewItem.avgScore ?? previewItem.score ?? previewItem.rating)) ? `${previewItem.avgScore ?? previewItem.score ?? previewItem.rating}/10` : '—/10' }}</div>
+                <div class="text-lg font-semibold">{{ (previewItem && (previewItem.avgScore ?? previewItem.score ?? previewItem.rating)) ? `${Number(previewItem.avgScore ?? previewItem.score ?? previewItem.rating).toFixed(1)}/10` : '—/10' }}</div>
                 <div class="text-sm text-gray-300">{{ (previewItem && (previewItem.count || previewItem.item && previewItem.item.count)) ? `${previewItem.count || previewItem.item.count} reseñas` : '' }}</div>
               </div>
               <p class="text-gray-300 mb-4">{{ (previewItem && (previewItem.item && (previewItem.item.data && previewItem.item.data.description) || previewItem.item.description)) || (previewItem && ((previewItem.data && (previewItem.data.description || previewItem.data.plot)) || previewItem.description)) || 'No hay descripción disponible.' }}</p>

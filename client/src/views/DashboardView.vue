@@ -44,15 +44,15 @@
           <FriendsGrid v-else :activities="friendActivities" />
 
           <!-- Pagination controls -->
-          <div v-if="friendActivities.length > 0" class="flex items-center justify-between mt-8 bg-dark-800/40 backdrop-blur-sm rounded-xl p-4 border border-primary-500/20">
-            <div class="text-sm text-gray-400 font-medium">
+          <div v-if="friendActivities.length > 0" class="flex flex-col sm:flex-row items-center sm:justify-between gap-4 mt-8 bg-dark-800/40 backdrop-blur-sm rounded-xl p-4 sm:p-4 border border-primary-500/20">
+            <div class="text-sm text-gray-300 sm:text-gray-400 font-medium text-center sm:text-left">
               Mostrando página <span class="font-semibold text-primary-400">{{ page }}</span> — <span class="font-semibold text-primary-400">{{ total }}</span> resultados
             </div>
             <div class="flex items-center gap-3">
               <button
                 @click="prevPage"
                 :disabled="page <= 1"
-                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
+                class="px-5 sm:px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
               >
                 Anterior
               </button>
@@ -60,7 +60,7 @@
               <button
                 @click="nextPage"
                 :disabled="page * limit >= total"
-                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
+                class="px-5 sm:px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
               >
                 Siguiente
               </button>
@@ -72,11 +72,11 @@
       <!-- TOP carousels (movies, books, series) - same presentation as Home -->
       <section class="mb-8">
         <div class="mt-8">
-          <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
             <h3 class="text-2xl font-bold text-white flex items-center gap-2">
               <span class="text-primary-400">🎬</span> Top películas
             </h3>
-            <div class="text-sm text-gray-400">Las películas mejor valoradas por la comunidad</div>
+            <div class="text-sm text-gray-300">Las películas mejor valoradas por la comunidad</div>
           </div>
 
           <div v-if="topMovies && topMovies.length" class="relative">
@@ -92,11 +92,11 @@
         </div>
 
         <div class="mt-8">
-          <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
             <h3 class="text-2xl font-bold text-white flex items-center gap-2">
               <span class="text-primary-400">📚</span> Top libros
             </h3>
-            <div class="text-sm text-gray-400">Los libros mejor valorados por la comunidad</div>
+            <div class="text-sm text-gray-300">Los libros mejor valorados por la comunidad</div>
           </div>
 
           <div v-if="topBooks && topBooks.length" class="relative">
@@ -112,11 +112,11 @@
         </div>
 
         <div class="mt-8">
-          <div class="flex items-center justify-between mb-4">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-4 gap-2">
             <h3 class="text-2xl font-bold text-white flex items-center gap-2">
               <span class="text-primary-400">📺</span> Top series
             </h3>
-            <div class="text-sm text-gray-400">Las series mejor valoradas por la comunidad</div>
+            <div class="text-sm text-gray-300">Las series mejor valoradas por la comunidad</div>
           </div>
 
           <div v-if="topSeries && topSeries.length" class="relative">

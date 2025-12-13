@@ -36,8 +36,7 @@
               </div>
 
               <!-- Remove button (top-right) - always on top and clickable -->
-              <button @click.stop="removeItem(r)" class="absolute top-2 right-2 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg text-sm text-rose-600 z-40">
-                ✕
+              <button @click.stop="removeItem(r)" class="absolute top-2 right-2 w-10 h-10 sm:w-9 sm:h-9 bg-gradient-to-br from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg hover:shadow-xl text-white font-bold text-lg z-40 transition-all transform hover:scale-110">                ✕
               </button>
 
               <!-- Hover overlay (disable pointer events when hidden so it doesn't block the remove button) -->

@@ -36,29 +36,28 @@
 
               <!-- Mostrar resumen de puntuados (propio o del usuario visto) -->
               <template v-if="!isViewingOther">
-              <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-semibold text-white">Mis puntuados</h3>
-                    <!-- Destacar el botón para que sea más visible -->
-                    <Button @click="goToAllRatings" variant="primary" size="md" class="px-6 py-2">Ver mis puntuados</Button>
+              <div class="bg-gradient-to-br from-dark-800/80 to-black/60 backdrop-blur-sm rounded-xl p-5 sm:p-6 border border-primary-500/20 shadow-lg">
+                <div class="space-y-5">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white">Mis puntuados</h3>
+                    <Button @click="goToAllRatings" variant="primary" size="md" class="w-full sm:w-auto !px-6 !py-2.5 !text-sm !font-bold shadow-md">Ver mis puntuados</Button>
                   </div>
 
-                  <div v-if="loadingRatings" class="text-gray-300">Cargando resumen...</div>
+                  <div v-if="loadingRatings" class="text-gray-300 text-center py-4">Cargando resumen...</div>
                   <div v-else class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Total puntuados</div>
-                      <div class="text-2xl font-bold text-white">{{ totalRatings }}</div>
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-700/60 p-5 rounded-xl text-center border border-slate-600/50 shadow-md">
+                      <div class="text-xs sm:text-sm text-gray-400 font-medium mb-2">Total puntuados</div>
+                      <div class="text-3xl sm:text-4xl font-extrabold text-white">{{ totalRatings }}</div>
                     </div>
 
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Puntuación media</div>
-                      <div class="text-2xl font-bold text-white">{{ avgScore }}</div>
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-700/60 p-5 rounded-xl text-center border border-slate-600/50 shadow-md">
+                      <div class="text-xs sm:text-sm text-gray-400 font-medium mb-2">Puntuación media</div>
+                      <div class="text-3xl sm:text-4xl font-extrabold text-primary-400">{{ avgScore }}</div>
                     </div>
 
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Último puntuado</div>
-                      <div class="text-sm text-white truncate">{{ lastRatedTitle || '—' }}</div>
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-700/60 p-5 rounded-xl text-center border border-slate-600/50 shadow-md">
+                      <div class="text-xs sm:text-sm text-gray-400 font-medium mb-2">Último puntuado</div>
+                      <div class="text-sm sm:text-base text-white font-semibold truncate px-2">{{ lastRatedTitle || '—' }}</div>
                     </div>
                   </div>
                 </div>
@@ -66,28 +65,27 @@
               </template>
 
               <template v-if="isViewingOther">
-              <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6">
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between">
-                    <h3 class="text-2xl font-semibold text-white">Puntuados de {{ profileUser?.name }}</h3>
-                    <!-- Destacar también el botón 'Ver sus puntuados' cuando se ve el perfil de otro -->
-                    <Button @click="goToUsersRatings" variant="primary" size="md" class="px-6 py-2">Ver sus puntuados</Button>
+              <div class="bg-gradient-to-br from-dark-800/80 to-black/60 backdrop-blur-sm rounded-xl p-5 sm:p-6 border border-primary-500/20 shadow-lg">
+                <div class="space-y-5">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white">Puntuados de {{ profileUser?.name }}</h3>
+                    <Button @click="goToUsersRatings" variant="primary" size="md" class="w-full sm:w-auto !px-6 !py-2.5 !text-sm !font-bold shadow-md">Ver sus puntuados</Button>
                   </div>
 
                   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Total puntuados</div>
-                      <div class="text-2xl font-bold text-white">{{ otherTotalRatings }}</div>
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-700/60 p-5 rounded-xl text-center border border-slate-600/50 shadow-md">
+                      <div class="text-xs sm:text-sm text-gray-400 font-medium mb-2">Total puntuados</div>
+                      <div class="text-3xl sm:text-4xl font-extrabold text-white">{{ otherTotalRatings }}</div>
                     </div>
 
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Puntuación media</div>
-                      <div class="text-2xl font-bold text-white">{{ otherAvgScore }}</div>
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-700/60 p-5 rounded-xl text-center border border-slate-600/50 shadow-md">
+                      <div class="text-xs sm:text-sm text-gray-400 font-medium mb-2">Puntuación media</div>
+                      <div class="text-3xl sm:text-4xl font-extrabold text-primary-400">{{ otherAvgScore }}</div>
                     </div>
 
-                    <div class="bg-gradient-to-b from-gray-800 to-gray-700 p-4 rounded-lg text-center">
-                      <div class="text-sm text-gray-300">Último puntuado</div>
-                      <div class="text-sm text-white truncate">{{ otherLastRatedTitle || '—' }}</div>
+                    <div class="bg-gradient-to-br from-slate-800/80 to-slate-700/60 p-5 rounded-xl text-center border border-slate-600/50 shadow-md">
+                      <div class="text-xs sm:text-sm text-gray-400 font-medium mb-2">Último puntuado</div>
+                      <div class="text-sm sm:text-base text-white font-semibold truncate px-2">{{ otherLastRatedTitle || '—' }}</div>
                     </div>
                   </div>
 
@@ -104,11 +102,11 @@
 
               <!-- Mis vistos: usar contenedor más ligero y que ocupe todo el ancho disponible -->
               <template v-if="!isViewingOther">
-              <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-4 sm:p-6">
-                <div class="space-y-4">
-                  <div class="flex items-center justify-between gap-3">
-                    <h3 class="text-xl sm:text-2xl font-semibold text-white">Mis vistos</h3>
-                    <button @click="goToAllSeen" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition-all duration-300 shadow-glow hover:shadow-glow-lg text-sm sm:text-base whitespace-nowrap flex items-center justify-center">
+              <div class="bg-gradient-to-br from-dark-800/80 to-black/60 backdrop-blur-sm rounded-xl p-5 sm:p-6 border border-primary-500/20 shadow-lg">
+                <div class="space-y-5">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <h3 class="text-2xl sm:text-3xl font-bold text-white">Mis vistos</h3>
+                    <button @click="goToAllSeen" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-6 py-2.5 rounded-full transition-all duration-300 shadow-md hover:scale-105 text-base font-extrabold whitespace-nowrap flex items-center justify-center">
                       Ver todos mis vistos
                     </button>
                   </div>
@@ -120,11 +118,11 @@
 
               <!-- Mis deseados (wishlist) visible en mi perfil -->
               <template v-if="!isViewingOther">
-                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-4 sm:p-6">
-                  <div class="space-y-4">
-                    <div class="flex items-center justify-between gap-3">
-                      <h3 class="text-xl sm:text-2xl font-semibold text-white">Mis deseados</h3>
-                      <router-link to="/my-wishlist" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition-all duration-300 no-underline shadow-glow hover:shadow-glow-lg text-sm sm:text-base whitespace-nowrap flex items-center justify-center">
+                <div class="bg-gradient-to-br from-dark-800/80 to-black/60 backdrop-blur-sm rounded-xl p-5 sm:p-6 border border-primary-500/20 shadow-lg">
+                  <div class="space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <h3 class="text-2xl sm:text-3xl font-bold text-white">Mis deseados</h3>
+                      <router-link to="/my-wishlist" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-6 py-2.5 rounded-full transition-all duration-300 no-underline shadow-md hover:scale-105 text-base font-extrabold whitespace-nowrap flex items-center justify-center">
                         Ver lista completa
                       </router-link>
                     </div>
@@ -152,11 +150,11 @@
                 </div>
 
                 <!-- Friend: Vistos (completados) with button to see all their seen -->
-                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-4 sm:p-6">
-                  <div class="space-y-4">
-                    <div class="flex items-center justify-between gap-3">
-                      <h3 class="text-xl sm:text-2xl font-semibold text-white">Vistos de {{ profileUser?.name }}</h3>
-            <button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full transition-all duration-300 shadow-glow hover:shadow-glow-lg text-sm sm:text-base whitespace-nowrap flex items-center justify-center">
+                <div class="bg-gradient-to-br from-dark-800/80 to-black/60 backdrop-blur-sm rounded-xl p-5 sm:p-6 border border-primary-500/20 shadow-lg">
+                  <div class="space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <h3 class="text-2xl sm:text-3xl font-bold text-white">Vistos de {{ profileUser?.name }}</h3>
+            <button @click="() => router.push({ name: 'user-seen', params: { id: profileUser?._id } })" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-6 py-2.5 rounded-full transition-all duration-300 shadow-md hover:scale-105 text-base font-extrabold whitespace-nowrap flex items-center justify-center">
               Ver todos sus vistos
             </button>
                     </div>
@@ -165,14 +163,14 @@
                   </div>
                 </div>
                 <!-- Vistos en común contigo -->
-                <div class="bg-white/6 backdrop-blur-sm rounded-2xl p-6 mt-4">
-                  <div class="space-y-4">
-                    <div class="flex items-center justify-between">
-                      <h3 class="text-2xl font-semibold text-white">Vistos en común contigo</h3>
+                <div class="bg-gradient-to-br from-dark-800/80 to-black/60 backdrop-blur-sm rounded-xl p-5 sm:p-6 border border-primary-500/20 shadow-lg mt-4">
+                  <div class="space-y-5">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                      <h3 class="text-2xl sm:text-3xl font-bold text-white">Vistos en común contigo</h3>
                       <button 
                         v-if="me && me._id && commons.length > 0"
                         @click="router.push({ name: 'common-seen', params: { id: profileUser?._id } })"
-                        class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-bold px-4 py-2 rounded-full transition-all duration-300 transform hover:scale-105 shadow-glow hover:shadow-glow-lg"
+                        class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-6 py-2.5 rounded-full transition-all duration-300 shadow-md hover:scale-105 text-base font-extrabold whitespace-nowrap flex items-center justify-center"
                       >
                         Ver todos
                       </button>
