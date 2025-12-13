@@ -2,31 +2,31 @@
   <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader :show-back="true" />
     
-    <main class="max-w-6xl mx-auto px-6 py-8">
-      <div class="relative bg-gradient-to-b from-gray-700 via-gray-600 to-gray-500 bg-opacity-30 rounded-2xl p-8 shadow-lg">
-        <div class="flex items-center gap-4 mb-6">
-          <button @click="router.back()" aria-label="Volver" title="Volver" class="w-10 h-10 rounded-full bg-white text-gray-600 flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition">
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+      <div class="relative bg-gradient-to-b from-gray-700 via-gray-600 to-gray-500 bg-opacity-30 rounded-2xl p-4 sm:p-8 shadow-lg">
+        <div class="flex items-center gap-4 mb-4 sm:mb-6">
+          <button @click="router.back()" aria-label="Volver" title="Volver" class="w-10 h-10 rounded-full bg-white text-gray-600 flex items-center justify-center border border-gray-200 hover:bg-gray-50 transition flex-shrink-0">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" class="w-5 h-5" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h2 class="text-3xl font-bold text-white">Información</h2>
+          <h2 class="text-xl sm:text-3xl font-bold text-white truncate">Información</h2>
         </div>
 
-        <div class="flex gap-8 items-start">
-          <img :src="itemImage || '/img/placeholder-book.png'" alt="cover" class="w-48 h-64 object-cover rounded-md shadow-2xl border border-white/10" />
+        <div class="flex flex-col md:flex-row gap-4 md:gap-8 items-start">
+          <img :src="itemImage || '/img/placeholder-book.png'" alt="cover" class="w-32 h-44 sm:w-48 sm:h-64 object-cover rounded-md shadow-2xl border border-white/10 mx-auto md:mx-0 flex-shrink-0" />
 
-          <div class="flex-1">
-            <h3 class="text-3xl font-semibold text-gray-100 mb-3">{{ item.title || 'Sin título' }}</h3>
-            <div class="mb-4">
+          <div class="flex-1 w-full">
+            <h3 class="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-100 mb-2 sm:mb-3">{{ item.title || 'Sin título' }}</h3>
+            <div class="mb-3 sm:mb-4">
               <span v-if="itemTypeLabel" class="inline-block text-xs text-gray-800 bg-white/10 px-3 py-1 rounded-full">{{ itemTypeLabel }}</span>
             </div>
-            <div class="text-gray-300 text-lg leading-relaxed mb-6">
+            <div class="text-gray-300 text-sm sm:text-base md:text-lg leading-relaxed mb-4 sm:mb-6">
               <div v-if="isBook" v-html="sanitizedDescription"></div>
               <p v-else>{{ item.description || item.synopsis || 'Sin descripción disponible.' }}</p>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-200 mb-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 text-gray-200 mb-4 sm:mb-6">
               <div>
                 <p class="text-sm text-gray-100 font-semibold">Título:</p>
                 <p class="text-gray-200">{{ item.title }}</p>
@@ -49,18 +49,18 @@
               </div>
             </div>
 
-            <div class="mt-4 flex items-center gap-3">
-              <button @click="openRatingModal" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold px-5 py-2 rounded-lg hover:brightness-95 transition">Puntuar / Escribir reseña</button>
-              <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-white font-semibold" :class="inWishlist ? 'bg-yellow-500' : 'bg-primary-600 hover:bg-primary-700'">
+            <div class="mt-3 sm:mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              <button @click="openRatingModal" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold px-4 sm:px-5 py-2 rounded-lg hover:brightness-95 transition text-sm sm:text-base whitespace-nowrap">Puntuar / Escribir reseña</button>
+              <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-white font-semibold text-sm sm:text-base whitespace-nowrap" :class="inWishlist ? 'bg-yellow-500' : 'bg-primary-600 hover:bg-primary-700'">
                 {{ inWishlist ? 'En mi lista' : 'Añadir a mi lista' }}
               </button>
             </div>
 
-            <div v-if="showCompletePrompt" class="mt-4 bg-white/6 p-4 rounded-lg flex items-center gap-4">
-              <div class="flex-1 text-gray-200">¿Quieres puntuar y escribir una reseña ahora que lo has terminado?</div>
-              <div class="flex items-center gap-2">
-                <button @click="confirmCompleteWithReview" class="px-4 py-2 bg-primary-500 text-black rounded font-semibold">Sí, puntuar</button>
-                <button @click="confirmCompleteWithoutReview" class="px-4 py-2 bg-white/6 text-gray-200 rounded">No, sólo marcar</button>
+            <div v-if="showCompletePrompt" class="mt-3 sm:mt-4 bg-white/6 p-3 sm:p-4 rounded-lg flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+              <div class="flex-1 text-gray-200 text-sm sm:text-base">¿Quieres puntuar y escribir una reseña ahora que lo has terminado?</div>
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                <button @click="confirmCompleteWithReview" class="px-3 sm:px-4 py-2 bg-primary-500 text-black rounded font-semibold text-sm sm:text-base whitespace-nowrap">Sí, puntuar</button>
+                <button @click="confirmCompleteWithoutReview" class="px-3 sm:px-4 py-2 bg-white/6 text-gray-200 rounded text-sm sm:text-base whitespace-nowrap">No, sólo marcar</button>
               </div>
             </div>
           </div>
@@ -75,38 +75,38 @@
         @success="handleRatingSuccess"
       />
 
-      <section class="mt-8 bg-gradient-to-b from-gray-700 to-gray-600 bg-opacity-25 rounded-2xl p-6 shadow-inner">
-        <h3 class="text-xl font-bold text-white mb-4">Puntuación de amigos</h3>
+      <section class="mt-4 sm:mt-8 bg-gradient-to-b from-gray-700 to-gray-600 bg-opacity-25 rounded-2xl p-4 sm:p-6 shadow-inner">
+        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Puntuación de amigos</h3>
 
-        <div v-if="friendRatingsLoading" class="text-gray-300">Cargando puntuaciones de amigos...</div>
-        <div v-else-if="friendRatings.length === 0" class="text-gray-300">Tus amigos no han puntuado este ítem todavía.</div>
+        <div v-if="friendRatingsLoading" class="text-gray-300 text-sm sm:text-base">Cargando puntuaciones de amigos...</div>
+        <div v-else-if="friendRatings.length === 0" class="text-gray-300 text-sm sm:text-base">Tus amigos no han puntuado este ítem todavía.</div>
 
-        <ul v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <li v-for="r in friendRatings" :key="r.id" class="flex items-start gap-4 p-4 rounded bg-gray-800/40">
+        <ul v-else class="grid grid-cols-1 gap-3 sm:gap-4">
+          <li v-for="r in friendRatings" :key="r.id" class="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded bg-gray-800/40">
             <!-- Avatar / initial -->
-            <button @click="router.push({ name: 'profile', query: { userId: r.userId } })" class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" :style="{ backgroundColor: r.avatarColor || '#6B7280' }" aria-label="Ver perfil">
+            <button @click="router.push({ name: 'profile', query: { userId: r.userId } })" class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base" :style="{ backgroundColor: r.avatarColor || '#6B7280' }" aria-label="Ver perfil">
               {{ (r.name && String(r.name).charAt(0)) || '?' }}
             </button>
 
             <div class="flex-1 min-w-0">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3 min-w-0">
-                  <router-link :to="{ name: 'profile', query: { userId: r.userId } }" class="text-white font-semibold truncate no-underline">{{ r.name }}</router-link>
-                  <span class="text-xs text-gray-400">· {{ r.lastModified ? new Date(r.lastModified).toLocaleString() : '' }}</span>
+              <div class="flex items-start sm:items-center justify-between gap-2">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0 flex-1">
+                  <router-link :to="{ name: 'profile', query: { userId: r.userId } }" class="text-white font-semibold truncate no-underline text-sm sm:text-base">{{ r.name }}</router-link>
+                  <span class="text-xs text-gray-400">{{ r.lastModified ? new Date(r.lastModified).toLocaleString() : '' }}</span>
                 </div>
-                <div>
-                  <div :class="['w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm', ratingClass(r.score)]" role="img" :aria-label="r.score != null ? `Puntuación ${r.score} de 10` : 'Sin puntuación'">
+                <div class="flex-shrink-0">
+                  <div :class="['w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm', ratingClass(r.score)]" role="img" :aria-label="r.score != null ? `Puntuación ${r.score} de 10` : 'Sin puntuación'">
                     {{ (r.score != null && r.score !== '') ? (String(r.score) + '/10') : '—' }}
                   </div>
                 </div>
               </div>
-              <div v-if="r.comment" class="mt-2 text-gray-300 text-sm truncate">{{ r.comment }}</div>
+              <div v-if="r.comment" class="mt-2 text-gray-300 text-xs sm:text-sm line-clamp-2 sm:line-clamp-1">{{ r.comment }}</div>
             </div>
           </li>
         </ul>
 
-        <div class="mt-4 flex justify-center">
-          <button v-if="!friendRatingsLoading && friendRatings.length < friendRatingsTotal" @click="loadMoreFriendRatings" class="px-4 py-2 rounded bg-gray-600 text-white">Ver más</button>
+        <div class="mt-3 sm:mt-4 flex justify-center">
+          <button v-if="!friendRatingsLoading && friendRatings.length < friendRatingsTotal" @click="loadMoreFriendRatings" class="px-3 sm:px-4 py-2 rounded bg-gray-600 text-white text-sm sm:text-base">Ver más</button>
         </div>
       </section>
     </main>

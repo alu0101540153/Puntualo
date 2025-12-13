@@ -6,9 +6,9 @@
       </div>
 
       <h1 class="text-8xl md:text-9xl font-bold mb-4">404</h1>
-      <p class="text-2xl md:text-3xl mb-8 text-white">Página no encontrada. Parece que te has perdido.</p>
+      <p class="text-xl sm:text-2xl md:text-3xl mb-6 sm:mb-8 text-white">Página no encontrada. Parece que te has perdido.</p>
 
-      <router-link to="/" class="inline-block px-6 py-3 rounded-full font-bold bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110 shadow-glow hover:shadow-glow-lg transition-all duration-300 text-lg">
+      <router-link to="/" class="inline-block px-5 py-2.5 sm:px-6 sm:py-3 rounded-full font-bold bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110 shadow-glow hover:shadow-glow-lg transition-all duration-300 text-base sm:text-lg">
         Volver al Inicio
       </router-link>
     </div>

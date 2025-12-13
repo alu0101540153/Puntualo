@@ -10,14 +10,14 @@
         <button 
           v-if="friendView && userId" 
           @click="goToUserWatching" 
-          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg"
+          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg text-sm sm:text-base"
         >
           Ver más
         </button>
         <router-link 
           v-else 
           to="/search" 
-          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg inline-block"
+          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg inline-block text-sm sm:text-base"
         >
           + Añadir
         </router-link>

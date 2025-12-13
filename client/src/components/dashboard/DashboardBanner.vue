@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-gradient-to-r from-black via-dark-900 to-black border-b border-primary-500/20 overflow-hidden relative h-32 sm:h-40 md:h-48 lg:h-64 flex items-center justify-center shadow-cinema">
+  <div class="w-full bg-gradient-to-r from-black via-dark-900 to-black border-b border-primary-500/20 overflow-hidden relative h-32 sm:h-40 md:h-48 lg:h-64 flex items-center justify-center shadow-cinema rounded-2xl">
     <!-- Decorative Background Elements (Film Strip) - Hidden on very small screens -->
     <div class="absolute top-0 left-0 h-full w-16 sm:w-20 md:w-24 lg:w-32 bg-gradient-to-b from-dark-800 to-black hidden xs:flex flex-col justify-between py-2 z-0 -skew-x-12 -ml-6 sm:-ml-8 md:-ml-10 border-r-2 md:border-r-4 border-primary-500/60 opacity-90 md:opacity-100 shadow-glow">
       <div v-for="i in 8" :key="i" class="h-2 sm:h-3 md:h-4 w-10 sm:w-12 md:w-16 bg-gradient-to-r from-gray-200 to-white mx-auto rounded-sm opacity-90 shadow-sm"></div>

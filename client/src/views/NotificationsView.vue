@@ -24,7 +24,7 @@
           <button
             v-if="notifications.length > 0 && unreadCount > 0"
             @click="markAllAsRead"
-            class="px-6 py-3 bg-white text-primary-600 rounded-xl hover:bg-white/90 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105"
+            class="px-4 py-2 sm:px-6 sm:py-3 bg-white text-primary-600 rounded-xl hover:bg-white/90 transition-all duration-300 font-semibold shadow-lg hover:shadow-xl transform hover:scale-105 text-sm sm:text-base whitespace-nowrap"
           >
             ✓ Marcar todas como leídas
           </button>
@@ -119,23 +119,23 @@
                 <!-- Actions para follow requests -->
                 <div
                   v-if="notification.type === 'follow_request' && notification.sender"
-                  class="flex flex-wrap gap-3 mt-5"
+                  class="flex flex-wrap gap-2 sm:gap-3 mt-5"
                 >
                   <button
                     @click="acceptRequest(notification)"
-                    class="px-5 py-2.5 bg-gradient-to-r from-primary-500 to-accent-500 text-black rounded-xl hover:brightness-110 transition-all duration-300 font-semibold shadow-glow hover:shadow-glow-lg transform hover:scale-105"
+                    class="px-3 py-2 sm:px-5 sm:py-2.5 bg-gradient-to-r from-primary-500 to-accent-500 text-black rounded-xl hover:brightness-110 transition-all duration-300 font-semibold shadow-glow hover:shadow-glow-lg transform hover:scale-105 text-sm sm:text-base"
                   >
                     ✓ Aceptar
                   </button>
                   <button
                     @click="rejectRequest(notification)"
-                    class="px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                    class="px-3 py-2 sm:px-5 sm:py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
                   >
                     ✕ Rechazar
                   </button>
                   <router-link
                     :to="{ path: '/profile', query: { userId: notification.sender._id } }"
-                    class="px-5 py-2.5 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
+                    class="px-3 py-2 sm:px-5 sm:py-2.5 bg-gray-700 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 font-semibold shadow-md hover:shadow-lg transform hover:scale-105 text-sm sm:text-base"
                   >
                     👤 Ver perfil
                   </router-link>

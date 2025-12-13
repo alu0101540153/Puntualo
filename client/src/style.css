@@ -8,8 +8,8 @@ html, body, #app {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* Professional black gradient background */
-  background-image: linear-gradient(180deg, #000000 0%, #0a0e1a 40%, #111827 100%) !important;
+  /* Professional black gradient background - slightly lighter */
+  background-image: linear-gradient(180deg, #0f1419 0%, #1a1f2e 40%, #1f2937 100%) !important;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -109,4 +109,129 @@ html {
 
 .fade-in-up {
   animation: fadeInUp 0.6s ease-out;
+}
+
+/* ===================================
+   MEJORAS ESPECÍFICAS PARA MÓVIL
+   (No afecta al diseño web)
+   =================================== */
+
+/* Mejorar padding en móvil */
+@media (max-width: 640px) {
+  #app {
+    padding: 1rem !important;
+  }
+  
+  /* Mejorar espaciado de botones en móvil */
+  .carousel-btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.25rem;
+  }
+  
+  /* Mejor táctil para elementos interactivos */
+  button, a, [role="button"] {
+    min-height: 44px; /* Recomendación de Apple para áreas táctiles */
+    -webkit-tap-highlight-color: rgba(16, 185, 129, 0.2);
+  }
+  
+  /* Mejorar legibilidad de textos en móvil */
+  body {
+    font-size: 16px; /* Evita zoom automático en iOS */
+  }
+  
+  /* Optimizar modales en móvil */
+  .modal-content {
+    max-height: 85vh !important;
+    margin: 1rem;
+  }
+}
+
+/* Mejoras para pantallas muy pequeñas (< 375px) */
+@media (max-width: 375px) {
+  #app {
+    padding: 0.75rem !important;
+  }
+  
+  /* Reducir tamaño de fuentes grandes en móviles pequeños */
+  h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  h3 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Mejorar scroll en móvil - más suave */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mejorar interacción con carruseles en táctil */
+  .carousel {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .carousel > * {
+    scroll-snap-align: start;
+  }
+}
+
+/* Landscape móvil - ajustar alturas */
+@media (max-width: 896px) and (orientation: landscape) {
+  .h-32 {
+    height: 6rem !important;
+  }
+  
+  .h-40 {
+    height: 8rem !important;
+  }
+  
+  /* Reducir padding vertical en landscape */
+  .py-16 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+}
+
+/* Mejoras para notch y safe areas en móviles modernos */
+@supports (padding: max(0px)) {
+  @media (max-width: 768px) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+    
+    header {
+      padding-top: max(0px, env(safe-area-inset-top));
+    }
+  }
+}
+
+/* Optimizar performance en móvil */
+@media (max-width: 768px) {
+  /* Reducir animaciones costosas en dispositivos móviles */
+  .animate-spin,
+  .animate-pulse,
+  .animate-shimmer {
+    animation-duration: 1.5s;
+  }
+  
+  /* Simplificar sombras en móvil para mejor rendimiento */
+  .shadow-2xl,
+  .shadow-cinema {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .shadow-glow,
+  .shadow-glow-lg {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important;
+  }
 }
