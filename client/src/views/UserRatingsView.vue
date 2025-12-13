@@ -1,102 +1,112 @@
 <template>
   <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader />
-    <main class="max-w-5xl mx-auto px-4 py-8 mt-6">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
-        <h2 class="text-xl sm:text-2xl font-bold text-white">Puntuados de {{ userName }}</h2>
+    <main class="max-w-5xl mx-auto px-4 py-6 sm:py-8 mt-4 sm:mt-6">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white">Puntuados de {{ userName }}</h2>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-          <label class="text-xs sm:text-sm text-gray-300">Ordenar:</label>
-          <select v-model="sortOption" @change="onSortChange" class="bg-gray-800 text-white text-xs sm:text-sm px-2 sm:px-3 py-1 rounded">
-            <option value="date:desc">Más reciente</option>
-            <option value="date:asc">Más antiguo</option>
-            <option value="score:asc">Puntuación: más baja</option>
-            <option value="score:desc">Puntuación: más alta</option>
-          </select>
+        <!-- Ordenación: fecha / puntuación -->
+        <div class="w-full sm:w-auto">
+          <label class="text-sm text-gray-400 font-medium mb-2 block sm:hidden">Ordenar por:</label>
+          <div class="relative">
+            <select v-model="sortOption" @change="onSortChange" class="w-full sm:w-auto bg-gradient-to-br from-dark-800/80 to-black/60 border-2 border-primary-500/30 text-white text-base sm:text-sm font-medium px-4 py-3 sm:py-2.5 pr-10 rounded-xl sm:rounded-lg focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all shadow-lg appearance-none cursor-pointer">
+              <option value="date:desc">Más reciente</option>
+              <option value="date:asc">Más antiguo</option>
+              <option value="score:asc">Puntuación: más baja</option>
+              <option value="score:desc">Puntuación: más alta</option>
+            </select>
+            <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
       </div>
 
       <!-- Filters: Tipo -->
-      <div class="flex items-center gap-2 mb-4 sm:mb-6 overflow-x-auto pb-2">
-        <button :class="['px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap', selectedType === 'all' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
-        <button :class="['px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap', selectedType === 'movie' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
-        <button :class="['px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap', selectedType === 'series' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
-        <button :class="['px-3 py-1 rounded-full text-xs sm:text-sm font-medium transition-all whitespace-nowrap', selectedType === 'book' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+      <div class="grid grid-cols-2 sm:flex sm:items-center gap-3 mb-6">
+        <button :class="['px-5 py-2.5 rounded-full text-sm font-extrabold transition-all shadow-md whitespace-nowrap', selectedType === 'all' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110' : 'bg-slate-700/80 border border-slate-600 text-gray-200 hover:bg-slate-600']" @click="selectedType = 'all'">Todos</button>
+        <button :class="['px-5 py-2.5 rounded-full text-sm font-extrabold transition-all shadow-md whitespace-nowrap', selectedType === 'movie' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110' : 'bg-slate-700/80 border border-slate-600 text-gray-200 hover:bg-slate-600']" @click="selectedType = 'movie'">🎬 Película</button>
+        <button :class="['px-5 py-2.5 rounded-full text-sm font-extrabold transition-all shadow-md whitespace-nowrap', selectedType === 'series' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110' : 'bg-slate-700/80 border border-slate-600 text-gray-200 hover:bg-slate-600']" @click="selectedType = 'series'">📺 Serie</button>
+        <button :class="['px-5 py-2.5 rounded-full text-sm font-extrabold transition-all shadow-md whitespace-nowrap', selectedType === 'book' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110' : 'bg-slate-700/80 border border-slate-600 text-gray-200 hover:bg-slate-600']" @click="selectedType = 'book'">📖 Libro</button>
       </div>
 
   <div v-if="loading" class="text-gray-300 text-sm sm:text-base">Cargando puntuados...</div>
 
-      <div class="space-y-4 sm:space-y-6">
-        <div v-for="r in displayedRatings" :key="r._id || r.itemId" class="bg-gradient-to-b from-gray-800 to-gray-700 bg-opacity-40 rounded-2xl p-4 sm:p-6">
+      <div class="space-y-4">
+        <div v-for="r in displayedRatings" :key="r._id || r.itemId" class="bg-gradient-to-br from-dark-800/80 to-black/60 border border-primary-500/20 rounded-2xl p-5 sm:p-6 shadow-lg hover:shadow-xl transition-shadow">
           <!-- Mobile Layout: Stacked -->
           <div class="flex flex-col sm:hidden gap-4">
             <!-- Header with user info and score -->
             <div class="flex items-start justify-between gap-3">
-              <div class="flex items-center gap-2 min-w-0 flex-1">
-                <div class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 text-sm" :style="{ backgroundColor: (user && user.avatarBgColor) || '#ec4899' }">{{ userInitial }}</div>
+              <div class="flex items-center gap-3 min-w-0 flex-1">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" :style="{ backgroundColor: (user && user.avatarBgColor) || '#ec4899' }">{{ userInitial }}</div>
                 <div class="min-w-0 flex-1">
-                  <div class="text-white font-semibold text-sm truncate">{{ userName }}</div>
-                  <div class="text-xs text-gray-300">{{ formatTimeAgo(r.lastModified || r._id) }}</div>
+                  <div class="text-white font-semibold truncate">{{ userName }}</div>
+                  <div class="text-xs text-gray-400">{{ formatTimeAgo(r.lastModified || r._id) }}</div>
                 </div>
               </div>
               <div class="flex-shrink-0">
-                <div :class="['w-16 h-16 rounded-full flex items-center justify-center text-lg font-extrabold text-white', displayClass(r)]">{{ displayScore(r) }}</div>
+                <div :class="['w-16 h-16 rounded-full flex items-center justify-center text-xl font-extrabold text-white shadow-lg', displayClass(r)]">{{ displayScore(r) }}</div>
               </div>
             </div>
 
             <!-- Content with poster and details -->
-            <div class="flex gap-3">
+            <div class="flex gap-4">
               <div class="w-24 flex-shrink-0">
-                <img :src="getImage(r)" alt="poster" class="w-full h-32 object-cover rounded-lg shadow-lg" />
+                <div class="cursor-pointer transform hover:scale-105 transition-transform">
+                  <img :src="getImage(r)" alt="poster" class="w-full h-32 object-cover rounded-xl shadow-lg" />
+                </div>
               </div>
               <div class="flex-1 min-w-0">
-                <p class="text-gray-300 text-sm mb-2">ha puntuado <span class="text-white font-semibold">{{ getTitle(r) }}</span></p>
-                <div v-if="getDescription(r)" class="bg-gradient-to-br from-gray-700 to-gray-800 border border-white/10 rounded-lg p-2 text-gray-100 italic text-xs leading-relaxed shadow-md line-clamp-3">"{{ getDescription(r) }}"</div>
-                <div class="mt-2 text-xs text-gray-300">{{ getGenres(r) }}</div>
+                <p class="text-gray-300 text-sm mb-2">ha puntuado <span class="text-white font-bold">{{ getTitle(r) }}</span></p>
+                <div v-if="getDescription(r)" class="bg-gradient-to-br from-slate-800/60 to-slate-900/40 border-l-4 border-primary-500/40 rounded-lg p-3 text-gray-200 italic text-xs leading-relaxed shadow-md line-clamp-3">"{{ getDescription(r) }}"</div>
+                <div class="mt-2 text-xs text-gray-400">{{ getGenres(r) }}</div>
               </div>
             </div>
 
             <!-- Actions -->
             <div>
-              <button @click="goToDetail(r)" class="w-full text-xs text-white bg-white/6 px-3 py-2 rounded">Ver detalle</button>
+              <button @click="goToDetail(r)" class="w-full text-sm font-extrabold text-white bg-gradient-to-r from-primary-500/20 to-accent-500/20 hover:from-primary-500/30 hover:to-accent-500/30 border border-primary-500/30 px-4 py-2.5 rounded-full transition-all">Ver detalle</button>
             </div>
           </div>
 
           <!-- Desktop Layout: Original with absolute positioning -->
           <div class="hidden sm:flex relative gap-6 items-start justify-between">
             <div class="w-36 flex-shrink-0">
-              <img :src="getImage(r)" alt="poster" class="w-full h-56 object-cover rounded-lg shadow-lg" />
+              <div class="cursor-pointer transform hover:scale-105 transition-transform">
+                <img :src="getImage(r)" alt="poster" class="w-full h-56 object-cover rounded-xl shadow-lg" />
+              </div>
             </div>
 
             <div class="flex-1 min-w-0 pr-52">
               <div class="flex items-start justify-start">
                 <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0" :style="{ backgroundColor: (user && user.avatarBgColor) || '#ec4899' }">{{ userInitial }}</div>
+                  <div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-bold flex-shrink-0 shadow-md" :style="{ backgroundColor: (user && user.avatarBgColor) || '#ec4899' }">{{ userInitial }}</div>
                   <div>
-                    <div class="text-white font-semibold">{{ userName }}</div>
-                    <div class="text-sm text-gray-300">{{ formatTimeAgo(r.lastModified || r._id) }}</div>
+                    <div class="text-white font-bold">{{ userName }}</div>
+                    <div class="text-sm text-gray-400">{{ formatTimeAgo(r.lastModified || r._id) }}</div>
                   </div>
                 </div>
               </div>
 
               <div class="mt-6">
-                <p class="text-gray-300">ha puntuado <span class="text-white font-semibold">{{ getTitle(r) }}</span></p>
+                <p class="text-gray-300">ha puntuado <span class="text-white font-bold text-lg">{{ getTitle(r) }}</span></p>
               </div>
 
-              <div v-if="getDescription(r)" class="mt-4 bg-gradient-to-br from-gray-700 to-gray-800 border border-white/10 rounded-lg p-4 text-gray-100 italic leading-relaxed shadow-md">"{{ getDescription(r) }}"</div>
+              <div v-if="getDescription(r)" class="mt-4 bg-gradient-to-br from-slate-800/60 to-slate-900/40 border-l-4 border-primary-500/40 rounded-lg p-4 text-gray-200 italic leading-relaxed shadow-md">"{{ getDescription(r) }}"</div>
 
-              <div class="mt-6 text-sm text-gray-300">{{ getGenres(r) }}</div>
+              <div class="mt-6 text-sm text-gray-400 font-medium">{{ getGenres(r) }}</div>
             </div>
 
-            <div class="absolute top-4 right-6 z-10">
+            <div class="absolute top-2 right-6 z-10">
               <div class="flex flex-row gap-3">
                 <button @click="goToDetail(r)" class="text-sm text-white bg-white/6 px-3 py-1 rounded">Ver detalle</button>
               </div>
             </div>
 
-            <div class="absolute right-6 top-1/2 transform -translate-y-1/2 flex flex-col items-center z-10">
-              <div :class="['w-24 h-24 rounded-full flex items-center justify-center text-2xl font-extrabold text-white', displayClass(r)]">{{ displayScore(r) }}</div>
-              <div class="mt-3 text-sm text-gray-300 text-center">{{ displayScoreLabel(r) }}</div>
+            <div class="absolute right-6 top-1/2 transform -translate-y-1/2 flex flex-col items-center z-10 mt-6">
+              <div :class="['w-24 h-24 rounded-full flex items-center justify-center text-2xl font-extrabold text-white shadow-xl', displayClass(r)]">{{ displayScore(r) }}</div>
+              <div class="mt-3 text-sm text-gray-400 text-center font-semibold">{{ displayScoreLabel(r) }}</div>
             </div>
           </div>
         </div>

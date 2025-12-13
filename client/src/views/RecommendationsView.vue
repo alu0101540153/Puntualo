@@ -2,10 +2,10 @@
   <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader />
     
-    <main class="max-w-6xl mx-auto px-4 py-8">
-      <div class="mb-8">
-        <h1 class="text-4xl font-bold text-white mb-2">Recomendados</h1>
-        <p class="text-gray-300">Descubre contenido que podría interesarte</p>
+    <main class="max-w-6xl mx-auto px-4 py-6 sm:py-8">
+      <div class="mb-6 sm:mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-white mb-2">Recomendados</h1>
+        <p class="text-sm sm:text-base text-gray-300">Descubre contenido que podría interesarte</p>
       </div>
 
       <div v-if="loading" class="text-center text-gray-300 py-12">
@@ -13,16 +13,16 @@
       </div>
 
       <div v-else>
-        <!-- Filters: Tipo de contenido (siempre visibles cuando no está cargando) -->
-        <div class="flex items-center gap-2 mb-6">
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+        <!-- Filters: Tipo de contenido (distribución mejorada para móvil) -->
+        <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center justify-center sm:justify-start gap-3 mb-6 max-w-md sm:max-w-none mx-auto sm:mx-0">
+          <button :class="['px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-md', selectedType === 'all' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black' : 'bg-gray-700/80 text-gray-200 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
+          <button :class="['px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-md', selectedType === 'movie' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black' : 'bg-gray-700/80 text-gray-200 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
+          <button :class="['px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-md', selectedType === 'series' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black' : 'bg-gray-700/80 text-gray-200 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
+          <button :class="['px-5 py-2.5 rounded-full text-sm font-semibold transition-all shadow-md', selectedType === 'book' ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black' : 'bg-gray-700/80 text-gray-200 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
         </div>
 
-        <!-- Contenedor con altura mínima para evitar salto de layout cuando no hay resultados -->
-        <div class="min-h-[320px]">
+        <!-- Contenedor sin altura mínima fija -->
+        <div>
           <div v-if="recommendations.length === 0" class="text-left text-gray-300 py-12">
             No hay recomendaciones disponibles en este momento.
           </div>
@@ -40,30 +40,32 @@
         </div>
 
         <!-- Pagination controls -->
-        <div v-if="displayedRecommendations.length > itemsPerPage" class="flex items-center justify-between mt-8 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-          <div class="text-sm text-gray-500 font-medium">
-            Mostrando <span class="font-semibold">{{ startIndex + 1 }}-{{ endIndex }}</span> de <span class="font-semibold">{{ displayedRecommendations.length }}</span> recomendaciones
+        <div v-if="displayedRecommendations.length > itemsPerPage" class="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6 sm:mt-8 bg-white/5 backdrop-blur-sm rounded-xl p-4 border border-white/10">
+          <div class="text-xs sm:text-sm text-gray-400 font-medium text-center sm:text-left">
+            Mostrando <span class="font-semibold text-primary-400">{{ startIndex + 1 }}-{{ endIndex }}</span> de <span class="font-semibold text-primary-400">{{ displayedRecommendations.length }}</span>
           </div>
-          <div class="flex items-center gap-3">
-            <button
-              @click="prevPage"
-              :disabled="currentPage <= 1"
-              class="px-4 py-2 rounded-full bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              Anterior
-            </button>
+          <div class="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <div class="flex items-center gap-2 order-2 sm:order-1">
+              <button
+                @click="prevPage"
+                :disabled="currentPage <= 1"
+                class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black text-xs sm:text-sm font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                Anterior
+              </button>
 
-            <div class="flex items-center gap-2 px-4 bg-white/6 rounded-md py-2">
-              <span class="text-gray-500 font-semibold">Página {{ currentPage }} de {{ totalPages }}</span>
+              <button
+                @click="nextPage"
+                :disabled="currentPage >= totalPages"
+                class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black text-xs sm:text-sm font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+              >
+                Siguiente
+              </button>
             </div>
-
-            <button
-              @click="nextPage"
-              :disabled="currentPage >= totalPages"
-              class="px-4 py-2 rounded-full bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              Siguiente
-            </button>
+            
+            <div class="flex items-center gap-2 px-3 bg-white/10 rounded-lg py-1.5 order-1 sm:order-2">
+              <span class="text-gray-300 font-semibold text-xs sm:text-sm">Página {{ currentPage }} de {{ totalPages }}</span>
+            </div>
           </div>
         </div>
       </div>

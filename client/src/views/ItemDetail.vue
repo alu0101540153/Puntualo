@@ -51,8 +51,11 @@
 
             <div class="mt-3 sm:mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
               <button @click="openRatingModal" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold px-4 sm:px-5 py-2 rounded-lg hover:brightness-95 transition text-sm sm:text-base whitespace-nowrap">Puntuar / Escribir reseña</button>
-              <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-white font-semibold text-sm sm:text-base whitespace-nowrap" :class="inWishlist ? 'bg-yellow-500' : 'bg-primary-600 hover:bg-primary-700'">
-                {{ inWishlist ? 'En mi lista' : 'Añadir a mi lista' }}
+              <button @click="toggleWishlist" :disabled="wishlistLoading" class="px-4 py-2 rounded-lg text-white font-semibold text-sm sm:text-base whitespace-nowrap" :class="inWishlist ? 'bg-red-600 hover:bg-red-700' : 'bg-primary-600 hover:bg-primary-700'">
+                {{ inWishlist ? 'Quitar de mi lista' : 'Añadir a mi lista' }}
+              </button>
+              <button @click="toggleWatching" :disabled="watchingLoading" class="px-4 py-2 rounded-lg text-white font-semibold text-sm sm:text-base whitespace-nowrap" :class="isWatching ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'">
+                {{ isWatching ? (isBook ? 'Quitar de leyendo' : 'Quitar de viendo') : (isBook ? 'Añadir a leyendo' : 'Añadir a viendo') }}
               </button>
             </div>
 
@@ -75,38 +78,42 @@
         @success="handleRatingSuccess"
       />
 
-      <section class="mt-4 sm:mt-8 bg-gradient-to-b from-gray-700 to-gray-600 bg-opacity-25 rounded-2xl p-4 sm:p-6 shadow-inner">
-        <h3 class="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4">Puntuación de amigos</h3>
+      <section class="mt-4 sm:mt-8 bg-gradient-to-br from-dark-800/80 to-black/60 rounded-xl p-5 sm:p-6 shadow-lg border border-primary-500/20">
+        <h3 class="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-5">Puntuación de amigos</h3>
 
-        <div v-if="friendRatingsLoading" class="text-gray-300 text-sm sm:text-base">Cargando puntuaciones de amigos...</div>
-        <div v-else-if="friendRatings.length === 0" class="text-gray-300 text-sm sm:text-base">Tus amigos no han puntuado este ítem todavía.</div>
+        <div v-if="friendRatingsLoading" class="text-gray-300 text-center py-6">Cargando puntuaciones de amigos...</div>
+        <div v-else-if="friendRatings.length === 0" class="text-gray-400 text-center py-6">Tus amigos no han puntuado este ítem todavía.</div>
 
-        <ul v-else class="grid grid-cols-1 gap-3 sm:gap-4">
-          <li v-for="r in friendRatings" :key="r.id" class="flex items-start gap-3 sm:gap-4 p-3 sm:p-4 rounded bg-gray-800/40">
-            <!-- Avatar / initial -->
-            <button @click="router.push({ name: 'profile', query: { userId: r.userId } })" class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-sm sm:text-base" :style="{ backgroundColor: r.avatarColor || '#6B7280' }" aria-label="Ver perfil">
-              {{ (r.name && String(r.name).charAt(0)) || '?' }}
-            </button>
+        <ul v-else class="space-y-3 sm:space-y-4">
+          <li v-for="r in friendRatings" :key="r.id" class="bg-slate-800/50 backdrop-blur-sm rounded-lg p-4 border border-slate-700/50 hover:border-primary-500/30 transition-all">
+            <div class="flex items-center gap-3 mb-3">
+              <!-- Avatar -->
+              <button @click="router.push({ name: 'profile', query: { userId: r.userId } })" class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-base shadow-md ring-2 ring-slate-600 hover:ring-primary-500/50 transition-all" :style="{ backgroundColor: r.avatarColor || '#6B7280' }" aria-label="Ver perfil">
+                {{ (r.name && String(r.name).charAt(0)) || '?' }}
+              </button>
 
-            <div class="flex-1 min-w-0">
-              <div class="flex items-start sm:items-center justify-between gap-2">
-                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0 flex-1">
-                  <router-link :to="{ name: 'profile', query: { userId: r.userId } }" class="text-white font-semibold truncate no-underline text-sm sm:text-base">{{ r.name }}</router-link>
-                  <span class="text-xs text-gray-400">{{ r.lastModified ? new Date(r.lastModified).toLocaleString() : '' }}</span>
-                </div>
-                <div class="flex-shrink-0">
-                  <div :class="['w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm', ratingClass(r.score)]" role="img" :aria-label="r.score != null ? `Puntuación ${r.score} de 10` : 'Sin puntuación'">
-                    {{ (r.score != null && r.score !== '') ? (String(r.score) + '/10') : '—' }}
-                  </div>
+              <div class="flex-1 min-w-0">
+                <router-link :to="{ name: 'profile', query: { userId: r.userId } }" class="text-white font-semibold truncate no-underline text-base hover:text-primary-400 transition-colors block">{{ r.name }}</router-link>
+                <span class="text-xs text-gray-400 block mt-0.5">{{ r.lastModified ? new Date(r.lastModified).toLocaleString() : '' }}</span>
+              </div>
+
+              <!-- Rating badge -->
+              <div class="flex-shrink-0">
+                <div :class="['w-14 h-14 rounded-full flex items-center justify-center text-white font-extrabold text-sm shadow-lg', ratingClass(r.score)]" role="img" :aria-label="r.score != null ? `Puntuación ${r.score} de 10` : 'Sin puntuación'">
+                  {{ (r.score != null && r.score !== '') ? (Number(r.score).toFixed(1) + '/10') : '—' }}
                 </div>
               </div>
-              <div v-if="r.comment" class="mt-2 text-gray-300 text-xs sm:text-sm line-clamp-2 sm:line-clamp-1">{{ r.comment }}</div>
+            </div>
+
+            <!-- Comment -->
+            <div v-if="r.comment" class="mt-3 text-gray-300 text-sm leading-relaxed bg-slate-900/40 rounded-lg p-3 border-l-4 border-primary-500/40">
+              {{ r.comment }}
             </div>
           </li>
         </ul>
 
-        <div class="mt-3 sm:mt-4 flex justify-center">
-          <button v-if="!friendRatingsLoading && friendRatings.length < friendRatingsTotal" @click="loadMoreFriendRatings" class="px-3 sm:px-4 py-2 rounded bg-gray-600 text-white text-sm sm:text-base">Ver más</button>
+        <div class="mt-5 flex justify-center">
+          <button v-if="!friendRatingsLoading && friendRatings.length < friendRatingsTotal" @click="loadMoreFriendRatings" class="px-6 py-2.5 rounded-lg bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 shadow-md transition-all text-sm">Ver más</button>
         </div>
       </section>
     </main>
@@ -120,7 +127,7 @@ import { getItemById, createItem } from '@/services/item'
 import { getFriendsRatings } from '@/services/item'
 import localRecommendations from '@/data/recommendations'
 import { getUser } from '@/services/auth'
-import { getMyRatings, addRating, addItemToUser, removeItemFromUser, getUserById } from '@/services/user'
+import { getMyRatings, addRating, addItemToUser, removeItemFromUser, getUserById, deleteRating } from '@/services/user'
 import { success as notifySuccess, error as notifyError } from '@/services/notify'
 import { useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
@@ -146,6 +153,9 @@ const wishlistSubId = ref<string | null>(null)
 const wishlistLoading = ref(false)
 const showCompletePrompt = ref(false)
 const completeProcessing = ref(false)
+const isWatching = ref(false)
+const watchingRatingId = ref<string | null>(null)
+const watchingLoading = ref(false)
 
 // Computed property for rating modal data
 const ratingItemData = computed(() => ({
@@ -381,6 +391,8 @@ onMounted(async () => {
       await tryPrefillForItem()
         // check if item is in my wishlist
         await checkWishlist()
+      // check if item is currently being watched
+      await checkWatching()
       // load first page of friend ratings
       await loadFriendRatings(true)
       return
@@ -648,6 +660,108 @@ async function toggleWishlist() {
     try { notifyError('No se pudo actualizar tu lista. Intenta de nuevo.') } catch (err) {}
   } finally {
     wishlistLoading.value = false
+  }
+}
+
+async function checkWatching() {
+  try {
+    const user = getUser()
+    if (!user || !user._id) {
+      isWatching.value = false
+      watchingRatingId.value = null
+      return
+    }
+    const ratings: any = await getMyRatings(user._id)
+    const ratingsArr = Array.isArray(ratings) ? ratings : []
+    
+    // normalize item id and compute latest per item
+    const rawId = item.value && (item.value._id || item.value.id || id)
+    
+    // find all ratings for this item
+    const itemRatings = ratingsArr.filter((r: any) => {
+      const rItemId = r.itemId?._id || r.itemId?.id || String(r.itemId || '')
+      return rItemId && rawId && String(rItemId) === String(rawId)
+    })
+    
+    if (itemRatings.length === 0) {
+      isWatching.value = false
+      watchingRatingId.value = null
+      return
+    }
+    
+    // get the most recent rating
+    const latest = itemRatings.reduce((prev: any, curr: any) => {
+      const prevTime = prev.lastModified ? new Date(prev.lastModified).getTime() : 0
+      const currTime = curr.lastModified ? new Date(curr.lastModified).getTime() : 0
+      return currTime >= prevTime ? curr : prev
+    })
+    
+    // check if status is 'watching'
+    function isWatchingStatus(s: any) {
+      if (!s) return false
+      const low = String(s).toLowerCase()
+      return low === 'watching' || low === 'viendo' || low === 'in-progress' || low === 'inprogress' || low === 'in_progress'
+    }
+    
+    if (isWatchingStatus(latest.status)) {
+      isWatching.value = true
+      watchingRatingId.value = latest._id || null
+    } else {
+      isWatching.value = false
+      watchingRatingId.value = null
+    }
+  } catch (err) {
+    console.error('Error checking watching status', err)
+    isWatching.value = false
+    watchingRatingId.value = null
+  }
+}
+
+async function toggleWatching() {
+  const user = getUser()
+  if (!user || !user._id) {
+    router.push('/login')
+    return
+  }
+  watchingLoading.value = true
+  try {
+    if (!isWatching.value) {
+      // add to watching
+      const dbItemId = await ensureDbItem()
+      const payload: any = {
+        itemId: dbItemId,
+        itemType: item.value.itemType || 'book',
+        status: 'watching'
+      }
+      await addRating(user._id, payload)
+      
+      // if item is in wishlist, remove it
+      if (inWishlist.value && wishlistSubId.value) {
+        try {
+          await removeItemFromUser(user._id, wishlistSubId.value)
+          await checkWishlist()
+        } catch (err) {
+          console.error('Error removing from wishlist', err)
+        }
+      }
+      
+      await checkWatching()
+      try { window.dispatchEvent(new CustomEvent('ratingsChanged')) } catch (e) {}
+      try { notifySuccess(isBook ? 'Añadido a leyendo' : 'Añadido a viendo') } catch (err) {}
+    } else {
+      // remove from watching
+      if (watchingRatingId.value) {
+        await deleteRating(user._id, watchingRatingId.value)
+        await checkWatching()
+        try { window.dispatchEvent(new CustomEvent('ratingsChanged')) } catch (e) {}
+        try { notifySuccess(isBook ? 'Eliminado de leyendo' : 'Eliminado de viendo') } catch (err) {}
+      }
+    }
+  } catch (err) {
+    console.error('Error toggling watching status', err)
+    try { notifyError('No se pudo actualizar el estado. Intenta de nuevo.') } catch (err) {}
+  } finally {
+    watchingLoading.value = false
   }
 }
 

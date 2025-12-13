@@ -82,7 +82,7 @@
         </div>
         
         <!-- Profile Avatar -->
-        <div role="button" aria-label="Ir al perfil" title="Ver perfil" tabindex="0" @click="router.push('/profile')" @keyup.enter="router.push('/profile')">
+        <div role="button" aria-label="Ir al perfil" title="Ver perfil" tabindex="0" @click="router.push('/profile')" @keyup.enter="router.push('/profile')" class="flex items-center">
           <div class="sm:hidden">
             <Avatar :user="user" size="sm" extraClass="cursor-pointer ring-2 ring-primary-500/40 hover:ring-primary-500/60 transition-all" :initials="userInitial" />
           </div>

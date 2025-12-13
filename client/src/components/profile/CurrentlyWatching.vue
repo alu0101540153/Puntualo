@@ -1,25 +1,26 @@
 <template>
-  <div class="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-sm rounded-2xl p-6 border border-white/10 shadow-2xl">
-    <div v-if="!hideHeader" class="flex items-center justify-between mb-6">
-      <div>
-        <h3 class="text-3xl font-bold text-white mb-1">{{ userName ? `Actualmente viendo de ${userName}` : 'Actualmente viendo' }}</h3>
-        <p class="text-sm text-gray-400">Sigue lo que estás viendo ahora</p>
+  <div class="bg-gradient-to-br from-dark-800/80 to-black/60 backdrop-blur-sm rounded-xl p-5 sm:p-6 border border-primary-500/20 shadow-lg">
+    <div v-if="!hideHeader" class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div class="flex-1">
+        <h3 class="text-2xl sm:text-3xl font-bold text-white mb-1.5">{{ userName ? `Actualmente viendo de ${userName}` : 'Actualmente viendo' }}</h3>
+        <p class="text-xs sm:text-sm text-gray-400">Sigue lo que estás viendo ahora</p>
       </div>
 
-      <div>
+      <div class="flex-shrink-0">
         <button 
           v-if="friendView && userId" 
           @click="goToUserWatching" 
-          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg text-sm sm:text-base"
+          class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-6 py-2.5 rounded-full shadow-md transition-all duration-300 hover:scale-105 text-base font-extrabold"
         >
           Ver más
         </button>
         <router-link 
           v-else 
           to="/search" 
-          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg inline-block text-sm sm:text-base"
+          class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-6 py-2.5 rounded-full shadow-md transition-all duration-300 hover:scale-105 inline-flex items-center justify-center gap-2 text-base font-extrabold"
         >
-          + Añadir
+          <span>+</span>
+          <span>Añadir</span>
         </router-link>
       </div>
     </div>
