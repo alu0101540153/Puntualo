@@ -1,4 +1,5 @@
 <template>
+  <div @click="$emit('click')">
     <div class="group cursor-pointer bg-gray-800 bg-opacity-30 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-emerald-500">
     <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
       <!-- Imagen Rectangular - Clickeable -->
@@ -45,13 +46,14 @@
     </div>
   </div>
 
-  <!-- Rating Modal -->
-  <RatingModal 
-    :show="showRatingModal" 
-    :item="ratingItem"
-    @close="showRatingModal = false"
-    @success="handleRatingSuccess"
-  />
+    <!-- Rating Modal -->
+    <RatingModal 
+      :show="showRatingModal" 
+      :item="ratingItem"
+      @close="showRatingModal = false"
+      @success="handleRatingSuccess"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -67,6 +69,7 @@ import { success as notifySuccess, error as notifyError } from '@/services/notif
 const props = defineProps<{
   recommendation: Recommendation
 }>()
+defineEmits(['click'])
 
 const router = useRouter()
 const showRatingModal = ref(false)

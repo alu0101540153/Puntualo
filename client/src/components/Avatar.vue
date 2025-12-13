@@ -69,8 +69,8 @@ const sizeClasses = computed(() => {
   const s = props.size || 'md'
   if (s === 'sm') return 'w-8 h-8'
   if (s === 'md') return 'w-10 h-10'
-  if (s === 'lg') return 'w-20 h-20'
-  if (s === 'xl') return 'w-24 h-24'
+  if (s === 'lg') return 'w-12 h-12'
+  if (s === 'xl') return 'w-16 h-16'
   return String(s)
 })
 

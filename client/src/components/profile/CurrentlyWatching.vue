@@ -144,10 +144,10 @@ import { getMyRatings } from '@/services/user'
 import { useRouter } from 'vue-router'
 import { getUser } from '@/services/auth'
 
-const props = defineProps<{ userId?: string; ratings?: any[]; hideHeader?: boolean; friendView?: boolean; userName?: string }>()
+const props = defineProps<{ userId?: string; ratings?: any[]; hideHeader?: boolean; friendView?: boolean; userName?: string; items?: any[] }>()
 const { userId, ratings, hideHeader, friendView, userName } = props
 
-const items = ref<any[]>([])
+const items = ref<any[]>(props.items || [])
 const loading = ref(false)
 const router = useRouter()
 
@@ -218,6 +218,11 @@ async function load() {
   // allow passing ratings array via props.ratings
   loading.value = true
   try {
+    if (props.items && Array.isArray(props.items)) {
+      items.value = props.items
+      loading.value = false
+      return
+    }
     const data: any = ratings && Array.isArray(ratings) ? ratings : (userId ? await getMyRatings(userId) : (getUser() ? await getMyRatings(getUser()._id) : []))
     const arr = Array.isArray(data) ? data : []
 

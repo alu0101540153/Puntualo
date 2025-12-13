@@ -4,9 +4,13 @@
 
     <!-- Grid de Recomendaciones -->
     <div :class="gridClass">
+      <div v-if="!recommendations || recommendations.length === 0" class="col-span-full text-gray-300">
+        No recommendations yet
+      </div>
       <RecommendationCard 
+        v-else
         v-for="recommendation in recommendations"
-        :key="recommendation.id"
+        :key="recommendation._id || recommendation.id"
         :recommendation="recommendation"
       />
     </div>

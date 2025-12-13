@@ -1,5 +1,13 @@
 import api from './api'
 
+export async function getStats(userId: string) {
+  return api.apiFetch(`/stats/${userId}`)
+}
+
+export async function getCommonItemsBetweenUsers(user1Id: string, user2Id: string) {
+  return api.apiFetch(`/stats/common/${user1Id}/${user2Id}`)
+}
+
 export async function getUserCount() {
   const tries = ['/stats', '/stats/site', '/users/count', '/admin/stats']
   const result: any = {}

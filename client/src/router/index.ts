@@ -46,9 +46,10 @@ const router = createRouter({
     }
     ,
     {
-      path: '/profile',
+      path: '/profile/:id',
       name: 'profile',
       component: ProfileView,
+      props: true
     }
     ,
     {

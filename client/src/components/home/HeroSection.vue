@@ -1,5 +1,5 @@
 <template>
-  <section class="max-w-6xl mx-auto py-16 md:py-20 px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-16">
+  <section class="max-w-6xl mx-auto py-16 md:py-20 px-4 md:px-8 flex flex-col md:flex-row items-center justify-between gap-12 md:gap-16 bg-gradient-to-r from-emerald-500/40 to-teal-500/40 rounded-3xl">
     <div class="flex-1 text-white">
       <h1 class="logo text-5xl md:text-7xl font-black mb-6 drop-shadow-lg">
         Puntúalo<span class="text-2xl md:text-4xl font-normal opacity-90">.com</span>
@@ -7,6 +7,9 @@
       <p class="tagline text-2xl md:text-4xl font-semibold leading-tight mb-10 drop-shadow-md">
         Puntúa libros, películas y series, y comparte con tus amigos
       </p>
+      <button type="button" class="bg-white text-gray-900 font-bold px-6 py-3 rounded-full shadow-lg hover:shadow-xl">
+        Empieza ahora
+      </button>
     </div>
     <div class="flex-1 flex justify-center items-center">
       <img

@@ -15,11 +15,12 @@
       </div>
 
       <div class="cards-area">
-        <div v-for="(it, i) in items.slice(0,5)" :key="it.id || i" class="showcase-card" :data-idx="i">
+        <div v-for="(it, i) in itemsList.slice(0,5)" :key="it.id || i" class="showcase-card" :data-idx="i">
           <div class="card-inner">
             <div class="card-front poster" :style="bgStyle(it.image)">
               <div class="title">{{ it.title }}</div>
               <div class="rating">{{ it.rating }}</div>
+              <img v-if="it.image" :src="it.image" alt="media" class="sr-only" />
             </div>
             <div class="card-back" aria-hidden="true"></div>
           </div>
@@ -30,8 +31,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
-const props = defineProps<{ items: any[], usersCount?: number, reviewsCount?: number }>()
+import { ref, onMounted, onUnmounted, watch, computed, withDefaults } from 'vue'
+const props = withDefaults(defineProps<{ items?: any[], usersCount?: number, reviewsCount?: number }>(), {
+  items: () => []
+})
+const itemsList = computed(() => props.items || [])
 const usersCount = props.usersCount ?? 0
 const reviewsCount = props.reviewsCount ?? 0
 const root = ref<HTMLElement | null>(null)

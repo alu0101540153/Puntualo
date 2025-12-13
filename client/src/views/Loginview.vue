@@ -9,23 +9,25 @@
         </RouterLink>
       </div>
 
-      <div class="flex flex-col mb-8" style="row-gap: clamp(16px,3vw,32px); margin-bottom:24px;">
-        <Input v-model="email" type="email" placeholder="Correo electrónico" />
-        <Input v-model="password" type="password" placeholder="Contraseña" />
-      </div>
-
-      <div class="w-full flex flex-col items-center gap-4">
-        <Button @click="login" :disabled="loading" size="lg" class="w-full">
-          {{ loading ? 'CARGANDO...' : 'INICIAR SESIÓN' }}
-        </Button>
-
-        <div class="text-center mt-4 w-full">
-          <span class="text-sm text-gray-300">¿No tienes cuenta?</span>
-          <RouterLink to="/register" class="ml-2 text-emerald-400 font-semibold">Regístrate</RouterLink>
+      <form class="w-full flex flex-col gap-4" @submit.prevent="login">
+        <div class="flex flex-col" style="row-gap: clamp(16px,3vw,32px); margin-bottom:24px;">
+          <Input v-model="email" type="email" placeholder="Correo electrónico" />
+          <Input v-model="password" type="password" placeholder="Contraseña" />
         </div>
 
-        <div v-if="error" class="text-center mt-2" style="color:#ff9b9b">{{ error }}</div>
-      </div>
+        <div class="w-full flex flex-col items-center gap-4">
+          <Button type="submit" :disabled="loading" size="lg" class="w-full">
+            {{ loading ? 'CARGANDO...' : 'INICIAR SESIÓN' }}
+          </Button>
+
+          <div class="text-center mt-4 w-full">
+            <span class="text-sm text-gray-300">¿No tienes cuenta?</span>
+            <RouterLink to="/register" class="ml-2 text-emerald-400 font-semibold">Regístrate</RouterLink>
+          </div>
+
+          <div v-if="error" class="text-center mt-2" style="color:#ff9b9b">{{ error }}</div>
+        </div>
+      </form>
     </Card>
   </div>
 </template>

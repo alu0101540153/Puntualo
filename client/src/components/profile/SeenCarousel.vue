@@ -11,6 +11,7 @@
         :item="item"
         @select="onSelect"
       />
+      <div class="sr-only" v-for="item in items" :key="'title-'+(item.id || item.title)">{{ item.title }}</div>
     </div>
 
     <button class="carousel-btn btn-next absolute -right-4 md:-right-8 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-90 border-none w-10 h-10 md:w-12 md:h-12 rounded-full text-xl cursor-pointer transition-all duration-300 hover:bg-gray-600 hover:text-white hover:scale-110 shadow-lg z-10 text-gray-700" @click="scrollCarousel(1)">
@@ -26,8 +27,8 @@ import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
 import { getMyRatings } from '@/services/user'
 import { getUser } from '@/services/auth'
 
-const props = defineProps<{ userId?: string; ratings?: any[] }>()
-const items = ref<any[]>([])
+const props = defineProps<{ userId?: string; ratings?: any[]; items?: any[] }>()
+const items = ref<any[]>(props.items || [])
 const carousel = ref<HTMLElement | null>(null)
 const router = useRouter()
 
@@ -57,6 +58,17 @@ function getTitle(r: any) {
 }
 
 async function loadFinished() {
+  if (props.items && Array.isArray(props.items)) {
+    items.value = props.items.map((r: any, idx: number) => ({
+      id: r._id || r.id || idx,
+      detailId: r._id || r.id,
+      image: r.poster || r.image || '/img/placeholder-book.png',
+      rating: r.rating || '-/10',
+      type: r.type || '🎬',
+      title: r.title || 'Sin título'
+    }))
+    return
+  }
   // allow passing ratings array directly via props.ratings for reuse
   if (props.ratings && Array.isArray(props.ratings)) {
     normalizeAndSet(props.ratings)

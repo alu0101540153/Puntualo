@@ -31,10 +31,11 @@ describe('User endpoints (follow/items/ratings)', () => {
     const idB = rb.body.user._id
 
     const follow = await request(app).post(`/api/v1/puntualo/users/${idB}/follow`).set('Authorization', `Bearer ${tokenA}`).expect(200)
-    expect(follow.body.follows).toBeDefined()
+    expect(follow.body.followers).toBeDefined()
+    expect(follow.body.followers.map((s: any) => String(s))).toContain(String(ra.body.user._id))
 
     const unf = await request(app).delete(`/api/v1/puntualo/users/${idB}/follow`).set('Authorization', `Bearer ${tokenA}`).expect(200)
-    expect(unf.body.follows).toBeDefined()
+    expect(unf.body.followers.map((s: any) => String(s))).not.toContain(String(ra.body.user._id))
   })
 
   it('add and remove item in user list', async () => {

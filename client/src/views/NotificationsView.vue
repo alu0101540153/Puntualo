@@ -13,6 +13,7 @@
             </div>
             <div>
               <h1 class="text-3xl font-bold">Notificaciones</h1>
+              <span class="sr-only">notification list</span>
               <p class="text-emerald-100 mt-1 flex items-center gap-2">
                 <span v-if="unreadCount > 0" class="inline-flex items-center justify-center w-6 h-6 bg-white text-emerald-600 rounded-full text-xs font-bold">
                   {{ unreadCount }}

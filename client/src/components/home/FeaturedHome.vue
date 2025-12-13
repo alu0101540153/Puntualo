@@ -1,5 +1,11 @@
 <template>
   <section class="max-w-7xl mx-auto px-4 py-12">
+    <div v-if="featuredItems.length" class="mb-6 text-white">
+      <h3 class="text-2xl font-semibold mb-2">Destacados</h3>
+      <ul>
+        <li v-for="it in featuredItems" :key="it._id || it.id || it.title">{{ it.title }}</li>
+      </ul>
+    </div>
     <!-- Estadísticas principales: solo usuarios y reseñas -->
     <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 gap-4" ref="heroRef" role="region" aria-label="Estadísticas de la comunidad">
       <div class="stat-card card-users" aria-hidden="false">
@@ -115,7 +121,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick, withDefaults, defineProps } from 'vue'
 import { useRouter } from 'vue-router'
 import { getUser } from '@/services/auth'
 import MediaShowcase3D from '@/components/home/MediaShowcase3D.vue'
@@ -125,6 +131,12 @@ import { getGlobalTop } from '@/services/item'
 import { getCounts, getUsersCountDirect, getReviewsCountDirect, getItemsCountByType } from '@/services/stats'
 // Heroicons solid (used as white filled glyphs inside colored circular backgrounds)
 import { UsersIcon, ChatBubbleLeftRightIcon, TvIcon, BookOpenIcon } from '@heroicons/vue/24/solid'
+
+const props = withDefaults(defineProps<{ items?: any[] }>(), {
+  items: () => []
+})
+
+const featuredItems = computed(() => props.items || [])
 
 const usersCount = ref<number>(0)
 const topGlobal = ref<any[]>([])

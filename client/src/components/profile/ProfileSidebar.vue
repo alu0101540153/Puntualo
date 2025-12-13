@@ -44,6 +44,7 @@ import { logout } from '@/services/api'
 
 const props = defineProps<{ 
   profileUser?: any
+  user?: any
   isFollowing?: boolean
   hasPendingRequest?: boolean
   followProcessing?: boolean
@@ -56,7 +57,7 @@ const router = useRouter()
 
 // displayedUser: if a profileUser is provided (we're viewing someone else's profile),
 // show that user; otherwise show the logged-in user
-const displayedUser = computed(() => props.profileUser || me)
+const displayedUser = computed(() => props.profileUser || props.user || me)
 
 const isOwnProfile = computed(() => {
   if (!props.profileUser) return true
@@ -82,7 +83,7 @@ const atUsername = computed(() => {
 const description = computed(() => {
   const user = displayedUser.value
   if (!user) return ''
-  return user.description || ''
+  return user.description || user.bio || ''
 })
 
 const userInitial = computed(() => {

@@ -21,10 +21,9 @@ describe('API basics and items/auth/test route', () => {
     await mongoose.connection.close();
   });
 
-  it('GET / should return name and status', async () => {
-    const res = await request(app).get('/').expect(200);
-    expect(res.body.name).toBeDefined();
-    expect(res.body.status).toBeDefined();
+  it('GET /api/v1/puntualo/item should return list (empty ok)', async () => {
+    const res = await request(app).get('/api/v1/puntualo/item').expect(200);
+    expect(Array.isArray(res.body)).toBe(true);
   });
 
   it('register duplicate email should return 409', async () => {

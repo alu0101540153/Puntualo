@@ -8,9 +8,9 @@
       <h1 class="text-8xl md:text-9xl font-bold mb-4">404</h1>
       <p class="text-2xl md:text-3xl mb-8 text-white">Página no encontrada. Parece que te has perdido.</p>
 
-      <router-link to="/" class="inline-block px-6 py-3 rounded-md font-medium bg-green-500 text-black hover:brightness-90 transition text-lg">
+      <a href="/" class="inline-block px-6 py-3 rounded-md font-medium bg-green-500 text-black hover:brightness-90 transition text-lg">
         Volver al inicio
-      </router-link>
+      </a>
     </div>
   </div>
 </template>

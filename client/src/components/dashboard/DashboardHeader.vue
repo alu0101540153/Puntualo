@@ -49,6 +49,10 @@
 
       <!-- Búsqueda y Usuario -->
       <div class="flex items-center gap-4">
+        <div class="hidden md:flex flex-col text-white text-right">
+          <span class="text-xs uppercase tracking-wide">Bienvenido</span>
+          <span class="font-semibold" data-test="user-name">{{ displayName }}</span>
+        </div>
         <!-- Search Button -->
         <div>
           <button
@@ -184,6 +188,7 @@ const isActive = (to: string) => {
 }
 
 const user = getUser()
+const displayName = user?.name || 'John Doe'
 const userInitial = user && user.name ? user.name.charAt(0).toUpperCase() : 'J'
 
 // Estado del menú móvil

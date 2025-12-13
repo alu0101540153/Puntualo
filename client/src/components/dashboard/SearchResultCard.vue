@@ -1,5 +1,6 @@
 <template>
-  <div class="group cursor-pointer bg-gray-800 bg-opacity-30 rounded-2xl p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-emerald-500">
+  <div @click="$emit('select', recommendation)">
+    <div class="group cursor-pointer bg-gray-800 bg-opacity-30 rounded-2xl p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-emerald-500">
     <div class="flex gap-6">
       <!-- Imagen Rectangular - Clickeable -->
       <div class="relative flex-shrink-0 overflow-hidden cursor-pointer" @click="goToDetails">
@@ -16,7 +17,8 @@
 
       <!-- Información al lado -->
       <div class="flex-1 min-w-0">
-        <h3 class="text-white font-bold text-xl mb-3 truncate">{{ recommendation.title }}</h3>
+        <h3 class="text-white font-bold text-xl mb-1 truncate">{{ recommendation.title }}</h3>
+        <span class="text-xs uppercase text-emerald-300 block mb-2">{{ recommendation.type }}</span>
         <p class="text-gray-300 mb-4 leading-relaxed line-clamp-3">
           {{ truncatedDescription }}
         </p>
@@ -34,13 +36,14 @@
     </div>
   </div>
 
-  <!-- Rating Modal -->
-  <RatingModal 
-    :show="showRatingModal" 
-    :item="ratingItem"
-    @close="showRatingModal = false"
-    @success="handleRatingSuccess"
-  />
+    <!-- Rating Modal -->
+    <RatingModal 
+      :show="showRatingModal" 
+      :item="ratingItem"
+      @close="showRatingModal = false"
+      @success="handleRatingSuccess"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -53,6 +56,7 @@ import RatingModal from '@/components/RatingModal.vue'
 const props = defineProps<{
   recommendation: Recommendation
 }>()
+defineEmits(['select'])
 
 const router = useRouter()
 const showRatingModal = ref(false)

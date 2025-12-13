@@ -20,7 +20,7 @@ export async function getRecommendationsForUser(userId: string) {
 export async function getTopItems(type: string = 'movie', limit: number = 8) {
   // Try a dedicated endpoint, otherwise fall back to fetching all items and sorting by score
   try {
-    return api.apiFetch(`/item/top?type=${encodeURIComponent(type)}&limit=${encodeURIComponent(String(limit))}`)
+    return await api.apiFetch(`/item/top?type=${encodeURIComponent(type)}&limit=${encodeURIComponent(String(limit))}`)
   } catch (e) {
     try {
       // fallback to all items and client-side filter (may be large)

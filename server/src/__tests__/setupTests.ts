@@ -9,6 +9,10 @@ import { beforeAll, afterAll } from 'vitest';
 
 let mongod: MongoMemoryServer | null = null;
 
+// Garantizar binario compatible en entornos Ubuntu 22.04+/OpenSSL 3
+process.env.MONGOMS_VERSION = process.env.MONGOMS_VERSION || '7.0.5';
+process.env.MONGOMS_DISTRO = process.env.MONGOMS_DISTRO || 'ubuntu-22.04';
+
 beforeAll(async () => {
 	// If TEST_MONGO_URI is already provided (e.g. you're running a local/docker mongod),
 	// don't start an in-memory instance. This avoids issues on systems missing
@@ -21,7 +25,14 @@ beforeAll(async () => {
 			return
 		}
 
-		mongod = await MongoMemoryServer.create();
+		mongod = await MongoMemoryServer.create({
+			binary: {
+				version: process.env.MONGOMS_VERSION,
+			},
+			instance: {
+				storageEngine: 'wiredTiger',
+			},
+		});
 		const uri = mongod.getUri();
 		// Exponer la URI para que connectDB la use (usa process.env.TEST_MONGO_URI)
 		process.env.TEST_MONGO_URI = uri;
@@ -30,15 +41,6 @@ beforeAll(async () => {
 		// Informativo
 		// eslint-disable-next-line no-console
 		console.info('[test-setup] Started in-memory MongoDB for tests')
-	}
-});
-
-afterAll(async () => {
-	if (mongod) {
-		await mongod.stop();
-		// eslint-disable-next-line no-console
-		console.info('[test-setup] Stopped in-memory MongoDB')
-		mongod = null;
 	}
 });
 

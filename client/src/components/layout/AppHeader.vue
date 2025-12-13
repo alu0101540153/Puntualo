@@ -69,10 +69,9 @@
         </nav>
       </div>
     </Transition>
+    <!-- Spacer para que el contenido no quede oculto bajo el header fijo -->
+    <div class="h-16" aria-hidden="true"></div>
   </header>
-
-  <!-- Spacer para que el contenido no quede oculto bajo el header fijo -->
-  <div class="h-16" aria-hidden="true"></div>
 </template>
 
 <script setup lang="ts">

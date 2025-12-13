@@ -1,3 +1,5 @@
+import { getToken } from './auth'
+
 // Por defecto usamos el puerto 5000 (server/.env tiene PORT=5000). Puedes sobreescribir con VITE_API_URL
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1/puntualo'
 
@@ -6,10 +8,6 @@ type FetchOptions = {
   body?: any
   headers?: Record<string, string>
   auth?: boolean
-}
-
-function getToken() {
-  return localStorage.getItem('token')
 }
 
 export async function apiFetch(path: string, options: FetchOptions = {}) {

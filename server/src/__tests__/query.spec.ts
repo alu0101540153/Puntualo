@@ -38,8 +38,8 @@ describe('User actions: follow, items, ratings, search friends', () => {
       .set('Authorization', `Bearer ${token1}`)
       .expect(200);
 
-    expect(followRes.body.follows).toBeDefined();
-    expect(followRes.body.follows.map((s: any) => String(s))).toContain(String(id2));
+    expect(followRes.body.followers).toBeDefined();
+    expect(followRes.body.followers.map((s: any) => String(s))).toContain(String(id1));
 
     // unfollow
     const unf = await request(app)
@@ -47,7 +47,7 @@ describe('User actions: follow, items, ratings, search friends', () => {
       .set('Authorization', `Bearer ${token1}`)
       .expect(200);
 
-    expect(unf.body.follows.map((s: any) => String(s))).not.toContain(String(id2));
+    expect(unf.body.followers.map((s: any) => String(s))).not.toContain(String(id1));
   });
 
   it('should add and remove an item in user items list (personal list)', async () => {
