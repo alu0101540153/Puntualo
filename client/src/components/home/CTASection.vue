@@ -3,7 +3,10 @@
     <h2 class="cta-title text-white text-2xl md:text-4xl font-bold mb-8 drop-shadow-md">
       mira que ven o leen tus amigos
     </h2>
-    <RouterLink to="/register" class="btn-register bg-white text-gray-700 px-10 py-4 rounded-full text-xl font-bold shadow-lg transition-all duration-300 hover:bg-gray-600 hover:text-white hover:-translate-y-1 hover:shadow-xl">
+    <RouterLink
+      to="/register"
+      class="btn-register bg-white text-gray-700 px-6 md:px-10 py-3 md:py-4 rounded-full text-base md:text-xl font-bold shadow-lg transition-all duration-300 hover:bg-gray-600 hover:text-white hover:-translate-y-1 hover:shadow-xl block sm:inline-block w-full sm:w-auto max-w-md mx-auto"
+    >
       Regístrate hoy mismo
     </RouterLink>
   </section>

@@ -9,7 +9,11 @@
       </p>
     </div>
     <div class="flex-1 flex justify-center items-center">
-      <img src="@/assets/imagenes/puntualo.jpeg" alt="Puntúa películas, series y libros" class="w-80 h-80 object-cover rounded-lg shadow-xl">
+      <img
+        src="/inicio_imagen.svg"
+        alt="Imagen de inicio"
+        class="w-64 md:w-80 h-auto svg-shadow"
+      />
     </div>
   </section>
 </template>
@@ -17,3 +21,9 @@
 <script setup lang="ts">
 // Lógica específica del hero si es necesaria
 </script>
+
+<style scoped>
+.svg-shadow {
+  filter: drop-shadow(0 20px 30px rgba(0,0,0,0.35));
+}
+</style>

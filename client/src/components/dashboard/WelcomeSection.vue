@@ -1,13 +1,13 @@
 <template>
   <section class="mb-12 text-center relative py-20 overflow-hidden">
     <!-- Círculos decorativos animados sutiles -->
-    <div class="absolute top-10 left-1/4 w-96 h-96 bg-emerald-400/5 rounded-full blur-3xl animate-float"></div>
-    <div class="absolute bottom-10 right-1/4 w-80 h-80 bg-teal-400/5 rounded-full blur-3xl animate-float-delayed"></div>
+    <div class="absolute top-10 left-1/4 w-96 h-96 bg-primary-400/5 rounded-full blur-3xl animate-float"></div>
+    <div class="absolute bottom-10 right-1/4 w-80 h-80 bg-primary-400/5 rounded-full blur-3xl animate-float-delayed"></div>
     
     <div class="relative z-10">
       <!-- Título principal con efecto gradiente y animación -->
       <h1 class="text-8xl md:text-9xl font-black mb-8 relative inline-block group tracking-tight">
-        <span class="bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent animate-gradient-text bg-[length:200%_auto] drop-shadow-2xl">
+        <span class="bg-gradient-to-r from-primary-400 via-primary-400 to-accent-400 bg-clip-text text-transparent animate-gradient-text bg-[length:200%_auto] drop-shadow-2xl">
           {{ title }}
         </span>
         
@@ -25,9 +25,9 @@
       </p>
       
       <!-- Mensaje motivacional con animación -->
-      <div class="flex items-center justify-center gap-4 text-emerald-400 text-xl font-medium animate-pulse-soft">
+      <div class="flex items-center justify-center gap-4 text-primary-400 text-xl font-medium animate-pulse-soft">
         <span class="text-3xl drop-shadow-lg">🎬</span>
-        <span class="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent font-semibold">
+        <span class="bg-gradient-to-r from-primary-400 to-accent-400 bg-clip-text text-transparent font-semibold">
           Descubre, puntúa y comparte tus favoritos
         </span>
         <span class="text-3xl drop-shadow-lg">📺</span>

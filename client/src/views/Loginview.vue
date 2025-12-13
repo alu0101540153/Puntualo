@@ -1,6 +1,6 @@
 <template>
   <!-- Usar el mismo fondo que HomeView -->
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-300 flex items-center justify-center p-8">
+  <div class="min-h-screen bg-gradient-dark flex items-center justify-center p-8">
     <!-- Centered card (Spotify-like) - compact like Spotify login -->
     <Card>
       <div class="flex flex-col items-center mb-8" style="text-align:center">
@@ -21,7 +21,7 @@
 
         <div class="text-center mt-4 w-full">
           <span class="text-sm text-gray-300">¿No tienes cuenta?</span>
-          <RouterLink to="/register" class="ml-2 text-emerald-400 font-semibold">Regístrate</RouterLink>
+          <RouterLink to="/register" class="ml-2 text-primary-400 font-semibold">Regístrate</RouterLink>
         </div>
 
         <div v-if="error" class="text-center mt-2" style="color:#ff9b9b">{{ error }}</div>

@@ -8,8 +8,8 @@ html, body, #app {
   height: 100%;
   margin: 0;
   padding: 0;
-  /* Made the bottom end slightly darker to improve legibility for content at page top */
-  background-image: linear-gradient(180deg,#2b2b2b 0%,#7a7a7a 55%,#d9dde0 100%) !important;
+  /* Professional black gradient background - slightly lighter */
+  background-image: linear-gradient(180deg, #0f1419 0%, #1a1f2e 40%, #1f2937 100%) !important;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
@@ -43,4 +43,195 @@ body {
   margin: 0 auto !important;
   padding: 0 1rem !important;
   box-sizing: border-box !important;
+}
+
+/* Smooth scrolling para toda la página */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Estilos para botones de carrusel mejorados */
+.carousel-btn {
+  background: rgba(16, 185, 129, 0.1);
+  backdrop-filter: blur(4px);
+  color: white;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 9999px;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  z-index: 10;
+  cursor: pointer;
+}
+
+.carousel-btn:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.5);
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+@media (min-width: 768px) {
+  .carousel-btn {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.875rem;
+  }
+}
+
+/* Ocultar scrollbar pero mantener funcionalidad */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Animación sutil para cards */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* ===================================
+   MEJORAS ESPECÍFICAS PARA MÓVIL
+   (No afecta al diseño web)
+   =================================== */
+
+/* Mejorar padding en móvil */
+@media (max-width: 640px) {
+  #app {
+    padding: 1rem !important;
+  }
+  
+  /* Mejorar espaciado de botones en móvil */
+  .carousel-btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1.25rem;
+  }
+  
+  /* Mejor táctil para elementos interactivos */
+  button, a, [role="button"] {
+    min-height: 44px; /* Recomendación de Apple para áreas táctiles */
+    -webkit-tap-highlight-color: rgba(16, 185, 129, 0.2);
+  }
+  
+  /* Mejorar legibilidad de textos en móvil */
+  body {
+    font-size: 16px; /* Evita zoom automático en iOS */
+  }
+  
+  /* Optimizar modales en móvil */
+  .modal-content {
+    max-height: 85vh !important;
+    margin: 1rem;
+  }
+}
+
+/* Mejoras para pantallas muy pequeñas (< 375px) */
+@media (max-width: 375px) {
+  #app {
+    padding: 0.75rem !important;
+  }
+  
+  /* Reducir tamaño de fuentes grandes en móviles pequeños */
+  h1 {
+    font-size: 1.75rem !important;
+  }
+  
+  h2 {
+    font-size: 1.5rem !important;
+  }
+  
+  h3 {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Mejorar scroll en móvil - más suave */
+@media (max-width: 768px) {
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mejorar interacción con carruseles en táctil */
+  .carousel {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .carousel > * {
+    scroll-snap-align: start;
+  }
+}
+
+/* Landscape móvil - ajustar alturas */
+@media (max-width: 896px) and (orientation: landscape) {
+  .h-32 {
+    height: 6rem !important;
+  }
+  
+  .h-40 {
+    height: 8rem !important;
+  }
+  
+  /* Reducir padding vertical en landscape */
+  .py-16 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+}
+
+/* Mejoras para notch y safe areas en móviles modernos */
+@supports (padding: max(0px)) {
+  @media (max-width: 768px) {
+    body {
+      padding-left: max(0px, env(safe-area-inset-left));
+      padding-right: max(0px, env(safe-area-inset-right));
+    }
+    
+    header {
+      padding-top: max(0px, env(safe-area-inset-top));
+    }
+  }
+}
+
+/* Optimizar performance en móvil */
+@media (max-width: 768px) {
+  /* Reducir animaciones costosas en dispositivos móviles */
+  .animate-spin,
+  .animate-pulse,
+  .animate-shimmer {
+    animation-duration: 1.5s;
+  }
+  
+  /* Simplificar sombras en móvil para mejor rendimiento */
+  .shadow-2xl,
+  .shadow-cinema {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3) !important;
+  }
+  
+  .shadow-glow,
+  .shadow-glow-lg {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3) !important;
+  }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+  <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader :show-back="true" />
     <main class="max-w-6xl mx-auto px-4 py-8">
       <h2 class="text-3xl font-bold text-white mb-6">Mis deseados</h2>
@@ -11,10 +11,10 @@
       <div v-else>
         <!-- Filters: Tipo -->
         <div class="flex items-center gap-2 mb-6">
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
-          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-emerald-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'all' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'all'">Todos</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'movie' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'movie'">🎬 Película</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'series' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'series'">📺 Serie</button>
+          <button :class="['px-3 py-1 rounded-full text-sm font-medium transition-all', selectedType === 'book' ? 'bg-primary-400 text-black' : 'bg-gray-700 text-gray-300 hover:bg-gray-600']" @click="selectedType = 'book'">📖 Libro</button>
         </div>
 
         <div v-if="displayedItems.length === 0" class="text-left text-gray-300 py-12">
@@ -26,12 +26,12 @@
 
       <div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         <div v-for="r in displayedItems" :key="r._id || r.itemId" class="group transform transition-all duration-300 hover:scale-105" @click="goToDetail(r)">
-          <div class="relative bg-gray-800 bg-opacity-40 rounded-xl overflow-hidden shadow-lg border border-gray-700 transition-all">
+          <div class="relative bg-dark-800/40 rounded-xl overflow-hidden shadow-lg border border-gray-700 transition-all">
             <div class="relative aspect-[2/3]">
               <img :src="getCover(r)" :alt="getTitle(r)" class="w-full h-full object-cover" />
 
               <!-- Badge: Deseado -->
-              <div class="absolute top-2 left-2 bg-emerald-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
+              <div class="absolute top-2 left-2 bg-primary-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
                 Deseado
               </div>
 
@@ -42,7 +42,7 @@
 
               <!-- Hover overlay (disable pointer events when hidden so it doesn't block the remove button) -->
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4 pointer-events-none group-hover:pointer-events-auto z-20">
-                <button @click.stop="goToDetail(r)" class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-bold px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+                <button @click.stop="goToDetail(r)" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold px-4 py-2 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
                   Ver detalles
                 </button>
               </div>

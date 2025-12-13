@@ -1,15 +1,19 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+  <div class="min-h-screen bg-gradient-dark">
     <DashboardHeader />
     
+    <!-- Banner decorativo de PUNTÚALO -->
+    <DashboardBanner />
+    
     <main class="max-w-6xl mx-auto px-4 py-8">
-      <WelcomeSection />
       
       <!-- Generic recommendations (fallback) -->
       <section v-if="recommendations.length > 0" class="mb-8">
-        <h2 class="text-2xl font-bold text-white mb-4">Te podría interesar ...</h2>
+        <h2 class="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+          <span class="text-primary-400"></span> Te podría interesar...
+        </h2>
         <!-- Contenedor con fondo y padding -->
-        <div class="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10">
+        <div class="bg-gradient-to-br from-dark-800/60 to-black/80 backdrop-blur-md rounded-2xl p-6 border border-primary-500/20 shadow-cinema hover:border-primary-500/40 hover:shadow-glow transition-all duration-300">
           <div class="flex flex-col lg:flex-row gap-6 items-center">
             <!-- Mostrar solo 1 recomendación con ancho fijo -->
             <div class="flex-1 w-full max-w-2xl [&>section]:mb-0">
@@ -23,7 +27,7 @@
             <div class="flex items-center justify-center lg:justify-start flex-1">
               <button 
                 @click="goToRecommendations" 
-                class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-95 text-black font-extrabold py-6 px-10 rounded-full shadow-lg transition-all duration-300 hover:shadow-xl whitespace-nowrap text-lg w-full"
+                class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-extrabold py-6 px-10 rounded-full shadow-glow transition-all duration-300 hover:shadow-glow-lg hover:scale-105 whitespace-nowrap text-lg w-full"
               >
                 Ver más recomendados
               </button>
@@ -40,15 +44,15 @@
           <FriendsGrid v-else :activities="friendActivities" />
 
           <!-- Pagination controls -->
-          <div v-if="friendActivities.length > 0" class="flex items-center justify-between mt-8 bg-white/5 backdrop-blur-sm rounded-xl p-3 border border-white/10">
-            <div class="text-sm text-gray-500 font-medium">
-              Mostrando página <span class="font-semibold">{{ page }}</span> — <span class="font-semibold">{{ total }}</span> resultados
+          <div v-if="friendActivities.length > 0" class="flex items-center justify-between mt-8 bg-dark-800/40 backdrop-blur-sm rounded-xl p-4 border border-primary-500/20">
+            <div class="text-sm text-gray-400 font-medium">
+              Mostrando página <span class="font-semibold text-primary-400">{{ page }}</span> — <span class="font-semibold text-primary-400">{{ total }}</span> resultados
             </div>
             <div class="flex items-center gap-3">
               <button
                 @click="prevPage"
                 :disabled="page <= 1"
-                class="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
               >
                 Anterior
               </button>
@@ -56,7 +60,7 @@
               <button
                 @click="nextPage"
                 :disabled="page * limit >= total"
-                class="px-4 py-2 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-semibold hover:brightness-95 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                class="px-5 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all hover:scale-105 hover:shadow-glow"
               >
                 Siguiente
               </button>
@@ -69,8 +73,10 @@
       <section class="mb-8">
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-2xl font-semibold text-white">Top películas</h3>
-            <div class="text-sm text-gray-300">Las películas mejor valoradas por la comunidad</div>
+            <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+              <span class="text-primary-400">🎬</span> Top películas
+            </h3>
+            <div class="text-sm text-gray-400">Las películas mejor valoradas por la comunidad</div>
           </div>
 
           <div v-if="topMovies && topMovies.length" class="relative">
@@ -87,8 +93,10 @@
 
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-2xl font-semibold text-white">Top libros</h3>
-            <div class="text-sm text-gray-300">Los libros mejor valorados por la comunidad</div>
+            <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+              <span class="text-primary-400">📚</span> Top libros
+            </h3>
+            <div class="text-sm text-gray-400">Los libros mejor valorados por la comunidad</div>
           </div>
 
           <div v-if="topBooks && topBooks.length" class="relative">
@@ -105,8 +113,10 @@
 
         <div class="mt-8">
           <div class="flex items-center justify-between mb-4">
-            <h3 class="text-2xl font-semibold text-white">Top series</h3>
-            <div class="text-sm text-gray-300">Las series mejor valoradas por la comunidad</div>
+            <h3 class="text-2xl font-bold text-white flex items-center gap-2">
+              <span class="text-primary-400">📺</span> Top series
+            </h3>
+            <div class="text-sm text-gray-400">Las series mejor valoradas por la comunidad</div>
           </div>
 
           <div v-if="topSeries && topSeries.length" class="relative">
@@ -124,10 +134,12 @@
 
       <!-- Encuentra amigos (simplificado) -->
       <section class="mb-12">
-        <div class="bg-white/5 backdrop-blur-sm rounded-3xl p-8 border border-white/10">
-          <h3 class="text-3xl font-bold text-white mb-2">Encuentra amigos que conoces</h3>
-          <p class="text-gray-300 text-lg mb-4">Conecta con personas que comparten tus gustos. Busca por usuario, revisa sus perfiles y síguelos para ver su actividad.</p>
-          <button @click="goToFindFriends" class="px-8 py-4 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-extrabold hover:brightness-95 shadow-lg">Buscar amigos</button>
+        <div class="bg-gradient-to-br from-dark-800/60 to-black/80 backdrop-blur-md rounded-3xl p-4 sm:p-8 border border-primary-500/20 shadow-cinema hover:border-primary-500/40 hover:shadow-glow transition-all duration-300">
+          <h3 class="text-2xl sm:text-3xl font-bold text-white mb-2 flex items-center gap-2">
+            <span class="text-primary-400">👥</span> Encuentra amigos que conoces
+          </h3>
+          <p class="text-gray-300 text-sm sm:text-lg mb-4 sm:mb-6">Conecta con personas que comparten tus gustos. Busca por usuario, revisa sus perfiles y síguelos para ver su actividad.</p>
+          <button @click="goToFindFriends" class="px-5 py-2.5 sm:px-8 sm:py-4 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-extrabold hover:brightness-110 shadow-glow hover:shadow-glow-lg hover:scale-105 transition-all duration-300 text-sm sm:text-base">Buscar amigos</button>
         </div>
       </section>
     </main>
@@ -137,7 +149,7 @@
 <script setup lang="ts">
 // Components
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
-import WelcomeSection from '@/components/dashboard/WelcomeSection.vue'
+import DashboardBanner from '@/components/dashboard/DashboardBanner.vue'
 import RecommendationsGrid from '@/components/dashboard/RecommendationsGrid.vue'
 import FriendsGrid from '@/components/dashboard/FriendsGrid.vue'
 import MediaCarouselItem from '@/components/ui/MediaCarouselItem.vue'
@@ -233,7 +245,7 @@ function mapFeedToActivity(it: any, index: number): FriendActivity {
   const item = it.item || it
   const score = it.score != null ? Number(it.score) : (it.rating != null ? Number(it.rating) : null)
   const rating = (score != null && !Number.isNaN(score)) ? `${score}/10` : undefined
-  const ratingColor = score != null ? (score >= 8 ? 'bg-green-500' : score >=5 ? 'bg-orange-500' : 'bg-red-500') : undefined
+  const ratingColor = score != null ? (score >= 8 ? 'bg-emerald-500' : score >=5 ? 'bg-yellow-500' : 'bg-red-500') : undefined
   const media = it.itemType || (item.data && item.data.type) || 'book'
   const mediaType = media === 'movie' ? '🎬' : media === 'series' ? '📺' : '📖'
 
@@ -425,7 +437,7 @@ const sampleAvatars = ref(
       { initials: 'C', color: '#10B981' },
       { initials: 'D', color: '#3B82F6' },
       { initials: 'E', color: '#8B5CF6' },
-      { initials: 'F', color: '#06B6D4' }
+      { initials: 'F', color: '#22C55E' }
     ]
 )
 </script>

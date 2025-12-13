@@ -10,14 +10,14 @@
         <button 
           v-if="friendView && userId" 
           @click="goToUserWatching" 
-          class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl"
+          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg text-sm sm:text-base"
         >
           Ver más
         </button>
         <router-link 
           v-else 
           to="/search" 
-          class="bg-gradient-to-r from-emerald-400 to-teal-500 hover:brightness-110 text-black font-semibold px-5 py-2.5 rounded-full shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl inline-block"
+          class="bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black font-semibold px-4 py-2 sm:px-5 sm:py-2.5 rounded-full shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-glow-lg inline-block text-sm sm:text-base"
         >
           + Añadir
         </router-link>
@@ -25,7 +25,7 @@
     </div>
 
     <div v-if="loading" class="text-center text-gray-300 py-16">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mx-auto mb-4"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary-500 border-t-transparent mx-auto mb-4"></div>
       <p class="text-lg">Cargando...</p>
     </div>
     
@@ -43,7 +43,7 @@
         @click="goToDetail(r)"
       >
         <!-- Card Container -->
-        <div class="relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl border-2 border-transparent hover:border-emerald-400 transition-all duration-300">
+        <div class="relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl border-2 border-transparent hover:border-primary-400 transition-all duration-300">
           <!-- Poster with Parallax Effect -->
           <div class="relative aspect-[2/3] overflow-hidden">
             <img 
@@ -83,14 +83,14 @@
 
             <!-- Interactive overlay with centered button -->
             <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-4">
-              <button class="bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-bold py-3 px-8 rounded-xl shadow-2xl hover:brightness-110 transition-all duration-300 transform scale-90 group-hover:scale-100">
+              <button class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold py-3 px-8 rounded-xl shadow-2xl hover:brightness-110 transition-all duration-300 transform scale-90 group-hover:scale-100">
                 Ver detalles
               </button>
               
               <!-- Progress bar moved to bottom -->
               <div class="absolute bottom-6 left-6 right-6">
                 <div class="bg-gray-700/50 rounded-full h-2 overflow-hidden backdrop-blur-sm">
-                  <div class="bg-gradient-to-r from-emerald-400 to-teal-500 h-full rounded-full transition-all duration-500" :style="{ width: getProgress(r) + '%' }"></div>
+                  <div class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 h-full rounded-full transition-all duration-500" :style="{ width: getProgress(r) + '%' }"></div>
                 </div>
               </div>
             </div>

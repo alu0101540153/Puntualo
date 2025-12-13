@@ -28,7 +28,7 @@ function toggle() {
   width: 56px;
   height: 56px;
   border-radius: 9999px;
-  background: linear-gradient(135deg,#06b6d4,#2563eb);
+  background: linear-gradient(135deg,#10b981,#22c55e);
   color: white;
   display: flex;
   align-items: center;

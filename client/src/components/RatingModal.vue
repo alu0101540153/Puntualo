@@ -22,7 +22,7 @@
             <!-- Loading indicator -->
             <div v-if="isLoadingData" class="flex items-center justify-center py-8">
               <div class="text-gray-300 flex items-center gap-3">
-                <svg class="animate-spin h-6 w-6 text-emerald-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg class="animate-spin h-6 w-6 text-primary-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                   <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
@@ -39,11 +39,11 @@
               <!-- Form -->
               <div class="md:col-span-2">
                 <!-- Info banner if editing existing rating -->
-                <div v-if="isEditingExisting" class="mb-4 p-3 bg-blue-500/20 border border-blue-500/50 rounded-lg flex items-center gap-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                <div v-if="isEditingExisting" class="mb-4 p-3 bg-primary-500/20 border border-primary-500/50 rounded-lg flex items-center gap-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary-400 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
                   </svg>
-                  <span class="text-blue-200 text-sm">Editando tu puntuación existente</span>
+                  <span class="text-primary-200 text-sm">Editando tu puntuación existente</span>
                 </div>
 
                 <div class="mb-4">
@@ -53,14 +53,14 @@
                     type="text" 
                     inputmode="decimal" 
                     placeholder="0 - 10 (dejar vacío para solo marcar como viéndolo/leyéndolo)" 
-                    class="w-full p-3 rounded-lg bg-white text-gray-900 border-2 border-slate-500 focus:border-emerald-500 focus:outline-none transition" 
+                    class="w-full p-3 rounded-lg bg-white text-gray-900 border-2 border-slate-500 focus:border-primary-500 focus:outline-none transition" 
                   />
                   <div v-if="userScoreError" class="text-rose-400 text-sm mt-2">{{ userScoreError }}</div>
                 </div>
 
                 <div class="mb-4">
                   <label class="block text-sm text-gray-300 mb-2">Estado</label>
-                  <select v-model="userStatus" class="w-full p-3 rounded-lg bg-white text-gray-900 border-2 border-slate-500 focus:border-emerald-500 focus:outline-none transition">
+                  <select v-model="userStatus" class="w-full p-3 rounded-lg bg-white text-gray-900 border-2 border-slate-500 focus:border-primary-500 focus:outline-none transition">
                     <option value="watching">Leyendo/Viéndolo</option>
                     <option value="completed">Terminado</option>
                   </select>
@@ -72,7 +72,7 @@
                     v-model="userComment" 
                     rows="5" 
                     placeholder="Esta peli es la hostia me encantan los personajes!!!"
-                    class="w-full p-3 rounded-lg bg-white text-gray-900 border-2 border-slate-500 focus:border-emerald-500 focus:outline-none transition resize-none"
+                    class="w-full p-3 rounded-lg bg-white text-gray-900 border-2 border-slate-500 focus:border-primary-500 focus:outline-none transition resize-none"
                   ></textarea>
                 </div>
 
@@ -80,7 +80,7 @@
                   <button 
                     @click="submitRating" 
                     :disabled="isSubmitting"
-                    class="px-8 py-3 rounded-lg bg-gradient-to-r from-emerald-400 to-teal-500 text-black font-bold hover:brightness-95 transition disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+                    class="px-8 py-3 rounded-lg bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold hover:brightness-95 transition disabled:opacity-50 disabled:cursor-not-allowed text-lg"
                   >
                     {{ isSubmitting ? 'Enviando...' : 'Enviar' }}
                   </button>
