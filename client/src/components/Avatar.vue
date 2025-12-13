@@ -9,7 +9,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { defineProps } from 'vue'
 
 const props = defineProps<{
   user?: any
