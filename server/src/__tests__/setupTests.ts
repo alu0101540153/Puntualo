@@ -4,8 +4,21 @@ import '../config';
 // Si estamos en entorno de test, arrancar una instancia de Mongo en memoria
 // para que las pruebas se puedan ejecutar sin una instalación local de mongod.
 // Vitest carga este archivo antes de las pruebas (ver vitest.config.ts -> setupFiles)
+import path from 'path';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { beforeAll, afterAll } from 'vitest';
+
+// Fuerza binarios de Mongo compatibles con Ubuntu 22+/OpenSSL3 para evitar libcrypto.so.1.1
+const mongoVersion = process.env.MONGOMS_VERSION || '7.0.14';
+const mongoArchive = process.env.MONGOMS_ARCHIVE_NAME || `mongodb-linux-x86_64-ubuntu2204-${mongoVersion}.tgz`;
+const mongoDownloadURL = process.env.MONGOMS_DOWNLOAD_URL || `https://fastdl.mongodb.org/linux/${mongoArchive}`;
+
+process.env.MONGOMS_VERSION = mongoVersion;
+process.env.MONGOMS_ARCHIVE_NAME = mongoArchive;
+process.env.MONGOMS_DOWNLOAD_URL = mongoDownloadURL;
+process.env.MONGOMS_DISABLE_MD5_CHECK = process.env.MONGOMS_DISABLE_MD5_CHECK || '1';
+process.env.MONGOMS_OS = process.env.MONGOMS_OS || 'ubuntu22.04';
+process.env.MONGOMS_SYSTEM_BINARY = process.env.MONGOMS_SYSTEM_BINARY || path.resolve(__dirname, '..', '..', '.cache', 'mongodb', 'bin', 'mongod');
 
 let mongod: MongoMemoryServer | null = null;
 
@@ -21,7 +34,17 @@ beforeAll(async () => {
 			return
 		}
 
-		mongod = await MongoMemoryServer.create();
+		mongod = await MongoMemoryServer.create({
+			binary: {
+				version: mongoVersion,
+				downloadURL: mongoDownloadURL,
+			},
+			instance: {
+				storageEngine: 'wiredTiger',
+				// Usa el mismo nombre que en connectDB para coherencia
+				dbName: process.env.TEST_DB_NAME || 'Puntualo_test',
+			},
+		});
 		const uri = mongod.getUri();
 		// Exponer la URI para que connectDB la use (usa process.env.TEST_MONGO_URI)
 		process.env.TEST_MONGO_URI = uri;

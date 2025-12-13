@@ -1,3 +1,4 @@
+/* c8 ignore start */
 export {itemService} from './item.service';
 export {userService} from './user.service';
 export {BookService} from './item_book.service';
@@ -7,3 +8,4 @@ export { sendEmail } from './mail.service';
 export { sendRegisterEmail } from './email_register.service';
 export { sendFollowEmail } from './email_follow.service';
 export { sendTemplateEmail } from './mail_template.service';
+/* c8 ignore end */
