@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-b from-gray-700 to-gray-900">
+  <div class="min-h-screen bg-gradient-dark">
     <!-- Reuse the dashboard header for consistency -->
     <DashboardHeader />
 
@@ -42,8 +42,8 @@
                 </select>
 
                 <div class="ml-auto flex gap-2">
-                  <button @click="applyFilters" class="px-4 py-2 rounded bg-green-500 text-black font-semibold">Aplicar</button>
-                  <button @click="resetFilters" class="px-4 py-2 rounded bg-transparent border border-slate-600 text-gray-200">Reset</button>
+                  <button @click="applyFilters" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 shadow-glow transition-all">Aplicar</button>
+                  <button @click="resetFilters" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 shadow-glow transition-all">Reset</button>
                 </div>
               </div>
             </div>
@@ -104,7 +104,7 @@
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8.414 15 5 11.586a1 1 0 111.414-1.414L8.414 12.172l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                       </svg>
                     </button>
-                    <button v-else @click="handleFollow(u._id, idx)" class="w-10 h-10 flex items-center justify-center rounded-full bg-green-500 text-black">
+                    <button v-else @click="handleFollow(u._id, idx)" class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110 shadow-glow transition-all">
                       <!-- user-plus icon -->
                       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />

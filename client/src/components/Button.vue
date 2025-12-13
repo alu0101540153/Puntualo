@@ -27,13 +27,13 @@ import { computed } from 'vue'
 const variantClass = computed(() => {
   switch (props.variant) {
     case 'secondary':
-      return 'bg-white/6 text-white border border-white/10 hover:bg-white/10'
+      return 'bg-dark-800/60 text-white border border-primary-500/20 hover:bg-dark-700 hover:border-primary-500/40'
     case 'danger':
       return 'bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg'
     case 'ghost':
-      return 'bg-transparent text-white hover:bg-white/5'
+      return 'bg-transparent text-white hover:bg-dark-800/40'
     default:
-      return 'bg-gradient-to-r from-emerald-400 to-teal-500 text-black shadow-lg hover:shadow-xl hover:brightness-95'
+      return 'bg-gradient-to-r from-primary-500 to-accent-500 text-black shadow-glow hover:shadow-glow-lg hover:brightness-110 hover:scale-105'
   }
 })
 

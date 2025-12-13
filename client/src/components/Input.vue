@@ -5,7 +5,7 @@
     :placeholder="placeholder"
     :value="modelValue"
     @input="onInput"
-    class="w-full bg-white/5 text-white placeholder-gray-300 px-4 py-3 rounded-lg border border-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400 focus:ring-opacity-20 transition"
+    class="w-full bg-dark-800/60 text-white placeholder-gray-400 px-4 py-3 rounded-lg border border-primary-500/20 focus:border-primary-500 focus:ring-2 focus:ring-primary-400 focus:ring-opacity-30 hover:border-primary-500/40 transition-all"
   />
 </template>
 

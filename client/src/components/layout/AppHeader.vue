@@ -37,7 +37,7 @@
         <RouterLink to="/login" class="btn-login px-6 py-2 border-2 border-white rounded-full text-white font-semibold text-sm uppercase tracking-wider transition-transform duration-200 hover:bg-white hover:text-gray-800 hover:-translate-y-0.5 shadow-md">
           Iniciar sesión
         </RouterLink>
-        <RouterLink to="/register" class="btn-signin px-6 py-2 bg-emerald-400 text-black rounded-full font-semibold text-sm uppercase tracking-wider transition-transform duration-200 hover:bg-emerald-500 hover:text-white hover:-translate-y-0.5 shadow-md">
+        <RouterLink to="/register" class="btn-signin px-6 py-2 bg-primary-400 text-black rounded-full font-semibold text-sm uppercase tracking-wider transition-transform duration-200 hover:bg-primary-500 hover:text-white hover:-translate-y-0.5 shadow-md">
           Registrarse
         </RouterLink>
       </div>
@@ -54,16 +54,16 @@
     <Transition name="slide-fade">
       <div v-if="isMobileMenuOpen" class="md:hidden bg-black bg-opacity-95 backdrop-blur-md border-t border-white/10">
         <nav class="flex flex-col py-4 px-6 gap-3">
-          <a href="/" @click.prevent="goHomeAndClose" class="text-white hover:text-emerald-400 font-medium py-2 transition-colors border-b border-white/10">
+          <a href="/" @click.prevent="goHomeAndClose" class="text-white hover:text-primary-400 font-medium py-2 transition-colors border-b border-white/10">
             Inicio
           </a>
-          <a href="/#about-us" @click.prevent="scrollToAboutAndClose" class="text-white hover:text-emerald-400 font-medium py-2 transition-colors border-b border-white/10">
+          <a href="/#about-us" @click.prevent="scrollToAboutAndClose" class="text-white hover:text-primary-400 font-medium py-2 transition-colors border-b border-white/10">
             Sobre nosotros
           </a>
-          <RouterLink to="/login" @click="closeMobileMenu" class="text-white hover:text-emerald-400 font-medium py-2 transition-colors border-b border-white/10">
+          <RouterLink to="/login" @click="closeMobileMenu" class="text-white hover:text-primary-400 font-medium py-2 transition-colors border-b border-white/10">
             Iniciar sesión
           </RouterLink>
-          <RouterLink to="/register" @click="closeMobileMenu" class="bg-emerald-400 text-black rounded-lg font-semibold text-sm uppercase tracking-wide px-6 py-3 mt-2 text-center hover:bg-emerald-500 hover:text-white transition-colors">
+          <RouterLink to="/register" @click="closeMobileMenu" class="bg-primary-400 text-black rounded-lg font-semibold text-sm uppercase tracking-wide px-6 py-3 mt-2 text-center hover:bg-primary-500 hover:text-white transition-colors">
             Registrarse
           </RouterLink>
         </nav>
