@@ -44,7 +44,7 @@
 
       <!-- Botones compactos en móvil -->
       <div class="flex md:hidden items-center gap-2">
-        <RouterLink to="/login" class="btn-login px-4 py-1.5 border-2 border-white rounded-full text-white font-semibold text-xs uppercase tracking-wide transition-transform duration-200 hover:bg-white hover:text-gray-800">
+        <RouterLink to="/login" class="btn-login px-4 py-1.5 border-2 border-white rounded-full text-white font-semibold text-xs uppercase tracking-wide transition-transform duration-200 hover:bg-white hover:text-gray-800 text-center flex items-center justify-center">
           Entrar
         </RouterLink>
       </div>

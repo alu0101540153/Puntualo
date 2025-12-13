@@ -1,43 +1,43 @@
 <template>
-    <div class="group cursor-pointer bg-gray-800 bg-opacity-30 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-primary-500">
-    <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-      <!-- Imagen Rectangular - Clickeable -->
-      <div class="relative flex-shrink-0 overflow-hidden cursor-pointer mx-auto sm:mx-0" @click="goToDetails">
-        <img :src="recommendation.image" :alt="recommendation.title" class="w-24 h-36 sm:w-32 sm:h-48 object-cover rounded-xl shadow-lg transform transition-all duration-300 group-hover:scale-105">
-        <!-- Hover Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-          <button @click.stop="goToDetails" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold px-3 py-1 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Ver</button>
+    <div class="group cursor-pointer bg-gradient-to-br from-dark-800/80 to-black/60 rounded-xl overflow-hidden backdrop-blur-sm border border-primary-500/20 hover:border-primary-500/50 transform transition-all duration-300 hover:shadow-glow">
+    <div class="flex flex-row gap-4">
+      <!-- Imagen Rectangular - Clickeable (más estrecha en móvil) -->
+      <div class="relative flex-shrink-0 overflow-hidden cursor-pointer" @click="goToDetails">
+        <img :src="recommendation.image" :alt="recommendation.title" class="w-28 h-full sm:w-36 object-cover transform transition-all duration-300 group-hover:scale-105">
+        <!-- Hover Overlay (solo desktop) -->
+        <div class="hidden sm:flex absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-end justify-center pb-4">
+          <button @click.stop="goToDetails" class="bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold px-3 py-1 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Ver</button>
         </div>
-        <!-- Icono tipo de contenido -->
-        <div class="absolute top-1 right-1 w-6 h-6 sm:w-8 sm:h-8 bg-white bg-opacity-80 rounded-full flex items-center justify-center text-sm sm:text-lg shadow-lg">
+        <!-- Icono tipo de contenido (más pequeño y discreto) -->
+        <div class="absolute top-2 right-2 w-7 h-7 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-sm shadow-lg border border-primary-500/30">
           {{ recommendation.mediaType }}
         </div>
       </div>
 
       <!-- Información al lado -->
-      <div class="flex-1 min-w-0">
-        <h3 class="text-white font-bold text-lg sm:text-xl mb-2 sm:mb-3 truncate">{{ recommendation.title }}</h3>
-        <p class="text-gray-300 text-sm sm:text-base mb-3 sm:mb-4 leading-relaxed line-clamp-2 sm:line-clamp-3">
+      <div class="flex-1 min-w-0 py-3 pr-3">
+        <h3 class="text-white font-bold text-base sm:text-xl mb-2 line-clamp-2 leading-tight">{{ recommendation.title }}</h3>
+        <p class="text-gray-300 text-xs sm:text-sm mb-3 leading-relaxed line-clamp-2">
           {{ truncatedDescription }}
         </p>
-        <div class="flex flex-wrap items-center gap-1 sm:gap-2 text-xs sm:text-sm text-gray-200 mb-3 sm:mb-4">
-          <span v-for="(genre, index) in recommendation.genres.slice(0, 3)" :key="genre" class="whitespace-nowrap">
-            {{ genre }}<span v-if="index < Math.min(recommendation.genres.length - 1, 2)"> • </span>
+        <div class="flex flex-wrap items-center gap-1 text-[10px] sm:text-xs text-gray-400 mb-3">
+          <span v-for="(genre, index) in recommendation.genres.slice(0, 2)" :key="genre" class="whitespace-nowrap">
+            {{ genre }}<span v-if="index < Math.min(recommendation.genres.length - 1, 1)"> • </span>
           </span>
-          <span v-if="recommendation.genres.length > 3" class="whitespace-nowrap">• +{{ recommendation.genres.length - 3 }}</span>
+          <span v-if="recommendation.genres.length > 2" class="whitespace-nowrap">• +{{ recommendation.genres.length - 2 }}</span>
           <span class="whitespace-nowrap">• {{ recommendation.ageRating }}</span>
         </div>
         <div class="flex items-center gap-2">
-          <button @click.stop="isAdded ? onRemoveWishlist() : onAddWishlist()" :title="isAdded ? 'Eliminar de tus deseados' : 'Añadir a deseados'" class="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white bg-opacity-10 hover:bg-opacity-20 flex items-center justify-center text-white transition">
-            <svg v-if="!isAdded" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
+          <button @click.stop="isAdded ? onRemoveWishlist() : onAddWishlist()" :title="isAdded ? 'Eliminar de tus deseados' : 'Añadir a deseados'" class="w-8 h-8 rounded-full bg-primary-500/10 hover:bg-primary-500/20 flex items-center justify-center text-white transition border border-primary-500/30">
+            <svg v-if="!isAdded" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 016.364 0L12 7.636l1.318-1.318a4.5 4.5 0 116.364 6.364L12 21.364 4.318 12.682a4.5 4.5 0 010-6.364z" />
             </svg>
-            <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5 text-white" viewBox="0 0 24 24" fill="white">
+            <svg v-else xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-primary-400" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 21.35l-1.1-1.02C5.14 15.36 2 12.28 2 8.5 2 6 4 4 6.5 4c1.74 0 3.41.81 4.5 2.09C12.09 4.81 13.76 4 15.5 4 18 4 20 6 20 8.5c0 3.78-3.14 6.86-8.9 11.83L12 21.35z" />
             </svg>
           </button>
 
-          <button @click="openRatingModal" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-95 text-black px-4 py-1.5 sm:px-6 sm:py-2 rounded-lg text-sm sm:text-base font-bold transition">
+          <button @click="openRatingModal" class="flex-1 sm:flex-initial bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-4 py-1.5 sm:px-5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition shadow-md">
             Puntuar
           </button>
         </div>

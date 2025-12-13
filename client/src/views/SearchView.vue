@@ -3,33 +3,35 @@
     <!-- Reuse the dashboard header for consistency -->
     <DashboardHeader />
 
-    <main class="max-w-screen-2xl mx-auto px-4 py-8">
-      <Card>
+    <main class="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div class="w-full bg-gradient-to-br from-dark-900/80 to-black/80 text-white rounded-2xl p-6 md:p-8 shadow-cinema backdrop-blur-md border border-primary-500/20 hover:border-primary-500/30 transition-all">
         <div class="mb-6">
-          <h2 class="text-3xl font-bold text-white mb-2">Buscar</h2>
-          <p class="text-gray-300 mb-6">Busca películas, libros, series o amigos. Selecciona el tipo y usa la paginación.</p>
+          <h2 class="text-2xl sm:text-3xl font-bold text-white mb-2">Buscar</h2>
+          <p class="text-sm sm:text-base text-gray-300 mb-6">Busca películas, libros, series o amigos</p>
 
-        <div class="grid gap-4">
-          <!-- Input on its own row so it has breathing room -->
+        <div class="space-y-5">
+          <!-- Input con diseño mejorado -->
           <div class="w-full">
             <Input v-model="query" @keyup.enter="onSearch" :placeholder="selectedType === 'friends' ? 'Introduce un username...' : 'Introduce un título...'" class="w-full min-w-0" />
           </div>
 
-          <!-- Selection buttons grouped on the next row, wrap when needed -->
+          <!-- Selection buttons en grid 2x2 para móvil, flex horizontal en web -->
           <div class="relative">
-            <div class="flex flex-wrap gap-4 items-center">
-              <button @click="selectType('movies')" :class="buttonClass('movies')">🎬 Películas</button>
-              <button @click="selectType('books')" :class="buttonClass('books')">📖 Libros</button>
-              <button @click="selectType('series')" :class="buttonClass('series')">📺 Series</button>
-              <button @click="selectType('friends')" :class="buttonClass('friends')">👥 Amigos</button>
-              <button ref="filtersButton" @click="toggleFilters" class="ml-2 px-3 py-2 rounded-full bg-slate-700 text-white hover:bg-slate-600 transition">Filtros</button>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+              <div class="grid grid-cols-2 sm:flex gap-3">
+                <button @click="selectType('movies')" :class="buttonClass('movies')">🎬 Películas</button>
+                <button @click="selectType('books')" :class="buttonClass('books')">📖 Libros</button>
+                <button @click="selectType('series')" :class="buttonClass('series')">📺 Series</button>
+                <button @click="selectType('friends')" :class="buttonClass('friends')">👥 Amigos</button>
+              </div>
+              <button ref="filtersButton" @click="toggleFilters" class="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-slate-700/80 text-white hover:bg-slate-600 transition-all font-medium shadow-md">Filtros avanzados</button>
             </div>
 
-            <!-- Inline filter panel: appears below the type buttons and above the Buscar area (in-flow, pushes content) -->
-            <div v-if="showFilters" ref="filtersPanel" class="mt-4 z-50 w-full max-w-[760px] p-6 mx-auto rounded-xl shadow-2xl border border-slate-700 bg-slate-900/90 transition-all duration-200">
-              <div class="flex items-center gap-4">
-                <label class="text-gray-200 mr-2">Género:</label>
-                <select v-model="genre" class="rounded px-3 py-2 bg-slate-800 text-white w-56">
+            <!-- Inline filter panel mejorado -->
+            <div v-if="showFilters" ref="filtersPanel" class="mt-4 z-50 w-full p-5 rounded-xl shadow-xl border border-primary-500/20 bg-dark-800/95 backdrop-blur-sm transition-all duration-200">
+              <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                <label class="text-gray-200 font-medium">Género:</label>
+                <select v-model="genre" class="rounded-lg px-4 py-2.5 bg-slate-700/80 text-white flex-1 sm:flex-initial sm:w-56 border border-slate-600 focus:border-primary-500 transition">
                   <option value="">-- Selecciona --</option>
                   <option value="action">Acción</option>
                   <option value="drama">Drama</option>
@@ -41,19 +43,19 @@
                   <option value="documentary">Documental</option>
                 </select>
 
-                <div class="ml-auto flex gap-2">
-                  <button @click="applyFilters" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 shadow-glow transition-all">Aplicar</button>
-                  <button @click="resetFilters" class="px-4 py-2 rounded-full bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 shadow-glow transition-all">Reset</button>
+                <div class="flex gap-3 sm:ml-auto">
+                  <button @click="applyFilters" class="flex-1 sm:flex-initial px-5 py-2.5 rounded-lg bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 shadow-md transition-all">Aplicar</button>
+                  <button @click="resetFilters" class="flex-1 sm:flex-initial px-5 py-2.5 rounded-lg bg-slate-700/80 text-white font-semibold hover:bg-slate-600 shadow-md transition-all">Reset</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-          <!-- acciones principales: apilar en móvil, alinear en desktop -->
-          <div class="flex flex-col md:flex-row gap-4 mt-8">
-            <Button @click="onSearch" class="flex-1" size="lg">{{ 'Buscar' }}</Button>
-            <Button @click="clear" class="flex-1" size="lg" variant="secondary">Limpiar</Button>
+          <!-- Botones de acción mejorados -->
+          <div class="flex flex-col sm:flex-row gap-3 mt-6">
+            <Button @click="onSearch" class="flex-1 !py-3 !text-base !font-bold" size="lg">Buscar</Button>
+            <Button @click="clear" class="flex-1 !py-3 !text-base !font-bold" size="lg" variant="secondary">Limpiar</Button>
           </div>
 
           <!-- (filters are shown via the floating panel when 'Filtros' is pressed) -->
@@ -119,13 +121,15 @@
             </ul>
           </div>
 
-          <div v-if="totalPages > 1" class="flex items-center justify-center gap-3 mt-4">
-            <button @click="prevPage" :disabled="page === 1" class="px-4 py-2 rounded bg-gray-700 text-white transition hover:bg-gray-600">Anterior</button>
-            <div class="text-gray-300">Página {{ page }} de {{ totalPages }}</div>
-            <button @click="nextPage" :disabled="page === totalPages" class="px-4 py-2 rounded bg-gray-700 text-white transition hover:bg-gray-600">Siguiente</button>
+          <div v-if="totalPages > 1" class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6 bg-dark-800/40 backdrop-blur-sm rounded-xl p-5 border border-primary-500/20">
+            <div class="text-sm sm:text-base text-gray-300 font-medium order-1 sm:order-2">Página {{ page }} de {{ totalPages }}</div>
+            <div class="flex items-center gap-3 order-2 sm:order-1">
+              <button @click="prevPage" :disabled="page === 1" class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-md text-sm">Anterior</button>
+              <button @click="nextPage" :disabled="page === totalPages" class="px-5 py-2.5 rounded-lg bg-gradient-to-r from-primary-500 to-accent-500 text-black font-semibold hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-md text-sm">Siguiente</button>
+            </div>
           </div>
         </div>
-      </Card>
+      </div>
     </main>
   </div>
 </template>
@@ -134,7 +138,6 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import DashboardHeader from '@/components/dashboard/DashboardHeader.vue'
-import Card from '@/components/Card.vue'
 import Input from '@/components/Input.vue'
 import SearchResultCard from '@/components/dashboard/SearchResultCard.vue'
 import Button from '@/components/Button.vue'
@@ -233,7 +236,7 @@ function clear() {
 const pageSize = 10
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize)))
 
-const gridClass = 'grid grid-cols-1 lg:grid-cols-2 gap-6'
+const gridClass = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'
 
 async function onSearch() {
   // Allow empty query for all types so an empty search returns everything
@@ -435,11 +438,12 @@ function viewProfile(userId: string) {
 }
 
 function buttonClass(type: 'movies' | 'books' | 'series' | 'friends') {
-  // ensure buttons don't shrink awkwardly and keep their text on a single line
-  const base = 'px-4 py-2 rounded-full font-semibold transition transform hover:-translate-y-1 hover:scale-105 shrink-0 whitespace-nowrap'
+  const base = 'px-5 py-2.5 rounded-lg font-semibold transition-all shadow-md text-sm sm:text-base shrink-0 whitespace-nowrap'
   return [
     base,
-    selectedType.value === type ? 'bg-white text-black shadow-lg' : 'bg-black/60 text-white hover:bg-black/50'
+    selectedType.value === type 
+      ? 'bg-gradient-to-r from-primary-500 to-accent-500 text-black hover:brightness-110 shadow-glow' 
+      : 'bg-slate-700/80 text-gray-200 hover:bg-slate-600 border border-slate-600'
   ].join(' ')
 }
 </script>

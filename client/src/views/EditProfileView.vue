@@ -1,50 +1,50 @@
 <template>
-  <div class="min-h-screen px-4 py-8">
+  <div class="min-h-screen px-3 sm:px-4 py-6 sm:py-8">
     <DashboardHeader />
 
-    <main class="max-w-3xl mx-auto bg-white/5 rounded-xl p-6 mt-6 text-white">
-      <h2 class="text-2xl font-bold mb-4">Editar perfil</h2>
+    <main class="max-w-3xl mx-auto bg-white/5 rounded-xl p-4 sm:p-6 mt-6 text-white">
+      <h2 class="text-2xl sm:text-3xl font-bold mb-6">Editar perfil</h2>
 
-      <form @submit.prevent="onSubmit" class="space-y-4">
-                    <div class="flex items-center gap-4">
+      <form @submit.prevent="onSubmit" class="space-y-5">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <Avatar :user="{ avatarBgColor: form.avatarBgColor }" size="xl" extraClass="flex-shrink-0" :initials="initial" />
-                      <div class="flex flex-col">
-                        <div class="text-sm text-gray-300">Color fondo avatar</div>
-                        <div class="flex items-center gap-2 mt-2">
+                      <div class="flex flex-col w-full">
+                        <div class="text-sm text-gray-300 mb-2">Color fondo avatar</div>
+                        <div class="flex items-center gap-2 flex-wrap">
                           <template v-for="c in palette" :key="c">
-                            <button type="button" @click="() => selectColor(c)" :style="{ backgroundColor: c }" :class="['w-8 h-8 rounded', (form.avatarBgColor === c) ? 'ring-2 ring-white' : 'ring-1 ring-black/20']" aria-hidden="true"></button>
+                            <button type="button" @click="() => selectColor(c)" :style="{ backgroundColor: c }" :class="['w-9 h-9 sm:w-8 sm:h-8 rounded-lg', (form.avatarBgColor === c) ? 'ring-2 ring-white' : 'ring-1 ring-black/20']" aria-hidden="true"></button>
                           </template>
-                          <input type="color" v-model="form.avatarBgColor" class="w-10 h-8 p-0 border-none bg-transparent" />
+                          <input type="color" v-model="form.avatarBgColor" class="w-11 h-9 sm:w-10 sm:h-8 p-0 border-none bg-transparent rounded" />
                         </div>
                       </div>
                     </div>
 
         <div>
-          <label class="block text-sm text-gray-300">Nombre completo</label>
-          <input v-model="form.name" type="text" class="w-full mt-2 p-2 rounded bg-white/6 text-gray-900 placeholder-gray-500" />
+          <label class="block text-sm font-medium text-gray-300 mb-2">Nombre completo</label>
+          <input v-model="form.name" type="text" class="w-full p-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/10 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all" />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-300">Nombre de usuario (handle)</label>
-          <input v-model="form.username" type="text" class="w-full mt-2 p-2 rounded bg-white/6 text-gray-900 placeholder-gray-500" />
+          <label class="block text-sm font-medium text-gray-300 mb-2">Nombre de usuario (handle)</label>
+          <input v-model="form.username" type="text" class="w-full p-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/10 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all" />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-300">Email</label>
-          <input v-model="form.email" type="email" class="w-full mt-2 p-2 rounded bg-white/6 text-gray-900 placeholder-gray-500" disabled />
+          <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+          <input v-model="form.email" type="email" class="w-full p-3 rounded-lg bg-gray-200 text-gray-600 placeholder-gray-500 border border-white/10 cursor-not-allowed" disabled />
         </div>
 
         <div>
-          <label class="block text-sm text-gray-300">Bio (description)</label>
-          <textarea v-model="form.bio" rows="3" class="w-full mt-2 p-2 rounded bg-white/6 text-gray-900 placeholder-gray-500"></textarea>
+          <label class="block text-sm font-medium text-gray-300 mb-2">Bio (description)</label>
+          <textarea v-model="form.bio" rows="3" class="w-full p-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/10 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all resize-none"></textarea>
         </div>
 
         <!-- Privacidad de la cuenta -->
-        <div class="bg-white/10 rounded-lg p-4">
-          <div class="flex items-center justify-between">
-            <div class="flex-1 mr-4">
-              <label class="block text-base font-semibold text-white mb-1">Cuenta privada</label>
-              <p class="text-sm text-gray-100">
+        <div class="bg-gradient-to-br from-slate-800/60 to-slate-900/40 border border-white/10 rounded-xl p-4 sm:p-5">
+          <div class="flex items-start sm:items-center justify-between gap-3">
+            <div class="flex-1">
+              <label class="block text-base sm:text-lg font-bold text-white mb-2">Cuenta privada</label>
+              <p class="text-sm text-gray-300 leading-relaxed">
                 Cuando tu cuenta es privada, solo las personas que apruebas pueden ver tu contenido
               </p>
             </div>
@@ -52,14 +52,14 @@
               type="button"
               @click="form.isPrivate = !form.isPrivate"
               :class="[
-                'relative inline-flex h-6 w-11 items-center rounded-full transition-colors flex-shrink-0',
-                form.isPrivate ? 'bg-primary-500' : 'bg-gray-400'
+                'relative inline-flex h-7 w-12 sm:h-6 sm:w-11 items-center rounded-full transition-all flex-shrink-0 shadow-inner',
+                form.isPrivate ? 'bg-primary-500' : 'bg-gray-600'
               ]"
             >
               <span
                 :class="[
-                  'inline-block h-4 w-4 transform rounded-full bg-white transition-transform',
-                  form.isPrivate ? 'translate-x-6' : 'translate-x-1'
+                  'inline-block h-5 w-5 sm:h-4 sm:w-4 transform rounded-full bg-white shadow-md transition-transform',
+                  form.isPrivate ? 'translate-x-6 sm:translate-x-6' : 'translate-x-1'
                 ]"
               />
             </button>
@@ -106,31 +106,31 @@
             </p>
             
             <div>
-              <label class="block text-sm text-gray-300">Contraseña actual</label>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Contraseña actual</label>
               <input 
                 v-model="passwordForm.currentPassword" 
                 type="password" 
-                class="w-full mt-2 p-2 rounded bg-white/6 text-black placeholder-gray-500"
+                class="w-full p-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/10 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
                 placeholder="Introduce tu contraseña actual"
               />
             </div>
 
             <div>
-              <label class="block text-sm text-gray-300">Nueva contraseña</label>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Nueva contraseña</label>
               <input 
                 v-model="passwordForm.newPassword" 
                 type="password" 
-                class="w-full mt-2 p-2 rounded bg-white/6 text-black placeholder-gray-500"
+                class="w-full p-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/10 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
                 placeholder="Introduce tu nueva contraseña"
               />
             </div>
 
             <div>
-              <label class="block text-sm text-gray-300">Confirmar nueva contraseña</label>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Confirmar nueva contraseña</label>
               <input 
                 v-model="passwordForm.confirmPassword" 
                 type="password" 
-                class="w-full mt-2 p-2 rounded bg-white/6 text-black placeholder-gray-500"
+                class="w-full p-3 rounded-lg bg-white text-gray-900 placeholder-gray-500 border border-white/10 focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all"
                 placeholder="Confirma tu nueva contraseña"
               />
             </div>
@@ -145,9 +145,9 @@
           </transition>
         </div>
 
-        <div class="flex gap-3 justify-end">
-          <button type="button" @click="onCancel" class="px-4 py-2 bg-white/10 rounded">Cancelar</button>
-          <button type="submit" class="px-4 py-2 bg-primary-500 rounded">Guardar cambios</button>
+        <div class="flex flex-col sm:flex-row gap-3 justify-end pt-2">
+          <button type="button" @click="onCancel" class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-white/10 hover:bg-white/15 rounded-full sm:rounded-lg font-semibold transition-all">Cancelar</button>
+          <button type="submit" class="w-full sm:w-auto px-6 py-3 sm:py-2 bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 rounded-full sm:rounded-lg font-bold transition-all shadow-lg">Guardar cambios</button>
         </div>
       </form>
     </main>

@@ -1,33 +1,33 @@
 <template>
-  <div class="group cursor-pointer bg-gray-800 bg-opacity-30 rounded-2xl p-6 backdrop-blur-sm border border-gray-500 border-opacity-30 hover:border-opacity-50 transform transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:border-primary-500">
-    <div class="flex gap-6">
+  <div class="group cursor-pointer bg-gradient-to-br from-dark-800/80 to-black/60 rounded-xl overflow-hidden backdrop-blur-sm border border-primary-500/20 hover:border-primary-500/50 transition-all duration-300 hover:shadow-glow">
+    <div class="flex flex-row gap-4">
       <!-- Imagen Rectangular - Clickeable -->
       <div class="relative flex-shrink-0 overflow-hidden cursor-pointer" @click="goToDetails">
-        <img :src="recommendation.image" :alt="recommendation.title" class="w-32 h-48 object-cover rounded-xl shadow-lg transform transition-all duration-300 group-hover:scale-105">
-        <!-- Hover Overlay -->
-        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-4">
-          <button @click.stop="goToDetails" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold px-3 py-1 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Ver</button>
+        <img :src="recommendation.image" :alt="recommendation.title" class="w-28 h-full sm:w-36 object-cover transform transition-all duration-300 group-hover:scale-105">
+        <!-- Hover Overlay (solo desktop) -->
+        <div class="hidden sm:flex absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 items-end justify-center pb-4">
+          <button @click.stop="goToDetails" class="bg-gradient-to-r from-primary-500 to-accent-500 text-black font-bold px-3 py-1 rounded-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">Ver</button>
         </div>
         <!-- Icono tipo de contenido -->
-        <div class="absolute top-1 right-1 w-8 h-8 bg-white bg-opacity-80 rounded-full flex items-center justify-center text-lg shadow-lg">
+        <div class="absolute top-2 right-2 w-7 h-7 bg-black/70 backdrop-blur-sm rounded-full flex items-center justify-center text-sm shadow-lg border border-primary-500/30">
           {{ recommendation.mediaType }}
         </div>
       </div>
 
       <!-- Información al lado -->
-      <div class="flex-1 min-w-0">
-        <h3 class="text-white font-bold text-xl mb-3 truncate">{{ recommendation.title }}</h3>
-        <p class="text-gray-300 mb-4 leading-relaxed line-clamp-3">
+      <div class="flex-1 min-w-0 py-3 pr-3">
+        <h3 class="text-white font-bold text-base sm:text-xl mb-2 line-clamp-2 leading-tight">{{ recommendation.title }}</h3>
+        <p class="text-gray-300 text-xs sm:text-sm mb-3 leading-relaxed line-clamp-2">
           {{ truncatedDescription }}
         </p>
-        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-200 mb-4">
-          <span v-for="(genre, index) in recommendation.genres.slice(0, 3)" :key="genre" class="whitespace-nowrap">
-            {{ genre }}<span v-if="index < Math.min(recommendation.genres.length - 1, 2)"> • </span>
+        <div class="flex flex-wrap items-center gap-1 text-[10px] sm:text-xs text-gray-400 mb-3">
+          <span v-for="(genre, index) in recommendation.genres.slice(0, 2)" :key="genre" class="whitespace-nowrap">
+            {{ genre }}<span v-if="index < Math.min(recommendation.genres.length - 1, 1)"> • </span>
           </span>
-          <span v-if="recommendation.genres.length > 3" class="whitespace-nowrap">• +{{ recommendation.genres.length - 3 }}</span>
+          <span v-if="recommendation.genres.length > 2" class="whitespace-nowrap">• +{{ recommendation.genres.length - 2 }}</span>
           <span class="whitespace-nowrap">• {{ recommendation.ageRating }}</span>
         </div>
-        <button @click="openRatingModal" class="bg-gradient-to-r bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-95 text-black px-6 py-2 rounded-lg font-bold transition">
+        <button @click="openRatingModal" class="w-full sm:w-auto bg-gradient-to-r from-primary-500 to-accent-500 hover:brightness-110 text-black px-4 py-2 sm:px-5 sm:py-2 rounded-lg text-xs sm:text-sm font-bold transition shadow-md">
           Puntuar
         </button>
       </div>

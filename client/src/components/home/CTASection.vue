@@ -1,6 +1,6 @@
 <template>
-  <section class="bg-white bg-opacity-20 backdrop-blur-md max-w-4xl mx-auto mb-16 p-8 md:p-12 rounded-2xl text-center shadow-2xl">
-    <h2 class="cta-title text-white text-2xl md:text-4xl font-bold mb-8 drop-shadow-md">
+  <section class="bg-white bg-opacity-20 backdrop-blur-md max-w-4xl mx-auto mb-8 md:mb-12 p-6 md:p-12 rounded-2xl text-center shadow-2xl">
+    <h2 class="cta-title text-white text-2xl md:text-4xl font-bold mb-6 md:mb-8 drop-shadow-md">
       mira que ven o leen tus amigos
     </h2>
     <RouterLink

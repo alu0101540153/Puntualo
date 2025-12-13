@@ -1,20 +1,20 @@
 <template>
   <div class="min-h-screen">
     <DashboardHeader />
-    <main class="max-w-6xl mx-auto px-4 py-8">
+    <main class="max-w-6xl mx-auto px-3 sm:px-4 py-6 sm:py-8">
       <Card>
-        <div class="mb-6">
-          <h2 class="text-3xl font-bold text-white mb-4">Conexiones de {{ userName }}</h2>
+        <div class="mb-5 sm:mb-6">
+          <h2 class="text-3xl sm:text-4xl font-bold text-white mb-4 sm:mb-5">Conexiones de {{ userName }}</h2>
           
           <!-- Tabs -->
-          <div class="flex gap-4 border-b border-gray-700">
+          <div class="flex gap-0 border-b-2 border-gray-700/50">
             <button
               @click="activeTab = 'following'"
               :class="[
-                'px-4 py-2 font-medium transition-colors',
+                'flex-1 px-4 py-3 font-bold transition-all text-base',
                 activeTab === 'following'
-                  ? 'text-purple-400 border-b-2 border-purple-400'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'text-primary-400 border-b-3 border-primary-400'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               ]"
             >
               Siguiendo ({{ following.length }})
@@ -22,10 +22,10 @@
             <button
               @click="activeTab = 'followers'"
               :class="[
-                'px-4 py-2 font-medium transition-colors',
+                'flex-1 px-4 py-3 font-bold transition-all text-base',
                 activeTab === 'followers'
-                  ? 'text-purple-400 border-b-2 border-purple-400'
-                  : 'text-gray-400 hover:text-white'
+                  ? 'text-primary-400 border-b-3 border-primary-400'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               ]"
             >
               Seguidores ({{ followers.length }})
@@ -41,32 +41,32 @@
         <div v-else>
           <!-- Siguiendo Tab -->
           <div v-if="activeTab === 'following'">
-            <div v-if="following.length === 0" class="text-gray-300 text-center py-8">
-              <p>No sigue a nadie aún.</p>
+            <div v-if="following.length === 0" class="text-gray-300 text-center py-12">
+              <p class="text-lg">No sigue a nadie aún.</p>
             </div>
             <ul v-else class="space-y-3">
               <li v-for="u in following" :key="u._id">
-                <div class="flex items-center justify-between p-4 rounded-lg bg-gray-900/40 hover:bg-gray-900/60 transition-colors">
-                  <div class="flex items-center gap-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-5 rounded-xl bg-gradient-to-br from-dark-800/80 to-black/60 border border-primary-500/20 hover:border-primary-500/40 transition-all shadow-md hover:shadow-lg">
+                  <div class="flex items-center gap-4 min-w-0 flex-1">
                     <router-link :to="{ path: '/profile', query: { userId: u._id } }">
                       <div
-                        class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg"
+                        class="w-14 h-14 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-xl sm:text-lg flex-shrink-0 shadow-lg ring-2 ring-white/10"
                         :style="{ backgroundColor: u.avatarBgColor || '#9CA3AF' }"
                       >
                         {{ u.name?.charAt(0).toUpperCase() || '?' }}
                       </div>
                     </router-link>
-                    <div class="flex flex-col">
-                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-purple-400">
+                    <div class="flex flex-col min-w-0 flex-1">
+                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-primary-400 truncate transition-colors">
                         {{ u.name || u.handle || 'Sin nombre' }}
                       </router-link>
-                      <div class="text-gray-400 text-sm">@{{ u.handle || 'usuario' }}</div>
+                      <div class="text-gray-400 text-sm truncate">@{{ u.handle || 'usuario' }}</div>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 flex-shrink-0">
                     <router-link
                       :to="{ path: '/profile', query: { userId: u._id } }"
-                      class="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                      class="flex-1 sm:flex-none px-5 py-2.5 rounded-full font-extrabold bg-slate-700/80 border border-slate-600 text-gray-200 hover:bg-slate-600 transition-all text-center text-sm shadow-md"
                     >
                       Ver perfil
                     </router-link>
@@ -78,32 +78,32 @@
 
           <!-- Seguidores Tab -->
           <div v-if="activeTab === 'followers'">
-            <div v-if="followers.length === 0" class="text-gray-300 text-center py-8">
-              <p>No tiene seguidores aún.</p>
+            <div v-if="followers.length === 0" class="text-gray-300 text-center py-12">
+              <p class="text-lg">No tiene seguidores aún.</p>
             </div>
             <ul v-else class="space-y-3">
               <li v-for="u in followers" :key="u._id">
-                <div class="flex items-center justify-between p-4 rounded-lg bg-gray-900/40 hover:bg-gray-900/60 transition-colors">
-                  <div class="flex items-center gap-4">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 sm:p-5 rounded-xl bg-gradient-to-br from-dark-800/80 to-black/60 border border-primary-500/20 hover:border-primary-500/40 transition-all shadow-md hover:shadow-lg">
+                  <div class="flex items-center gap-4 min-w-0 flex-1">
                     <router-link :to="{ path: '/profile', query: { userId: u._id } }">
                       <div
-                        class="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-lg"
+                        class="w-14 h-14 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white font-bold text-xl sm:text-lg flex-shrink-0 shadow-lg ring-2 ring-white/10"
                         :style="{ backgroundColor: u.avatarBgColor || '#9CA3AF' }"
                       >
                         {{ u.name?.charAt(0).toUpperCase() || '?' }}
                       </div>
                     </router-link>
-                    <div class="flex flex-col">
-                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-purple-400">
+                    <div class="flex flex-col min-w-0 flex-1">
+                      <router-link :to="{ path: '/profile', query: { userId: u._id } }" class="text-white font-bold text-lg hover:text-primary-400 truncate transition-colors">
                         {{ u.name || u.handle || 'Sin nombre' }}
                       </router-link>
-                      <div class="text-gray-400 text-sm">@{{ u.handle || 'usuario' }}</div>
+                      <div class="text-gray-400 text-sm truncate">@{{ u.handle || 'usuario' }}</div>
                     </div>
                   </div>
-                  <div class="flex items-center gap-2">
+                  <div class="flex items-center gap-2 flex-shrink-0">
                     <router-link
                       :to="{ path: '/profile', query: { userId: u._id } }"
-                      class="px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                      class="flex-1 sm:flex-none px-5 py-2.5 rounded-full font-extrabold bg-slate-700/80 border border-slate-600 text-gray-200 hover:bg-slate-600 transition-all text-center text-sm shadow-md"
                     >
                       Ver perfil
                     </router-link>
