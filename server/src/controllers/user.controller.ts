@@ -149,7 +149,8 @@ export const userController = {
       const me = (req as any).user
       if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
       const data = await userService.followUser(me.id, id)
-      return res.json(data)
+      // Estructura esperada por tests en CI: { follows: [...] }
+      return res.json({ follows: data })
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }
@@ -161,7 +162,8 @@ export const userController = {
       const me = (req as any).user
       if (!me || !me.id) return res.status(401).json({ message: 'Not authenticated' })
       const data = await userService.unfollowUser(me.id, id)
-      return res.json(data)
+      // Estructura esperada por tests en CI: { follows: [...] }
+      return res.json({ follows: data })
     } catch (error: any) {
       res.status(400).json({ message: error.message })
     }
