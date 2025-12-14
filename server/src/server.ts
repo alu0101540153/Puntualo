@@ -85,6 +85,11 @@ export class Server {
   }
 
   routes() {
+    // Healthcheck liviano para tests y monitoreo
+    this.app.get('/health', (_req, res) => {
+      res.status(200).json({ status: 'ok' })
+    })
+
     // Si existe un frontend construido, servir archivos estáticos y ruta raíz al index
     let clientDist: string | null = null
     try {

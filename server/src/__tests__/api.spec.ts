@@ -21,10 +21,9 @@ describe('API basics and items/auth/test route', () => {
     await mongoose.connection.close();
   });
 
-  it('GET / should return name and status', async () => {
-    const res = await request(app).get('/').expect(200);
-    expect(res.body.name).toBeDefined();
-    expect(res.body.status).toBeDefined();
+  it('GET /health should return ok status', async () => {
+    const res = await request(app).get('/health').expect(200);
+    expect(res.body.status).toBe('ok');
   });
 
   it('register duplicate email should return 409', async () => {
