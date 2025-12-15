@@ -28,19 +28,19 @@
     <td align="center">
       <img src="client/public/saray.png" width="100px" alt="Saray"/><br/>
       <b>Saray García Campos</b><br/>
-      <i>Frontend Developer</i><br/>
+      <i></i><br/>
       📧 alu0101544724@ull.edu.es
     </td>
     <td align="center">
       <img src="client/public/victor.png" width="100px" alt="Víctor"/><br/>
       <b>Víctor Rodríguez Dorta</b><br/>
-      <i>Backend Developer</i><br/>
+      <i></i><br/>
       📧 alu0101540153@ull.edu.es
     </td>
     <td align="center">
       <img src="client/public/adrian.png" width="100px" alt="Adrián"/><br/>
       <b>Adrián León Díaz</b><br/>
-      <i>Full Stack Developer</i><br/>
+      <i></i><br/>
       📧 alu0101495668@ull.edu.es
     </td>
   </tr>
@@ -132,7 +132,6 @@
 
 #### Testing
 - **Vitest** `3.2.4` - Framework de testing unitario
-- **Playwright** `1.56.1` - Testing E2E
 - **Selenium WebDriver** `4.38.0` - Automatización de navegadores
 - **@vitest/coverage-v8** - Cobertura de código
 
@@ -155,9 +154,6 @@
 
 #### Servicios Externos
 - **Axios** `1.4.0` - Cliente HTTP
-- **Cloudinary** `2.8.0` - Gestión de imágenes en la nube
-- **Replicate** `1.4.0` - API de IA para recomendaciones
-- **Multer** `2.0.2` - Subida de archivos
 
 #### Utilidades
 - **Morgan** `1.10.0` - Logger HTTP
@@ -179,8 +175,6 @@
 |----------|-----------|
 | **TMDB API** | Catálogo de películas y series |
 | **Google Books API** | Catálogo de libros |
-| **Cloudinary API** | Almacenamiento y optimización de imágenes |
-| **Replicate API** | Modelos de IA para recomendaciones |
 
 ### 🔧 DevOps y Herramientas
 
@@ -438,18 +432,6 @@ npm test
 
 ---
 
-## 🤝 Contribución
-
-Este proyecto fue desarrollado como parte del curso SYTW (Sistemas y Tecnologías Web) por el Equipo 20.
-
-### Flujo de Trabajo
-
-1. Fork del proyecto
-2. Crear rama de feature (`git checkout -b feature/AmazingFeature`)
-3. Commit de cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir Pull Request
-
 ---
 
 ## 📝 Licencia
@@ -457,15 +439,6 @@ Este proyecto fue desarrollado como parte del curso SYTW (Sistemas y Tecnología
 Este proyecto es parte de un trabajo académico de la Universidad de La Laguna.
 
 ---
-
-## 🙏 Agradecimientos
-
-- **Universidad de La Laguna** - Por el apoyo académico
-- **TMDB** - Por su API de películas y series
-- **Google Books** - Por su API de libros
-- **Cloudinary** - Por el almacenamiento de imágenes
-- **Replicate** - Por los modelos de IA
-- **Comunidad Open Source** - Por las herramientas increíbles
 
 ---
 
@@ -489,6 +462,7 @@ Este proyecto es parte de un trabajo académico de la Universidad de La Laguna.
   
 </div>
  
+
 
 
 
