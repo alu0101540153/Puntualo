@@ -2,6 +2,7 @@
   <img src="client/public/Logo_white.svg" alt="Puntualo Logo" width="400"/>
   
   # 🎬 Puntualo.com — Red Social Cultural
+  # https://puntualov1.onrender.com/
   
   ### _Comparte, descubre y conecta a través del entretenimiento_
   
@@ -462,6 +463,7 @@ Este proyecto es parte de un trabajo académico de la Universidad de La Laguna.
   
 </div>
  
+
 
 
 
